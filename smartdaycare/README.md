@@ -136,7 +136,9 @@ Peramban ──HTTPS──▶ Next.js (web)  ── /api/* rewrite ──▶ Fas
   per kelas yang dibaca dari berkas model itu sendiri; peluang sudah dikalibrasi dan bingkai
   diperbesar dulu ke skala latih model), lalu perkirakan berat dari luas relatif diameter piring
   (pengaturan admin). Bila v3 belum ada, peramban memuat v2.
-  Keyakinan tiap bagian ikut memperhitungkan kesepakatan model dengan kelas warna. Tahap yang
+  Keyakinan tiap bagian (badge tinggi/sedang/rendah) mengikuti presisi kelas itu pada foto uji —
+  angka yang tersimpan di berkas model — dan peluang model, bukan besarnya bidang makanan; tanpa
+  berkas model semua bagian sengaja diberi badge rendah. Tahap yang
   tampil di layar adalah tahap yang benar-benar dijalankan; bila model tidak termuat, layar
   mengatakannya. Angka kualitas model dan cara mengukurnya ada di `ai/README.md`.
 - `src/components/shared/camera-view.tsx` — gambar contoh (tanpa kamera), foto berkala dari kamera
