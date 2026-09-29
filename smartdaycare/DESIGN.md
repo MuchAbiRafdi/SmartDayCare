@@ -193,7 +193,9 @@ Aturan isi:
   `ai/export.py`. Tidak ada angka kualitas yang diketik manual di antarmuka.
 - Batas kemampuan dinyatakan di tempat ("Berat diperkirakan dari luas makanan di piring") dan
   lencana keyakinan tinggi / sedang / rendah — tanpa piring terdeteksi, lencana paling tinggi
-  "sedang" karena skala beratnya tebakan. Bila tidak ada makanan yang dikenali, kalimatnya
+  "sedang" karena skala beratnya tebakan. Isi lencana diambil dari angka ukur per kelas yang
+  tersimpan di berkas model (seberapa sering nama kelas itu benar pada foto uji), **bukan** dari
+  besarnya bidang makanan; angkanya dicatat di `ai/README.md`. Bila tidak ada makanan yang dikenali, kalimatnya
   membedakan sebab: piring kosong, piring tidak ditemukan, atau bukan makanan. Bila model
   membuang atau mengoreksi bagian, itu disebutkan ("1 menu dikoreksi oleh model").
 - Manusia tetap di tengah: setiap menu dan berat dapat diganti, dihapus, atau ditambah sebelum

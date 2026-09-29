@@ -203,6 +203,47 @@ yang tersisa cuma "Nasi ≈30 g". Artinya, pada foto semacam ini pengasuh tetap 
 disajikan — aplikasi tidak boleh disalin mentah. Kesalahan yang paling sering tersisa: sup/kuah,
 telur, dan makanan pucat di piring putih.
 
+### Lencana keyakinan: artinya, dan diukur
+
+Formula lama menghitung keyakinan dari **luas** kelompok (`0,52 + 0,28·min(1, areaFrac/0,03) + …`).
+Luas tidak ada hubungannya dengan benar/tidaknya *nama* menu, jadi butiran besar hasil potongan warna
+selalu tampak meyakinkan. Sekarang dasarnya angka ukur per kelas yang tersimpan di berkas model
+(`val_precision_conf06`), ditimbang peluang model (peluang di bawah 0,6 diskalakan sebab di bawah itu
+presisi tidak pernah diukur), dikali 0,9 bila namanya hasil koreksi model (warna dan model tidak
+sepakat), lalu ditambah kontribusi kecil luas dan keutuhan bentuk. Tanpa berkas model dipakai 0,22 —
+angka yang sama: hasil ukur lapisan warna saja. Batas lencana tetap 0,80 / 0,65 dan tetap dipotong ke
+0,79 bila piring tidak terdeteksi (aturan DESIGN §9).
+
+Diukur pada 77 foto uji, butir = satu baris menu; "benar" = kelas itu termasuk label fotonya:
+
+| pembacaan | lencana | sebelum | sesudah |
+|---|---|---|---|
+| warna saja (tanpa model) | tinggi | 37/139 (27%) | tidak ada lagi |
+| | sedang | 3/75 | tidak ada lagi |
+| | rendah | 3/21 (14%) | 43/235 (18%) — semua butir |
+| v3 | tinggi | 29/66 (44%) | 6/10 (60%) |
+| | sedang | 13/92 (14%) | 12/30 (40%) |
+| | rendah | 4/27 (15%) | 28/145 (19%) |
+
+Sebelumnya "rendah" lebih benar daripada "sedang" — lencananya menyesatkan. Sesudahnya urutannya
+monoton dan warna saja tidak pernah lagi mengklaim "tinggi". Kurva kalibrasi v3 (ketepatan per 10
+butir teratas, tertinggi dulu): 0,93–0,80 → 60%, 0,79–0,74 → 60%, 0,74–0,70 → 30%, 0,64–0,62 → 60%,
+0,52–0,51 → 10%, 0,42–0,40 → 10%. Naik-turunnya di tengah wajar: tiap kotak cuma 10 butir.
+
+Dua batasan yang harus dibaca bersama tabel ini. (1) Label foto web ini lemah — yang ada di piring
+tapi tidak ditulis di label dihitung salah — jadi angkanya batas bawah, bukan ketepatan sebenarnya.
+(2) Himpunan fotonya bukan foto top-view seragam ala daycare, jadi 60% pada "tinggi" (10 butir)
+jangan dibaca sebagai angka produksi. Angka-angka ini dipakai untuk **mengaudit** badge, bukan untuk
+menyetel koefisien formula — bobot 0,72 / 0,10 / 0,08 / 0,10 adalah keputusan teknik yang ditulis di
+komentar `web/src/lib/vision.ts`, bukan hasil penyesuaian ke tabel ini.
+
+Dua foto contoh (`ai/plate-check.mjs`, v3) memperlihatkan bedanya tanpa menjadi pesimistis buta.
+`plate-before.jpg`: Sup dan Nasi dulu "tinggi" kini "sedang", Lauk goreng dan Buah jingga turun ke
+"rendah" — kelompoknya luas tapi model tidak yakin atas namanya, dan memang itu yang badge harus
+katakan; Sayur hijau tetap "sedang". `plate-after.jpg` tidak berubah sama sekali: Nasi "sedang",
+Sayur hijau "tinggi" (kelas dengan presisi ukur 0,97). Badge jadi tidak ditekan merata — yang hilang
+hanya keyakinan yang dulu dibeli dari besarnya bidang.
+
 Cara memperbaiki lebih lanjut: tambah foto per kelas — terutama **foto piring anak di daycare
 sendiri, dengan piring dan pencahayaan asli** — lalu `prepare.py` → `train.py` → `export.py`. Tidak
 ada perubahan kode yang diperlukan selama daftar kelas sama, dan `MODEL_URLS` di `foodnet.ts`

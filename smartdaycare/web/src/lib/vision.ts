@@ -121,8 +121,10 @@ export function ambangDari(net: FoodNet) {
 
 /** Presisi yang dipakai bila berkas model tidak menyimpan angka per kelas. */
 const PREC_BAWAAN = 0.7;
-/** Seberapa sering nama menu hasil warna-bentuk-saja benar — diukur di foto uji (ai/README.md). */
-const AKURASI_WARNA_SAJA = 0.28;
+/** Seberapa sering nama menu hasil warna-bentuk-saja benar. Diukur pada 77 foto uji
+    (ai/eval-plates.mjs): 43/235 butir cocok dengan label foto, dan 37/139 di antaranya bahkan
+    sempat diberi lencana "tinggi" oleh formula lama. Angka ini diambil dari rentang itu. */
+const AKURASI_WARNA_SAJA = 0.22;
 
 /** Versi `ambangDari` untuk keadaan tanpa berkas model: tidak mengoreksi, tidak membuang. */
 const TANPA_MODEL = {
