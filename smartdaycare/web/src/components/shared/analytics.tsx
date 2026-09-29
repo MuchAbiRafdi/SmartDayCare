@@ -1056,8 +1056,8 @@ export function ScannerQuality({ className }: { className?: string }) {
   const weak = (q.weakClasses ?? []).map(classNameOf);
   const rows = [
     q.photosTrain != null && q.photosVal != null ? { k: "Belajar dari", v: `${q.photosTrain} foto makanan, diuji pada ${q.photosVal} foto yang tidak pernah dilihatnya` } : null,
-    photoAcc ? { k: "Menu utama tepat", v: `${photoAcc} dari foto uji (satu anak, satu piring, satu kali pindai)` } : null,
-    photoPrec ? { k: "Bila hanya yang sangat yakin", v: `${photoPrec} tebakannya benar — sisanya tetap muncul dengan badge keyakinan rendah dan bisa diganti sebelum disimpan` } : null,
+    photoAcc ? { k: "Kelas utama benar pada", v: `${photoAcc} foto uji — dihitung dari suara terbanyak potongan gambar per foto, bukan hasil akhir pemindai` } : null,
+    photoPrec ? { k: "Nama menu benar saat model yakin", v: `${photoPrec} terhadap isi foto uji (p ≥ 0,6) — di bawah itu hasilnya tetap muncul dengan badge keyakinan rendah dan bisa diganti sebelum disimpan` } : null,
     q.thresholds?.relabelMin != null ? { k: "Ambang koreksi warna", v: `nama menu hanya diganti bila model yakin (≥ ${Math.round(q.thresholds.relabelMin * 100)}%) dan kelas itu memang jarang meleset` } : null,
     q.temperature != null ? { k: "Peluang sudah dikalibrasi", v: `angka "yakin" model disesuaikan pada ${q.photosVal ?? "banyak"} foto uji, bukan angka mentah jaringan` } : null,
   ].filter(Boolean) as { k: string; v: string }[];

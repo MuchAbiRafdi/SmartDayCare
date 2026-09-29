@@ -376,6 +376,22 @@ def test_skor_pantauan_hening_saat_semua_baik() -> None:
     assert w["score"] == 0 and w["components"] == [] and w["level"] == "tenang"
 
 
+def test_skor_pantauan_tidak_menyalahkan_hari_yang_belum_selesai() -> None:
+    """Hari ini belum lewat — anak yang belum tercatat datang bukan "absen", jadi tidak menaikkan skor."""
+    sen = MONDAY + timedelta(days=49)
+    rows = [
+        mk_row(sen),
+        mk_row(sen + timedelta(days=1)),
+        mk_row(sen + timedelta(days=2), present=False),
+        mk_row(sen + timedelta(days=3), present=False),
+    ]
+    penuh = _watch(rows, summarize(rows), None)
+    assert any(c["key"] == "hadir" for c in penuh["components"])
+    hari_ini = rows[-1]["date"]
+    dipotong = _watch(rows, summarize(rows, upto=date.fromisoformat(hari_ini)), None)
+    assert not any(c["key"] == "hadir" for c in dipotong["components"])
+
+
 def test_rekomendasi_punya_dampak_usaha_terurut() -> None:
     hist = weeks(MONDAY, 6)
     prev = weeks(MONDAY + timedelta(days=42), 1)

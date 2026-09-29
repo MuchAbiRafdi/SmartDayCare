@@ -402,6 +402,8 @@ export interface PeriodSummary {
   menuDistinct?: number;
   arriveAvg?: number | null;
   arriveLateDays?: number;
+  /** hari sekolah yang sudah lewat tanpa catatan hadir (hari ini tidak dihitung) */
+  absentDays?: number;
 }
 
 /** Skor pantauan: sinyal yang menyala hari ini, tiap komponen menyebut aturannya. */
@@ -500,8 +502,6 @@ export interface Analytics {
   method: string;
   baseline?: Baseline;
   peers?: { n: number };
-  /** kualitas model pengenal piring saat ini, dari berkas model yang dimuat peramban */
-  scanner?: ScannerQuality;
   generatedAt: string;
 }
 
@@ -706,7 +706,8 @@ export interface Device {
   createdAt?: string;
 }
 
-/** Isi web/public/models/<model>.model.json — hasil uji pada foto yang tidak dilihat saat latih. */
+/** Isi web/public/models/<model>.model.json — hasil uji pada foto yang tidak dilihat saat latih.
+   Dibaca langsung oleh panel "Kualitas pemindai piring", bukan dikirim API analitik. */
 export interface ScannerQuality {
   version: string;
   trainedAt?: string | null;

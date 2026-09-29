@@ -280,6 +280,8 @@ def summarize(rows: list[dict[str, Any]], upto: date | None = None) -> dict[str,
         distinct.update(str(m).lower() for m in r.get("menu") or [])
         for g in r.get("menuGroups") or []:
             group_days[g] = group_days.get(g, 0) + 1
+    # hari sekolah yang SUDAH lewat saja (tanpa menghitung hari ini yang belum selesai)
+    lewat = [r for r in school if upto is None or date.fromisoformat(r["date"]) < upto]
     arrivals = [float(r["checkinMin"]) for r in school if r.get("checkinMin")]
     incident_days = [r for r in rows if r["incidents"]]
     med_days = [r for r in rows if r.get("meds")]
@@ -309,6 +311,7 @@ def summarize(rows: list[dict[str, Any]], upto: date | None = None) -> dict[str,
         "medNotes": sum(len(r.get("meds") or []) for r in med_days),
         "menuGroups": group_days,
         "menuDistinct": len(distinct),
+        "absentDays": len([r for r in lewat if not r["present"]]),
         "arriveAvg": round(mean(arrivals)) if arrivals else None,
         "arriveLateDays": len([m for m in arrivals if m >= 9 * 60]),
         "feverDays": len([r for r in rows if r["tempMax"] is not None and r["tempMax"] >= 37.5]),
@@ -545,7 +548,7 @@ def _basic_insights(child_short: str, cur_rows: list[dict[str, Any]], cur: dict[
             )
 
     # --- Kehadiran & kesehatan ---
-    absent = cur["schoolDays"] - cur["presentDays"]
+    absent = cur.get("absentDays", max(0, cur["schoolDays"] - cur["presentDays"]))
     if absent >= 2:
         out.append(
             _ins(
@@ -1006,7 +1009,8 @@ def _arrival_insights(child_short: str, cur_days: list[dict[str, Any]], base: di
             f"Dari {_clock(ys[0])} menjadi {_clock(ys[-1])} dalam {len(ys)} hari {period_label} — bergeser {round(abs(total))} menit {'ke arah lebih siang' if later else 'ke arah lebih awal'}. Kebiasaan {child_short} sebelumnya masuk sekitar {kebiasaan}."
             if kebiasaan
             else f"Dari {_clock(ys[0])} menjadi {_clock(ys[-1])} dalam {len(ys)} hari {period_label} — bergeser {round(abs(total))} menit {'ke arah lebih siang' if later else 'ke arah lebih awal'}.",
-            f"{_clock(ys[0])} → {_clock(ys[-1])} · {round(abs(total))} menit",
+            f"{_clock(ys[0])} → {_clock(ys[-1])} · {round(abs(total))} menit"
+            + (f" · {late} hari datang setelah 09.00" if (late := len([m for m in ys if m >= 540])) else ""),
             delta=round(total / 60, 2),
             sev="low",
             confidence=_conf(len(ys), abs(th["rho"]), 8, 0.75),
@@ -1073,6 +1077,8 @@ def _watch(cur_rows: list[dict[str, Any]], cur: dict[str, Any], base: dict[str, 
     """Skor pantauan 0–100 dari sinyal yang benar-benar menyala; komponennya selalu ikut ditampilkan.
 
     Ini bukan diagnosis dan tidak menampilkan angka tanpa dasar: tiap komponen menyebut aturannya.
+    Hari yang sedang berjalan tidak dihitung sebagai absen (`absentDays` hanya melihat hari sekolah
+    yang sudah lewat) supaya orang tua tidak dihukum karena anaknya belum tercatat datang.
     """
     comp: list[dict[str, Any]] = []
     recent = [r for r in cur_rows if r["present"]][-3:]
@@ -1094,7 +1100,7 @@ def _watch(cur_rows: list[dict[str, Any]], cur: dict[str, Any], base: dict[str, 
         add("suhu", f"Suhu ≥ 37,5 °C pada {cur['feverDays']} hari", 22, f"{cur['feverDays']} hari")
     if cur["incidentSevDays"]:
         add("kejadian", f"{cur['incidentSevDays']} hari dengan kejadian berat", 18, f"{cur['incidents']} kejadian total")
-    absent = cur["schoolDays"] - cur["presentDays"]
+    absent = cur.get("absentDays", max(0, cur["schoolDays"] - cur["presentDays"]))
     if absent >= 2:
         add("hadir", f"Tidak hadir {absent} hari", 10, f"{cur['presentDays']}/{cur['schoolDays']} hari sekolah")
     score = min(100, sum(c["points"] for c in comp))
