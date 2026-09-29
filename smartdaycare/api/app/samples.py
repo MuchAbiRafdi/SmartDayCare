@@ -26,7 +26,6 @@ from .labels import (
 )
 from .logic import TZ
 from .models import CameraRequest, ChatMessage, ChatThread, Child, Feedback, LogEntry, User
-from .seed import seed
 
 DAYS_BACK = 63
 CAREGIVER = {"U-C01": ("Ratna Dewi", "Pagi"), "U-C02": ("Sari Puspita", "Siang")}

@@ -227,7 +227,6 @@ def changepoint(xs: list[float], min_side: int = 4, k_sigma: float = 0.7, h_sigm
     if base is None or base["scale"] <= 1e-9:
         return None
     sd = base["scale"]
-    c = base["center"]
     best: tuple[float, int, float] | None = None
     for cut in range(min_side, n - min_side + 1):
         a, b = xs[:cut], xs[cut:]

@@ -3,6 +3,7 @@
 // melayani permintaan berdest "iframe". Pakai:  node embedded-check.mjs https://alamat-pratinjau
 import http from "node:http";
 import { chromium } from "playwright-core";
+import { chromeExecutable } from "./browser.mjs";
 const BASE = process.argv[2];
 if (!BASE) {
   console.error("Pakai: node embedded-check.mjs https://alamat-pratinjau");
@@ -14,7 +15,7 @@ const host = http
     res.end(`<!doctype html><html><body style="margin:0"><iframe id="f" src="${BASE}/login" allow="camera" style="width:100vw;height:100vh;border:0"></iframe></body></html>`);
   })
   .listen(3999);
-const b = await chromium.launch({ args: ["--no-sandbox"] });
+const b = await chromium.launch({ executablePath: chromeExecutable(chromium), args: ["--no-sandbox"] });
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", bypassCSP: true });
 const page = await ctx.newPage();
 // Host uji ini bukan arena.ai, jadi frame-ancestors dari aplikasi akan menolaknya; header CSP

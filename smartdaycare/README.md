@@ -44,9 +44,12 @@ Memperbarui build tanpa mematikan layanan lama: `cd web && NEXT_DIST_DIR=.next-n
 lalu hentikan `next start`, `rm -rf .next && mv .next-new .next`, dan mulai lagi (jeda ±3 detik).
 
 Pemeriksaan mutu:
-- API: `cd api && python -m pytest -q` (22 uji: sesi, CSRF, lingkup peran, alur pengasuh, piring,
-  admin, pendaftaran, kode undangan, kode anak, pemulihan sandi, verifikasi email, pemberitahuan
-  sesuai preferensi, perangkat sensor/kamera, pemantau udara (sensor terhenti), arsip anak).
+- API: `cd api && pip install -r requirements.txt && python -m pytest -q` (47 uji di dua berkas:
+  `test_api.py` — sesi, CSRF, lingkup peran, alur pengasuh, piring, admin, pendaftaran, kode
+  undangan, kode anak, pemulihan sandi, verifikasi email, pemberitahuan sesuai preferensi,
+  perangkat sensor/kamera, pemantau udara (sensor terhenti), arsip anak; `test_insights.py` —
+  analitik & rekomendasi AI: median/MAD, Welch + Mann-Whitney, CUSUM, persentil, skor pantauan,
+  umpan balik 👍/👎).
 - Frontend: `cd web && npm run typecheck && npm run lint`.
 - Ujung-ke-ujung (butuh server hidup): `cd e2e && npm install && npm run install-browser && npm test`
   — 96 pemeriksaan: semua halaman dan alur (masuk/daftar, pindai piring dua tahap, catatan pengasuh,
@@ -57,6 +60,11 @@ Pemeriksaan mutu:
 - Aksesibilitas (butuh server hidup): `cd e2e && npm run a11y` — memindai 15 halaman/tab
   (publik + ketiga dasbor) dengan axe-core di lebar desktop dan ponsel (menu laci ikut dibuka);
   target: 0 pelanggaran WCAG 2.1 A/AA dan praktik terbaik.
+  Semua uji berbasis peramban memakai `e2e/browser.mjs`: kalau Chromium tidak ada — mis. lingkungan
+  kerja tidak boleh menghubungi cdn.playwright.dev — perintahnya berhenti dengan pesan cara memasang
+  atau `E2E_CHROME=/jalur/ke/chromium npm test` untuk memakai Chromium sistem, bukan dengan jejak
+  error. Di lingkungan begitu, periksa `api` (pytest) dan mutu pembacaan foto (`node ai/eval-plates.mjs
+  ...`, lihat `ai/README.md`); keduanya tidak butuh peramban.
 - Pratinjau tersemat (opsional): `cd e2e && node embedded-check.mjs https://alamat-pratinjau` —
   membuka aplikasi di dalam `<iframe>` peramban sungguhan lewat proxy publik yang membuang cookie,
   lalu menjalankan masuk → dasbor → foto → muat ulang → keluar. Uji `npm test` juga mencakup
