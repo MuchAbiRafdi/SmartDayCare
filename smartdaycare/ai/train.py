@@ -52,22 +52,27 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 
+# Daftar foto, label, dan split tinggal di dataset.py — modul itu bisa dipakai `eval_prep.py`
+# tanpa memasang kerangka latih.
+from dataset import (
+    CLASSES,
+    NONE_IDX,
+    SEED,
+    VAL_FRAC,
+    list_images,
+    split_by_image,
+)
+
 ROOT = Path(__file__).resolve().parent
-RAW = ROOT / "data" / "raw"
-MANIFEST = ROOT / "data" / "manifest.json"
 MODELS = ROOT / "models"
 
-CLASSES = ["rice", "greens", "fried", "pale", "brown", "soup", "orange", "yellow", "red", "egg", "none"]
-NONE_IDX = CLASSES.index("none")
 PATCH = 48
 MIN_SIDE = 300
 MEAN = (0.5, 0.5, 0.5)
 STD = (0.25, 0.25, 0.25)
-SEED = 7
 EPOCHS = int(os.environ.get("SD_EPOCHS", "46"))
 PER_IMAGE = int(os.environ.get("SD_PATCHES", "88"))
 PER_NEG = int(os.environ.get("SD_NEG", "20"))
-VAL_FRAC = float(os.environ.get("SD_VAL", "0.18"))
 OUT_NAME = os.environ.get("SD_OUT", "food-patch-v3")
 ARCH = tuple(int(c) for c in os.environ.get("SD_ARCH", "16,32,48,64,64").split(","))
 CACHE = ROOT / "data" / f"patches-v3-{PER_IMAGE}-{PER_NEG}.npz"
@@ -162,7 +167,6 @@ def plausible(cls: str, h: float, s: float, v: float, tex: float) -> bool:
         yolk = hue_in(h, 32, 62) and s > 0.4 and v > 0.5
         return white or yolk
     return True  # none
-
 
 
 def load_image(p: Path) -> np.ndarray:
@@ -282,19 +286,6 @@ def edge_negatives(arr: np.ndarray, labels: list[str], rng: random.Random, want:
     return out
 
 
-def list_images() -> list[tuple[Path, list[str]]]:
-    """Daftar (berkas, label-label) dari data/manifest.json; fallback ke nama folder."""
-    if MANIFEST.exists():
-        entries = json.loads(MANIFEST.read_text())
-        files = [(RAW / e["file"], list(e["labels"])) for e in entries]
-        return [(f, ls) for f, ls in files if f.exists() and all(c in CLASSES for c in ls)]
-    files: list[tuple[Path, list[str]]] = []
-    for c in CLASSES:
-        for f in sorted((RAW / c).glob("*")):
-            files.append((f, [c]))
-    return files
-
-
 def build_cache() -> dict[str, np.ndarray]:
     rng = random.Random(SEED)
     files = list_images()
@@ -350,19 +341,6 @@ def build_cache() -> dict[str, np.ndarray]:
     np.savez_compressed(CACHE, **data)
     (ROOT / "data" / "patches-summary.json").write_text(json.dumps(per_image, indent=1))
     return data
-
-
-def split_by_image(primary: np.ndarray, val_frac: float = VAL_FRAC) -> np.ndarray:
-    """Pisahkan per FOTO (bukan per tambalan) agar akurasi uji jujur; kembalikan mask foto uji."""
-    rng = random.Random(SEED)
-    val = np.zeros(len(primary), np.bool_)
-    for c in range(len(CLASSES)):
-        cand = [int(i) for i in np.flatnonzero(primary == c)]
-        rng.shuffle(cand)
-        k = max(1, round(len(cand) * val_frac))
-        for i in cand[:k]:
-            val[i] = True
-    return val
 
 
 # --------------------------------------------------------------- model ----
@@ -550,8 +528,6 @@ def class_thresholds(probs: torch.Tensor, imgv: np.ndarray, multi: np.ndarray) -
       persentil ke-2 peluang kelas c pada foto yang benar-benar memuat c (dijepit 0,04–0,15),
       supaya menu sungguhan hampir tidak pernah ikut terbuang.
     """
-    pred = probs.argmax(1)
-    mx = probs.max(1).values
     relabel: dict[str, float] = {}
     veto: dict[str, float] = {}
     grid = [round(0.4 + 0.025 * k, 3) for k in range(23)]
@@ -660,7 +636,6 @@ def run() -> None:
     assert best[1] is not None
     model.load_state_dict(best[1])
     r = evaluate(model, xv, yv, imgv, multi)
-    pv = r["pred"]
     probs = r["probs"]
 
     # kalibrasi: satu suhu softmax + ambang keputusan per kelas, keduanya dihitung pada data uji

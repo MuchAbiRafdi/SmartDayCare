@@ -54,11 +54,17 @@ node ../ai/verify.mjs /tmp/fn/foodnet.js ../ai/models/verify-sample.json public/
 #    selisih sebesar itu = pembulatan float16, dan kelas yang dipilih tetap sama di 108/108 sel)
 # evaluasi ujung-ke-ujung (segmentasi + model) pada foto uji yang tidak ikut latihan:
 cd ../ai && python3 eval_prep.py /tmp/evalset                    # 77 foto uji model saat ini
+python3 eval_prep.py /tmp/evalset --width 480                     # foto yang sama, dirender lebih besar
 python3 eval_prep.py /tmp/evalset-fresh --only data/fresh-photos.txt   # hanya foto yang belum pernah dilihat model mana pun
 cd ../web && node_modules/.bin/tsc src/lib/vision.ts src/lib/foodnet.ts --outDir /tmp/fn --module es2022 \
   --target es2020 --moduleResolution bundler --strict --skipLibCheck && sed -i 's#"./foodnet"#"./foodnet.js"#' /tmp/fn/vision.js
 node ../ai/eval-plates.mjs /tmp/fn/vision.js /tmp/evalset public/models/food-patch-v1.bin public/models/food-patch-v2.bin public/models/food-patch-v3.bin
 ```
+
+Daftar foto, label, dan pemisahan latih/uji per foto (`SEED`, `VAL_FRAC`, `list_images`,
+`split_by_image`) tinggal di `ai/dataset.py` — karena itu `eval_prep.py` dan pengujian foto bisa
+dijalankan tanpa memasang kerangka latih (cukup `numpy` + `pillow`). Pindahkan angka split dengan
+sadar: ia menentukan foto mana yang dianggap "belum pernah dilihat model".
 
 `ai/plate-check.mjs <vision.js> <lebar> <tinggi> <foto.rgba> [bin ...]` memeriksa satu foto lewat
 jalur aplikasi yang sama dan mencetak menu + gram + apa yang dibuang/dikoreksi model (lihat catatan di
@@ -202,6 +208,31 @@ warna melihat tiga kelompok (goreng, nasi, sayur 5 g), dan model membuang dua di
 yang tersisa cuma "Nasi ≈30 g". Artinya, pada foto semacam ini pengasuh tetap yang menulis apa yang
 disajikan — aplikasi tidak boleh disalin mentah. Kesalahan yang paling sering tersisa: sup/kuah,
 telur, dan makanan pucat di piring putih.
+
+### Yang dicoba untuk membuatnya lebih pintar tanpa foto baru — dan tidak menolong
+
+Tambahan epoch/tambalan (v1b) sudah lebih dulu terbukti tidak membantu. Karena itu dua ide lain diuji
+di sisi **inferensi** saja — tidak ada latih ulang, tidak ada data baru — pada 77 foto uji yang sama,
+lewat `eval-plates.mjs`:
+
+| percobaan | kelas utama | semua label | kelas asing/foto | ms/foto |
+|---|---|---|---|---|
+| seperti sekarang (satu tampilan, bingkai 320) | **0,571** | 0,442 | 1,81 | **871** |
+| rata-rata tampilan asli + cermin kiri-kanan (TTA) | 0,571 | 0,442 | **1,78** | 1847 |
+| rata-rata dua skala (320 dan 1,6 kali lipatnya) | 0,532 | 0,416 | 1,90 | 2875 |
+| bingkai analisis dilebarkan ke 480 px | 0,571 | **0,455** | 1,78 | 1348 |
+| bingkai analisis dilebarkan ke 640 px | 0,571 | **0,455** | 1,86 | 2184 |
+
+Cermin tidak mengubah satu pun keputusan: jaringannya rapat dan hasilnya dirata-ratakan pada jendela
+6×6 sel, jadi rata-rata dengan pandangan cerminnya hampir identik — yang didapat cuma waktu dua kali.
+Dua skala malah menurunkan akurasi: tambalan hasil interpolasi lebih lembut daripada yang dilihat
+model saat berlatih. Bingkai 480/640 menambah satu foto pada kolom "semua label" (34 → 35 dari 77)
+— di dalam bising — dan dibayar +55 % sampai +150 % waktu. Tiga baris terakhir adalah alasan
+keduanya tidak dipasang: tidak ada yang layak jadi bawaan, jadi kodenya sengaja tidak ditulis ke
+produk (percobaannya dilakukan pada salinan `vision.ts`; angka-angka ini hasil jalannya, bukan taksiran).
+
+Artinya, untuk kali ini, jalan satu-satunya yang terbukti menggerakkan angka tetap **foto**: foto
+piring daycare asli, dipotret dari atas, per kelas yang lemah.
 
 ### Lencana keyakinan: artinya, dan diukur
 
