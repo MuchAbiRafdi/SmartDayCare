@@ -1,0 +1,3086 @@
+[
+ {
+  "file": "fried/ayam-goreng-di-piring-putih-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-di-piring-putih"
+ },
+ {
+  "file": "fried/ayam-goreng-di-piring-putih-2.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-di-piring-putih"
+ },
+ {
+  "file": "fried/ayam-goreng-di-piring-putih-3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-di-piring-putih"
+ },
+ {
+  "file": "fried/ayam-goreng-di-piring-putih-4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-di-piring-putih"
+ },
+ {
+  "file": "fried/ayam-goreng-di-piring-putih-5.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-di-piring-putih"
+ },
+ {
+  "file": "fried/ayam-goreng-kremes-di-piring-putih-atas-1.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-kremes-di-piring-putih-atas"
+ },
+ {
+  "file": "fried/ayam-goreng-kremes-di-piring-putih-atas-3.jpg",
+  "labels": [
+   "fried",
+   "rice",
+   "egg"
+  ],
+  "query": "ayam-goreng-kremes-di-piring-putih-atas"
+ },
+ {
+  "file": "fried/ayam-goreng-kremes-di-piring-putih-atas-4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "ayam-goreng-kremes-di-piring-putih-atas"
+ },
+ {
+  "file": "fried/ayam-goreng-kremes-di-piring-putih-atas-5.jpg",
+  "labels": [
+   "fried",
+   "rice"
+  ],
+  "query": "ayam-goreng-kremes-di-piring-putih-atas"
+ },
+ {
+  "file": "brown/ayam-kecap-manis-di-piring-3.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "ayam-kecap-manis-di-piring"
+ },
+ {
+  "file": "brown/ayam-kecap-manis-di-piring-4.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "ayam-kecap-manis-di-piring"
+ },
+ {
+  "file": "brown/ayam-kecap-manis-di-piring-5.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "ayam-kecap-manis-di-piring"
+ },
+ {
+  "file": "rice/ayam-kukus-suwir-putih-di-piring-anak-4.webp",
+  "labels": [
+   "rice",
+   "pale"
+  ],
+  "query": "ayam-kukus-suwir-putih-di-piring-anak"
+ },
+ {
+  "file": "yellow/banana-slices-on-plate-top-view-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "banana-slices-on-plate-top-view"
+ },
+ {
+  "file": "yellow/banana-slices-on-plate-top-view-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "banana-slices-on-plate-top-view"
+ },
+ {
+  "file": "yellow/banana-slices-on-plate-top-view-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "banana-slices-on-plate-top-view"
+ },
+ {
+  "file": "yellow/banana-slices-on-plate-top-view-4.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "banana-slices-on-plate-top-view"
+ },
+ {
+  "file": "yellow/banana-slices-on-plate-top-view-5.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "banana-slices-on-plate-top-view"
+ },
+ {
+  "file": "brown/beef-stew-brown-sauce-on-plate-top-view-1.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "beef-stew-brown-sauce-on-plate-top-view"
+ },
+ {
+  "file": "brown/beef-stew-brown-sauce-on-plate-top-view-2.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "beef-stew-brown-sauce-on-plate-top-view"
+ },
+ {
+  "file": "brown/beef-stew-brown-sauce-on-plate-top-view-3.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "beef-stew-brown-sauce-on-plate-top-view"
+ },
+ {
+  "file": "brown/beef-stew-brown-sauce-on-plate-top-view-5.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "beef-stew-brown-sauce-on-plate-top-view"
+ },
+ {
+  "file": "none/blank-paper-on-desk-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-paper-on-desk-top-view"
+ },
+ {
+  "file": "none/blank-paper-on-desk-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-paper-on-desk-top-view"
+ },
+ {
+  "file": "none/blank-paper-on-desk-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-paper-on-desk-top-view"
+ },
+ {
+  "file": "none/blank-paper-on-desk-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-paper-on-desk-top-view"
+ },
+ {
+  "file": "none/blank-paper-on-desk-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-paper-on-desk-top-view"
+ },
+ {
+  "file": "none/blank-white-wall-room-corner-ceiling-lig-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-white-wall-room-corner-ceiling-lig"
+ },
+ {
+  "file": "none/blank-white-wall-room-corner-ceiling-lig-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-white-wall-room-corner-ceiling-lig"
+ },
+ {
+  "file": "none/blank-white-wall-room-corner-ceiling-lig-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-white-wall-room-corner-ceiling-lig"
+ },
+ {
+  "file": "none/blank-white-wall-room-corner-ceiling-lig-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-white-wall-room-corner-ceiling-lig"
+ },
+ {
+  "file": "none/blank-white-wall-room-corner-ceiling-lig-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "blank-white-wall-room-corner-ceiling-lig"
+ },
+ {
+  "file": "rice/boiled-carrot-slices-on-plate-top-view-1.jpg",
+  "labels": [
+   "rice",
+   "orange"
+  ],
+  "query": "boiled-carrot-slices-on-plate-top-view"
+ },
+ {
+  "file": "orange/boiled-carrot-slices-on-plate-top-view-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "boiled-carrot-slices-on-plate-top-view"
+ },
+ {
+  "file": "yellow/boiled-corn-on-the-cob-on-plate-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "boiled-corn-on-the-cob-on-plate"
+ },
+ {
+  "file": "yellow/boiled-corn-on-the-cob-on-plate-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "boiled-corn-on-the-cob-on-plate"
+ },
+ {
+  "file": "yellow/boiled-corn-on-the-cob-on-plate-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "boiled-corn-on-the-cob-on-plate"
+ },
+ {
+  "file": "yellow/boiled-corn-on-the-cob-on-plate-4.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "boiled-corn-on-the-cob-on-plate"
+ },
+ {
+  "file": "yellow/boiled-corn-on-the-cob-on-plate-5.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "boiled-corn-on-the-cob-on-plate"
+ },
+ {
+  "file": "egg/boiled-egg-halves-on-white-plate-top-vie-1.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "boiled-egg-halves-on-white-plate-top-vie"
+ },
+ {
+  "file": "egg/boiled-egg-halves-on-white-plate-top-vie-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "boiled-egg-halves-on-white-plate-top-vie"
+ },
+ {
+  "file": "egg/boiled-egg-halves-on-white-plate-top-vie-3.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "boiled-egg-halves-on-white-plate-top-vie"
+ },
+ {
+  "file": "egg/boiled-egg-halves-on-white-plate-top-vie-4.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "boiled-egg-halves-on-white-plate-top-vie"
+ },
+ {
+  "file": "pale/boiled-potato-chunks-on-plate-top-view-1.jpg",
+  "labels": [
+   "pale",
+   "greens"
+  ],
+  "query": "boiled-potato-chunks-on-plate-top-view"
+ },
+ {
+  "file": "pale/boiled-potato-chunks-on-plate-top-view-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "boiled-potato-chunks-on-plate-top-view"
+ },
+ {
+  "file": "pale/boiled-potato-chunks-on-plate-top-view-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "boiled-potato-chunks-on-plate-top-view"
+ },
+ {
+  "file": "pale/boiled-potato-chunks-on-plate-top-view-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "boiled-potato-chunks-on-plate-top-view"
+ },
+ {
+  "file": "pale/boiled-potato-chunks-on-plate-top-view-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "boiled-potato-chunks-on-plate-top-view"
+ },
+ {
+  "file": "rice/bowl-of-plain-white-rice-close-up-1.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "bowl-of-plain-white-rice-close-up"
+ },
+ {
+  "file": "rice/bowl-of-plain-white-rice-close-up-2.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "bowl-of-plain-white-rice-close-up"
+ },
+ {
+  "file": "rice/bowl-of-plain-white-rice-close-up-3.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "bowl-of-plain-white-rice-close-up"
+ },
+ {
+  "file": "rice/bowl-of-plain-white-rice-close-up-4.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "bowl-of-plain-white-rice-close-up"
+ },
+ {
+  "file": "rice/bowl-of-plain-white-rice-close-up-5.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "bowl-of-plain-white-rice-close-up"
+ },
+ {
+  "file": "greens/brokoli-kukus-di-piring-putih-1.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "brokoli-kukus-di-piring-putih"
+ },
+ {
+  "file": "greens/brokoli-kukus-di-piring-putih-2.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "brokoli-kukus-di-piring-putih"
+ },
+ {
+  "file": "greens/brokoli-kukus-di-piring-putih-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "brokoli-kukus-di-piring-putih"
+ },
+ {
+  "file": "greens/brokoli-kukus-di-piring-putih-5.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "brokoli-kukus-di-piring-putih"
+ },
+ {
+  "file": "red/buah-naga-merah-potong-dadu-di-piring-5.webp",
+  "labels": [
+   "red"
+  ],
+  "query": "buah-naga-merah-potong-dadu-di-piring"
+ },
+ {
+  "file": "pale/bubur-ayam-polos-mangkuk-anak-dari-atas-1.webp",
+  "labels": [
+   "pale"
+  ],
+  "query": "bubur-ayam-polos-mangkuk-anak-dari-atas"
+ },
+ {
+  "file": "pale/bubur-ayam-polos-mangkuk-anak-dari-atas-2.webp",
+  "labels": [
+   "pale"
+  ],
+  "query": "bubur-ayam-polos-mangkuk-anak-dari-atas"
+ },
+ {
+  "file": "pale/bubur-ayam-polos-mangkuk-anak-dari-atas-5.webp",
+  "labels": [
+   "pale"
+  ],
+  "query": "bubur-ayam-polos-mangkuk-anak-dari-atas"
+ },
+ {
+  "file": "pale/bubur-ayam-polos-mangkuk-foto-dari-atas-3.webp",
+  "labels": [
+   "pale"
+  ],
+  "query": "bubur-ayam-polos-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "orange/carrot-sticks-small-bowl-white-table-top-1.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "carrot-sticks-small-bowl-white-table-top"
+ },
+ {
+  "file": "orange/carrot-sticks-small-bowl-white-table-top-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "carrot-sticks-small-bowl-white-table-top"
+ },
+ {
+  "file": "orange/carrot-sticks-small-bowl-white-table-top-4.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "carrot-sticks-small-bowl-white-table-top"
+ },
+ {
+  "file": "orange/carrot-sticks-small-bowl-white-table-top-5.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "carrot-sticks-small-bowl-white-table-top"
+ },
+ {
+  "file": "fried/chicken-nuggets-on-plate-top-view-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "chicken-nuggets-on-plate-top-view"
+ },
+ {
+  "file": "fried/chicken-nuggets-on-plate-top-view-2.jpg",
+  "labels": [
+   "fried",
+   "red"
+  ],
+  "query": "chicken-nuggets-on-plate-top-view"
+ },
+ {
+  "file": "fried/chicken-nuggets-on-plate-top-view-3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "chicken-nuggets-on-plate-top-view"
+ },
+ {
+  "file": "fried/chicken-nuggets-on-plate-top-view-5.jpg",
+  "labels": [
+   "fried",
+   "red"
+  ],
+  "query": "chicken-nuggets-on-plate-top-view"
+ },
+ {
+  "file": "soup/clear-chicken-vegetable-soup-in-bowl-top-2.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-chicken-vegetable-soup-in-bowl-top"
+ },
+ {
+  "file": "soup/clear-chicken-vegetable-soup-in-bowl-top-3.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-chicken-vegetable-soup-in-bowl-top"
+ },
+ {
+  "file": "soup/clear-chicken-vegetable-soup-in-bowl-top-4.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-chicken-vegetable-soup-in-bowl-top"
+ },
+ {
+  "file": "soup/clear-chicken-vegetable-soup-in-bowl-top-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-chicken-vegetable-soup-in-bowl-top"
+ },
+ {
+  "file": "soup/clear-vegetable-soup-in-bowl-top-view-wh-1.jpg",
+  "labels": [
+   "soup",
+   "greens"
+  ],
+  "query": "clear-vegetable-soup-in-bowl-top-view-wh"
+ },
+ {
+  "file": "soup/clear-vegetable-soup-in-bowl-top-view-wh-3.jpg",
+  "labels": [
+   "soup",
+   "orange"
+  ],
+  "query": "clear-vegetable-soup-in-bowl-top-view-wh"
+ },
+ {
+  "file": "soup/clear-vegetable-soup-in-bowl-top-view-wh-4.jpg",
+  "labels": [
+   "soup",
+   "rice",
+   "orange"
+  ],
+  "query": "clear-vegetable-soup-in-bowl-top-view-wh"
+ },
+ {
+  "file": "soup/clear-vegetable-soup-in-bowl-top-view-wh-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-vegetable-soup-in-bowl-top-view-wh"
+ },
+ {
+  "file": "rice/cooked-white-rice-on-plate-overhead-phot-1.jpg",
+  "labels": [
+   "rice",
+   "brown"
+  ],
+  "query": "cooked-white-rice-on-plate-overhead-phot"
+ },
+ {
+  "file": "rice/cooked-white-rice-on-plate-overhead-phot-3.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "cooked-white-rice-on-plate-overhead-phot"
+ },
+ {
+  "file": "yellow/corn-kernels-boiled-in-white-bowl-overhe-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "corn-kernels-boiled-in-white-bowl-overhe"
+ },
+ {
+  "file": "yellow/corn-kernels-boiled-in-white-bowl-overhe-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "corn-kernels-boiled-in-white-bowl-overhe"
+ },
+ {
+  "file": "yellow/corn-kernels-boiled-in-white-bowl-overhe-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "corn-kernels-boiled-in-white-bowl-overhe"
+ },
+ {
+  "file": "yellow/corn-kernels-boiled-in-white-bowl-overhe-5.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "corn-kernels-boiled-in-white-bowl-overhe"
+ },
+ {
+  "file": "none/empty-blue-plate-on-table-with-napkin-to-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-blue-plate-on-table-with-napkin-to"
+ },
+ {
+  "file": "none/empty-blue-plate-on-table-with-napkin-to-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-blue-plate-on-table-with-napkin-to"
+ },
+ {
+  "file": "none/empty-blue-plate-on-table-with-napkin-to-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-blue-plate-on-table-with-napkin-to"
+ },
+ {
+  "file": "none/empty-blue-plate-on-table-with-napkin-to-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-blue-plate-on-table-with-napkin-to"
+ },
+ {
+  "file": "none/empty-blue-plate-on-table-with-napkin-to-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-blue-plate-on-table-with-napkin-to"
+ },
+ {
+  "file": "none/empty-bowl-and-spoon-on-tablecloth-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-bowl-and-spoon-on-tablecloth"
+ },
+ {
+  "file": "none/empty-bowl-and-spoon-on-tablecloth-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-bowl-and-spoon-on-tablecloth"
+ },
+ {
+  "file": "none/empty-bowl-and-spoon-on-tablecloth-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-bowl-and-spoon-on-tablecloth"
+ },
+ {
+  "file": "none/empty-bowl-and-spoon-on-tablecloth-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-bowl-and-spoon-on-tablecloth"
+ },
+ {
+  "file": "none/empty-bowl-and-spoon-on-tablecloth-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-bowl-and-spoon-on-tablecloth"
+ },
+ {
+  "file": "none/empty-divided-plastic-plate-for-kids-on--2.webp",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-divided-plastic-plate-for-kids-on-"
+ },
+ {
+  "file": "none/empty-divided-plastic-plate-for-kids-on--3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-divided-plastic-plate-for-kids-on-"
+ },
+ {
+  "file": "none/empty-divided-plastic-plate-for-kids-on--5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-divided-plastic-plate-for-kids-on-"
+ },
+ {
+  "file": "none/empty-stainless-steel-food-tray-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-stainless-steel-food-tray-top-view"
+ },
+ {
+  "file": "none/empty-stainless-steel-food-tray-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-stainless-steel-food-tray-top-view"
+ },
+ {
+  "file": "none/empty-stainless-steel-food-tray-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-stainless-steel-food-tray-top-view"
+ },
+ {
+  "file": "none/empty-stainless-steel-food-tray-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-stainless-steel-food-tray-top-view"
+ },
+ {
+  "file": "none/empty-stainless-steel-food-tray-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-stainless-steel-food-tray-top-view"
+ },
+ {
+  "file": "none/empty-white-plate-on-table-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-white-plate-on-table-top-view"
+ },
+ {
+  "file": "none/empty-white-plate-on-table-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-white-plate-on-table-top-view"
+ },
+ {
+  "file": "none/empty-white-plate-on-table-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-white-plate-on-table-top-view"
+ },
+ {
+  "file": "none/empty-white-plate-on-table-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-white-plate-on-table-top-view"
+ },
+ {
+  "file": "none/empty-white-plate-on-table-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-white-plate-on-table-top-view"
+ },
+ {
+  "file": "none/empty-wooden-table-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "none/empty-wooden-table-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "none/empty-wooden-table-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "none/empty-wooden-table-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "none/empty-wooden-table-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "none/folded-cloth-napkin-on-table-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "folded-cloth-napkin-on-table-top-view"
+ },
+ {
+  "file": "none/folded-cloth-napkin-on-table-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "folded-cloth-napkin-on-table-top-view"
+ },
+ {
+  "file": "none/folded-cloth-napkin-on-table-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "folded-cloth-napkin-on-table-top-view"
+ },
+ {
+  "file": "none/folded-cloth-napkin-on-table-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "folded-cloth-napkin-on-table-top-view"
+ },
+ {
+  "file": "none/folded-cloth-napkin-on-table-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "folded-cloth-napkin-on-table-top-view"
+ },
+ {
+  "file": "fried/fried-chicken-pieces-on-white-plate-top--1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "fried-chicken-pieces-on-white-plate-top-"
+ },
+ {
+  "file": "fried/fried-chicken-pieces-on-white-plate-top--2.jpg",
+  "labels": [
+   "fried",
+   "red"
+  ],
+  "query": "fried-chicken-pieces-on-white-plate-top-"
+ },
+ {
+  "file": "fried/fried-chicken-pieces-on-white-plate-top--3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "fried-chicken-pieces-on-white-plate-top-"
+ },
+ {
+  "file": "fried/fried-chicken-pieces-on-white-plate-top--4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "fried-chicken-pieces-on-white-plate-top-"
+ },
+ {
+  "file": "egg/fried-egg-sunny-side-up-on-plate-top-vie-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "fried-egg-sunny-side-up-on-plate-top-vie"
+ },
+ {
+  "file": "egg/fried-egg-sunny-side-up-on-plate-top-vie-3.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "fried-egg-sunny-side-up-on-plate-top-vie"
+ },
+ {
+  "file": "egg/fried-egg-sunny-side-up-on-plate-top-vie-4.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "fried-egg-sunny-side-up-on-plate-top-vie"
+ },
+ {
+  "file": "egg/fried-egg-sunny-side-up-on-plate-top-vie-5.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "fried-egg-sunny-side-up-on-plate-top-vie"
+ },
+ {
+  "file": "none/gray-concrete-floor-texture-photo-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "gray-concrete-floor-texture-photo"
+ },
+ {
+  "file": "none/gray-concrete-floor-texture-photo-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "gray-concrete-floor-texture-photo"
+ },
+ {
+  "file": "none/gray-concrete-floor-texture-photo-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "gray-concrete-floor-texture-photo"
+ },
+ {
+  "file": "none/gray-concrete-floor-texture-photo-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "gray-concrete-floor-texture-photo"
+ },
+ {
+  "file": "none/gray-concrete-floor-texture-photo-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "gray-concrete-floor-texture-photo"
+ },
+ {
+  "file": "egg/halved-hard-boiled-eggs-on-plate-top-vie-1.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "halved-hard-boiled-eggs-on-plate-top-vie"
+ },
+ {
+  "file": "egg/halved-hard-boiled-eggs-on-plate-top-vie-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "halved-hard-boiled-eggs-on-plate-top-vie"
+ },
+ {
+  "file": "egg/halved-hard-boiled-eggs-on-plate-top-vie-4.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "halved-hard-boiled-eggs-on-plate-top-vie"
+ },
+ {
+  "file": "egg/halved-hard-boiled-eggs-on-plate-top-vie-5.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "halved-hard-boiled-eggs-on-plate-top-vie"
+ },
+ {
+  "file": "none/hand-resting-on-empty-table-photo-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "hand-resting-on-empty-table-photo"
+ },
+ {
+  "file": "none/hand-resting-on-empty-table-photo-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "hand-resting-on-empty-table-photo"
+ },
+ {
+  "file": "none/hand-resting-on-empty-table-photo-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "hand-resting-on-empty-table-photo"
+ },
+ {
+  "file": "none/hand-resting-on-empty-table-photo-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "hand-resting-on-empty-table-photo"
+ },
+ {
+  "file": "none/hand-resting-on-empty-table-photo-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "hand-resting-on-empty-table-photo"
+ },
+ {
+  "file": "pale/ikan-dori-kukus-mpasi-piring-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "ikan-dori-kukus-mpasi-piring"
+ },
+ {
+  "file": "pale/ikan-dori-kukus-mpasi-piring-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "ikan-dori-kukus-mpasi-piring"
+ },
+ {
+  "file": "pale/ikan-dori-kukus-mpasi-piring-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "ikan-dori-kukus-mpasi-piring"
+ },
+ {
+  "file": "pale/ikan-dori-kukus-mpasi-piring-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "ikan-dori-kukus-mpasi-piring"
+ },
+ {
+  "file": "pale/ikan-dori-kukus-mpasi-piring-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "ikan-dori-kukus-mpasi-piring"
+ },
+ {
+  "file": "rice/indonesian-lunch-plate-rice-vegetables-t-5.jpg",
+  "labels": [
+   "rice",
+   "egg"
+  ],
+  "query": "indonesian-lunch-plate-rice-vegetables-t"
+ },
+ {
+  "file": "yellow/jagung-manis-pipil-rebus-di-piring-4.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-manis-pipil-rebus-di-piring"
+ },
+ {
+  "file": "yellow/jagung-pipil-manis-rebus-di-mangkuk-puti-2.webp",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-pipil-manis-rebus-di-mangkuk-puti"
+ },
+ {
+  "file": "soup/jagung-pipil-manis-rebus-di-mangkuk-puti-4.webp",
+  "labels": [
+   "soup",
+   "yellow",
+   "greens"
+  ],
+  "query": "jagung-pipil-manis-rebus-di-mangkuk-puti"
+ },
+ {
+  "file": "yellow/jagung-rebus-pipil-di-mangkuk-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-rebus-pipil-di-mangkuk"
+ },
+ {
+  "file": "yellow/jagung-rebus-pipil-di-mangkuk-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-rebus-pipil-di-mangkuk"
+ },
+ {
+  "file": "yellow/jagung-rebus-pipil-di-mangkuk-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-rebus-pipil-di-mangkuk"
+ },
+ {
+  "file": "yellow/jagung-rebus-pipil-di-mangkuk-4.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "jagung-rebus-pipil-di-mangkuk"
+ },
+ {
+  "file": "orange/jeruk-potong-di-piring-1.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "jeruk-potong-di-piring"
+ },
+ {
+  "file": "orange/jeruk-potong-di-piring-2.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "jeruk-potong-di-piring"
+ },
+ {
+  "file": "orange/jeruk-potong-di-piring-3.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "jeruk-potong-di-piring"
+ },
+ {
+  "file": "orange/jeruk-potong-di-piring-4.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "jeruk-potong-di-piring"
+ },
+ {
+  "file": "orange/jeruk-potong-di-piring-5.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "jeruk-potong-di-piring"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-dadu-piring-putih-a-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-dadu-piring-putih-a"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-dadu-piring-putih-a-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-dadu-piring-putih-a"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-dadu-piring-putih-a-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-dadu-piring-putih-a"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-dadu-piring-putih-a-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-dadu-piring-putih-a"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-dadu-piring-putih-a-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-dadu-piring-putih-a"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-di-piring-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-di-piring"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-di-piring-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-di-piring"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-di-piring-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-di-piring"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-di-piring-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-di-piring"
+ },
+ {
+  "file": "pale/kentang-rebus-potong-di-piring-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "kentang-rebus-potong-di-piring"
+ },
+ {
+  "file": "rice/kids-divided-lunch-plate-rice-chicken-br-1.jpg",
+  "labels": [
+   "rice",
+   "yellow"
+  ],
+  "query": "kids-divided-lunch-plate-rice-chicken-br"
+ },
+ {
+  "file": "rice/kids-divided-lunch-plate-rice-chicken-br-2.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "kids-divided-lunch-plate-rice-chicken-br"
+ },
+ {
+  "file": "rice/kids-divided-lunch-plate-rice-chicken-br-3.jpg",
+  "labels": [
+   "rice",
+   "yellow",
+   "orange",
+   "fried"
+  ],
+  "query": "kids-divided-lunch-plate-rice-chicken-br"
+ },
+ {
+  "file": "rice/kids-divided-lunch-plate-rice-chicken-br-5.jpg",
+  "labels": [
+   "rice",
+   "fried",
+   "yellow"
+  ],
+  "query": "kids-divided-lunch-plate-rice-chicken-br"
+ },
+ {
+  "file": "pale/kids-lunch-plate-rice-chicken-broccoli-t-1.jpg",
+  "labels": [
+   "pale",
+   "greens",
+   "red"
+  ],
+  "query": "kids-lunch-plate-rice-chicken-broccoli-t"
+ },
+ {
+  "file": "rice/kids-lunch-plate-rice-chicken-broccoli-t-2.jpg",
+  "labels": [
+   "rice",
+   "greens"
+  ],
+  "query": "kids-lunch-plate-rice-chicken-broccoli-t"
+ },
+ {
+  "file": "pale/kids-lunch-plate-rice-chicken-broccoli-t-3.jpg",
+  "labels": [
+   "pale",
+   "greens",
+   "egg"
+  ],
+  "query": "kids-lunch-plate-rice-chicken-broccoli-t"
+ },
+ {
+  "file": "none/lamp-shadow-on-white-wall-photo-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "lamp-shadow-on-white-wall-photo"
+ },
+ {
+  "file": "none/lamp-shadow-on-white-wall-photo-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "lamp-shadow-on-white-wall-photo"
+ },
+ {
+  "file": "none/lamp-shadow-on-white-wall-photo-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "lamp-shadow-on-white-wall-photo"
+ },
+ {
+  "file": "none/lamp-shadow-on-white-wall-photo-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "lamp-shadow-on-white-wall-photo"
+ },
+ {
+  "file": "none/lamp-shadow-on-white-wall-photo-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "lamp-shadow-on-white-wall-photo"
+ },
+ {
+  "file": "pale/mashed-potato-bowl-smooth-white-plate-to-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "mashed-potato-bowl-smooth-white-plate-to"
+ },
+ {
+  "file": "pale/mashed-potato-bowl-smooth-white-plate-to-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "mashed-potato-bowl-smooth-white-plate-to"
+ },
+ {
+  "file": "pale/mashed-potato-bowl-smooth-white-plate-to-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "mashed-potato-bowl-smooth-white-plate-to"
+ },
+ {
+  "file": "rice/nampan-makan-anak-nasi-sayur-ayam-goreng-1.webp",
+  "labels": [
+   "rice",
+   "greens",
+   "fried"
+  ],
+  "query": "nampan-makan-anak-nasi-sayur-ayam-goreng"
+ },
+ {
+  "file": "rice/nampan-makan-anak-nasi-sayur-ayam-goreng-5.jpg",
+  "labels": [
+   "rice",
+   "greens"
+  ],
+  "query": "nampan-makan-anak-nasi-sayur-ayam-goreng"
+ },
+ {
+  "file": "rice/nasi-putih-anak-di-piring-chia-dari-atas-1.jpg",
+  "labels": [
+   "rice",
+   "egg",
+   "brown"
+  ],
+  "query": "nasi-putih-anak-di-piring-chia-dari-atas"
+ },
+ {
+  "file": "rice/nasi-putih-anak-di-piring-chia-dari-atas-2.jpg",
+  "labels": [
+   "rice",
+   "greens",
+   "egg"
+  ],
+  "query": "nasi-putih-anak-di-piring-chia-dari-atas"
+ },
+ {
+  "file": "rice/nasi-putih-anak-di-piring-chia-dari-atas-3.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-putih-anak-di-piring-chia-dari-atas"
+ },
+ {
+  "file": "rice/nasi-putih-anak-di-piring-chia-dari-atas-5.jpg",
+  "labels": [
+   "rice",
+   "egg",
+   "brown"
+  ],
+  "query": "nasi-putih-anak-di-piring-chia-dari-atas"
+ },
+ {
+  "file": "rice/nasi-putih-di-piring-anak-bento-sederhan-5.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-putih-di-piring-anak-bento-sederhan"
+ },
+ {
+  "file": "rice/nasi-putih-di-piring-foto-dari-atas-5.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-putih-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "rice/nasi-putih-di-piring-makan-siang-anak-de-3.webp",
+  "labels": [
+   "rice",
+   "fried"
+  ],
+  "query": "nasi-putih-di-piring-makan-siang-anak-de"
+ },
+ {
+  "file": "rice/nasi-putih-di-piring-makan-siang-anak-de-4.webp",
+  "labels": [
+   "rice",
+   "greens",
+   "fried"
+  ],
+  "query": "nasi-putih-di-piring-makan-siang-anak-de"
+ },
+ {
+  "file": "none/nasi-putih-di-piring-melamin-warna-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "nasi-putih-di-piring-melamin-warna"
+ },
+ {
+  "file": "none/nasi-putih-di-piring-melamin-warna-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "nasi-putih-di-piring-melamin-warna"
+ },
+ {
+  "file": "rice/nasi-tim-ayam-bayi-mangkuk-1.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-tim-ayam-bayi-mangkuk"
+ },
+ {
+  "file": "rice/nasi-tim-ayam-bayi-mangkuk-4.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-tim-ayam-bayi-mangkuk"
+ },
+ {
+  "file": "rice/nasi-tim-ayam-bayi-mangkuk-5.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "nasi-tim-ayam-bayi-mangkuk"
+ },
+ {
+  "file": "orange/orange-segments-on-white-plate-top-view-1.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-segments-on-white-plate-top-view"
+ },
+ {
+  "file": "orange/orange-segments-on-white-plate-top-view-2.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-segments-on-white-plate-top-view"
+ },
+ {
+  "file": "orange/orange-segments-on-white-plate-top-view-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-segments-on-white-plate-top-view"
+ },
+ {
+  "file": "orange/orange-segments-on-white-plate-top-view-4.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-segments-on-white-plate-top-view"
+ },
+ {
+  "file": "orange/orange-segments-on-white-plate-top-view-5.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-segments-on-white-plate-top-view"
+ },
+ {
+  "file": "orange/pepaya-potong-dadu-di-piring-putih-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "pepaya-potong-dadu-di-piring-putih"
+ },
+ {
+  "file": "orange/pepaya-potong-di-piring-1.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "pepaya-potong-di-piring"
+ },
+ {
+  "file": "orange/pepaya-potong-di-piring-2.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "pepaya-potong-di-piring"
+ },
+ {
+  "file": "orange/pepaya-potong-di-piring-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "pepaya-potong-di-piring"
+ },
+ {
+  "file": "orange/pepaya-potong-di-piring-4.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "pepaya-potong-di-piring"
+ },
+ {
+  "file": "none/piring-kaca-kosong-di-atas-meja-kayu-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-kaca-kosong-di-atas-meja-kayu"
+ },
+ {
+  "file": "none/piring-kaca-kosong-di-atas-meja-kayu-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-kaca-kosong-di-atas-meja-kayu"
+ },
+ {
+  "file": "none/piring-kaca-kosong-di-atas-meja-kayu-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-kaca-kosong-di-atas-meja-kayu"
+ },
+ {
+  "file": "none/piring-kaca-kosong-di-atas-meja-kayu-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-kaca-kosong-di-atas-meja-kayu"
+ },
+ {
+  "file": "none/piring-kaca-kosong-di-atas-meja-kayu-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-kaca-kosong-di-atas-meja-kayu"
+ },
+ {
+  "file": "none/piring-plastik-anak-kosong-di-meja-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-plastik-anak-kosong-di-meja"
+ },
+ {
+  "file": "none/piring-plastik-anak-kosong-di-meja-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "piring-plastik-anak-kosong-di-meja"
+ },
+ {
+  "file": "yellow/pisang-potong-di-piring-anak-1.webp",
+  "labels": [
+   "yellow"
+  ],
+  "query": "pisang-potong-di-piring-anak"
+ },
+ {
+  "file": "none/plastic-placemat-pattern-on-kitchen-tabl-1.webp",
+  "labels": [
+   "none"
+  ],
+  "query": "plastic-placemat-pattern-on-kitchen-tabl"
+ },
+ {
+  "file": "none/plastic-placemat-pattern-on-kitchen-tabl-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "plastic-placemat-pattern-on-kitchen-tabl"
+ },
+ {
+  "file": "none/plastic-placemat-pattern-on-kitchen-tabl-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "plastic-placemat-pattern-on-kitchen-tabl"
+ },
+ {
+  "file": "brown/rendang-daging-di-piring-1.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-di-piring"
+ },
+ {
+  "file": "brown/rendang-daging-di-piring-2.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-di-piring"
+ },
+ {
+  "file": "brown/rendang-daging-di-piring-3.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-di-piring"
+ },
+ {
+  "file": "brown/rendang-daging-di-piring-4.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-di-piring"
+ },
+ {
+  "file": "brown/rendang-daging-di-piring-5.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-di-piring"
+ },
+ {
+  "file": "brown/rendang-daging-sapi-di-piring-putih-foto-1.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-sapi-di-piring-putih-foto"
+ },
+ {
+  "file": "brown/rendang-daging-sapi-di-piring-putih-foto-4.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-sapi-di-piring-putih-foto"
+ },
+ {
+  "file": "brown/rendang-daging-sapi-di-piring-putih-foto-5.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "rendang-daging-sapi-di-piring-putih-foto"
+ },
+ {
+  "file": "greens/sayur-bayam-bening-mangkuk-1.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-bening-mangkuk"
+ },
+ {
+  "file": "greens/sayur-bayam-bening-mangkuk-2.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-bening-mangkuk"
+ },
+ {
+  "file": "greens/sayur-bayam-bening-mangkuk-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-bening-mangkuk"
+ },
+ {
+  "file": "greens/sayur-bayam-bening-mangkuk-4.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-bening-mangkuk"
+ },
+ {
+  "file": "greens/sayur-bayam-bening-mangkuk-5.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-bening-mangkuk"
+ },
+ {
+  "file": "greens/sayur-bayam-rebus-di-piring-putih-2.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-rebus-di-piring-putih"
+ },
+ {
+  "file": "greens/sayur-bayam-rebus-di-piring-putih-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "sayur-bayam-rebus-di-piring-putih"
+ },
+ {
+  "file": "soup/sayur-bayam-rebus-di-piring-putih-5.jpg",
+  "labels": [
+   "soup",
+   "greens"
+  ],
+  "query": "sayur-bayam-rebus-di-piring-putih"
+ },
+ {
+  "file": "soup/sayur-sop-ayam-mangkuk-kuah-2.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "sayur-sop-ayam-mangkuk-kuah"
+ },
+ {
+  "file": "soup/sayur-sop-ayam-mangkuk-kuah-3.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sayur-sop-ayam-mangkuk-kuah"
+ },
+ {
+  "file": "soup/sayur-sop-ayam-mangkuk-kuah-4.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "sayur-sop-ayam-mangkuk-kuah"
+ },
+ {
+  "file": "soup/sayur-sop-ayam-mangkuk-kuah-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "sayur-sop-ayam-mangkuk-kuah"
+ },
+ {
+  "file": "soup/sayur-sop-bening-mangkuk-putih-foto-dari-3.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sayur-sop-bening-mangkuk-putih-foto-dari"
+ },
+ {
+  "file": "egg/scrambled-eggs-on-white-plate-top-view-b-1.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "scrambled-eggs-on-white-plate-top-view-b"
+ },
+ {
+  "file": "egg/scrambled-eggs-on-white-plate-top-view-b-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "scrambled-eggs-on-white-plate-top-view-b"
+ },
+ {
+  "file": "egg/scrambled-eggs-on-white-plate-top-view-b-3.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "scrambled-eggs-on-white-plate-top-view-b"
+ },
+ {
+  "file": "egg/scrambled-eggs-on-white-plate-top-view-b-5.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "scrambled-eggs-on-white-plate-top-view-b"
+ },
+ {
+  "file": "red/semangka-potong-dadu-di-piring-1.webp",
+  "labels": [
+   "red"
+  ],
+  "query": "semangka-potong-dadu-di-piring"
+ },
+ {
+  "file": "rice/semangka-potong-segitiga-di-piring-anak-1.webp",
+  "labels": [
+   "rice",
+   "orange"
+  ],
+  "query": "semangka-potong-segitiga-di-piring-anak"
+ },
+ {
+  "file": "rice/semangka-potong-segitiga-di-piring-anak-2.webp",
+  "labels": [
+   "rice",
+   "orange"
+  ],
+  "query": "semangka-potong-segitiga-di-piring-anak"
+ },
+ {
+  "file": "rice/semangka-potong-segitiga-di-piring-anak-3.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "semangka-potong-segitiga-di-piring-anak"
+ },
+ {
+  "file": "brown/semur-ayam-kecap-coklat-di-piring-1.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-ayam-kecap-coklat-di-piring"
+ },
+ {
+  "file": "brown/semur-ayam-kecap-coklat-di-piring-4.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-ayam-kecap-coklat-di-piring"
+ },
+ {
+  "file": "brown/semur-daging-kecap-di-piring-1.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-daging-kecap-di-piring"
+ },
+ {
+  "file": "brown/semur-daging-kecap-di-piring-2.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-daging-kecap-di-piring"
+ },
+ {
+  "file": "brown/semur-daging-kecap-di-piring-3.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-daging-kecap-di-piring"
+ },
+ {
+  "file": "brown/semur-daging-kecap-di-piring-4.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-daging-kecap-di-piring"
+ },
+ {
+  "file": "brown/semur-daging-kentang-kuah-kental-piring-3.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "semur-daging-kentang-kuah-kental-piring"
+ },
+ {
+  "file": "brown/semur-daging-kentang-kuah-kental-piring-4.jpg",
+  "labels": [
+   "brown",
+   "pale"
+  ],
+  "query": "semur-daging-kentang-kuah-kental-piring"
+ },
+ {
+  "file": "brown/semur-daging-kentang-kuah-kental-piring-5.jpg",
+  "labels": [
+   "brown",
+   "pale"
+  ],
+  "query": "semur-daging-kentang-kuah-kental-piring"
+ },
+ {
+  "file": "rice/sepiring-nasi-putih-polos-piring-putih-3.webp",
+  "labels": [
+   "rice"
+  ],
+  "query": "sepiring-nasi-putih-polos-piring-putih"
+ },
+ {
+  "file": "rice/sepiring-nasi-putih-polos-piring-putih-5.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "sepiring-nasi-putih-polos-piring-putih"
+ },
+ {
+  "file": "none/shadow-of-hand-on-white-wall-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "shadow-of-hand-on-white-wall"
+ },
+ {
+  "file": "none/shadow-of-hand-on-white-wall-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "shadow-of-hand-on-white-wall"
+ },
+ {
+  "file": "none/shadow-of-hand-on-white-wall-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "shadow-of-hand-on-white-wall"
+ },
+ {
+  "file": "none/shadow-of-hand-on-white-wall-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "shadow-of-hand-on-white-wall"
+ },
+ {
+  "file": "none/shadow-of-hand-on-white-wall-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "shadow-of-hand-on-white-wall"
+ },
+ {
+  "file": "yellow/sliced-banana-pieces-on-plate-top-view-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sliced-banana-pieces-on-plate-top-view"
+ },
+ {
+  "file": "yellow/sliced-banana-pieces-on-plate-top-view-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sliced-banana-pieces-on-plate-top-view"
+ },
+ {
+  "file": "yellow/sliced-banana-pieces-on-plate-top-view-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sliced-banana-pieces-on-plate-top-view"
+ },
+ {
+  "file": "yellow/sliced-banana-pieces-on-plate-top-view-4.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sliced-banana-pieces-on-plate-top-view"
+ },
+ {
+  "file": "yellow/sliced-banana-pieces-on-plate-top-view-5.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sliced-banana-pieces-on-plate-top-view"
+ },
+ {
+  "file": "red/sliced-strawberries-and-watermelon-on-pl-1.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-and-watermelon-on-pl"
+ },
+ {
+  "file": "red/sliced-strawberries-and-watermelon-on-pl-2.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-and-watermelon-on-pl"
+ },
+ {
+  "file": "red/sliced-strawberries-and-watermelon-on-pl-4.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-and-watermelon-on-pl"
+ },
+ {
+  "file": "red/sliced-strawberries-and-watermelon-on-pl-5.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-and-watermelon-on-pl"
+ },
+ {
+  "file": "red/sliced-strawberries-on-white-plate-top-v-1.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-on-white-plate-top-v"
+ },
+ {
+  "file": "red/sliced-strawberries-on-white-plate-top-v-3.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "sliced-strawberries-on-white-plate-top-v"
+ },
+ {
+  "file": "red/sliced-strawberries-on-white-plate-top-v-5.jpg",
+  "labels": [
+   "red",
+   "yellow"
+  ],
+  "query": "sliced-strawberries-on-white-plate-top-v"
+ },
+ {
+  "file": "soup/soto-ayam-bening-mangkuk-foto-dari-atas-1.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-bening-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "soup/soto-ayam-bening-mangkuk-foto-dari-atas-2.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-bening-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "soup/soto-ayam-bening-mangkuk-foto-dari-atas-3.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-bening-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "soup/soto-ayam-bening-mangkuk-foto-dari-atas-4.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-bening-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "soup/soto-ayam-bening-mangkuk-foto-dari-atas-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-bening-mangkuk-foto-dari-atas"
+ },
+ {
+  "file": "soup/soto-ayam-kuah-bening-mangkuk-foto-atas-1.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-kuah-bening-mangkuk-foto-atas"
+ },
+ {
+  "file": "soup/soto-ayam-kuah-bening-mangkuk-foto-atas-2.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-kuah-bening-mangkuk-foto-atas"
+ },
+ {
+  "file": "soup/soto-ayam-kuah-bening-mangkuk-foto-atas-3.jpg",
+  "labels": [
+   "soup",
+   "greens",
+   "orange",
+   "egg"
+  ],
+  "query": "soto-ayam-kuah-bening-mangkuk-foto-atas"
+ },
+ {
+  "file": "soup/soto-ayam-kuah-bening-mangkuk-foto-atas-4.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "soto-ayam-kuah-bening-mangkuk-foto-atas"
+ },
+ {
+  "file": "soup/soto-ayam-kuah-bening-mangkuk-foto-atas-5.jpg",
+  "labels": [
+   "soup",
+   "orange",
+   "egg"
+  ],
+  "query": "soto-ayam-kuah-bening-mangkuk-foto-atas"
+ },
+ {
+  "file": "greens/spinach-green-vegetable-stir-fry-plate-o-1.jpg",
+  "labels": [
+   "greens",
+   "orange"
+  ],
+  "query": "spinach-green-vegetable-stir-fry-plate-o"
+ },
+ {
+  "file": "greens/spinach-green-vegetable-stir-fry-plate-o-2.jpg",
+  "labels": [
+   "greens",
+   "pale"
+  ],
+  "query": "spinach-green-vegetable-stir-fry-plate-o"
+ },
+ {
+  "file": "greens/spinach-green-vegetable-stir-fry-plate-o-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "spinach-green-vegetable-stir-fry-plate-o"
+ },
+ {
+  "file": "greens/spinach-green-vegetable-stir-fry-plate-o-4.jpg",
+  "labels": [
+   "greens",
+   "pale"
+  ],
+  "query": "spinach-green-vegetable-stir-fry-plate-o"
+ },
+ {
+  "file": "greens/spinach-green-vegetable-stir-fry-plate-o-5.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "spinach-green-vegetable-stir-fry-plate-o"
+ },
+ {
+  "file": "none/spoon-and-fork-on-empty-plate-top-view-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "spoon-and-fork-on-empty-plate-top-view"
+ },
+ {
+  "file": "none/spoon-and-fork-on-empty-plate-top-view-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "spoon-and-fork-on-empty-plate-top-view"
+ },
+ {
+  "file": "none/spoon-and-fork-on-empty-plate-top-view-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "spoon-and-fork-on-empty-plate-top-view"
+ },
+ {
+  "file": "none/spoon-and-fork-on-empty-plate-top-view-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "spoon-and-fork-on-empty-plate-top-view"
+ },
+ {
+  "file": "none/spoon-and-fork-on-empty-plate-top-view-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "spoon-and-fork-on-empty-plate-top-view"
+ },
+ {
+  "file": "greens/steamed-broccoli-florets-on-plate-top-vi-1.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "steamed-broccoli-florets-on-plate-top-vi"
+ },
+ {
+  "file": "greens/steamed-broccoli-florets-on-plate-top-vi-2.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "steamed-broccoli-florets-on-plate-top-vi"
+ },
+ {
+  "file": "greens/steamed-broccoli-florets-on-plate-top-vi-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "steamed-broccoli-florets-on-plate-top-vi"
+ },
+ {
+  "file": "greens/steamed-broccoli-florets-on-plate-top-vi-4.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "steamed-broccoli-florets-on-plate-top-vi"
+ },
+ {
+  "file": "greens/steamed-broccoli-florets-on-plate-top-vi-5.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "steamed-broccoli-florets-on-plate-top-vi"
+ },
+ {
+  "file": "pale/steamed-cauliflower-florets-on-plate-top-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-cauliflower-florets-on-plate-top"
+ },
+ {
+  "file": "pale/steamed-cauliflower-florets-on-plate-top-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-cauliflower-florets-on-plate-top"
+ },
+ {
+  "file": "pale/steamed-cauliflower-florets-on-plate-top-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-cauliflower-florets-on-plate-top"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-on-white-p-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-on-white-p"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-on-white-p-2.jpg",
+  "labels": [
+   "pale",
+   "orange",
+   "yellow"
+  ],
+  "query": "steamed-chicken-breast-sliced-on-white-p"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-on-white-p-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-on-white-p"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-on-white-p-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-on-white-p"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-on-white-p-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-on-white-p"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-white-plat-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-white-plat"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-white-plat-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-chicken-breast-sliced-white-plat"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-white-plat-3.jpg",
+  "labels": [
+   "pale",
+   "orange",
+   "yellow"
+  ],
+  "query": "steamed-chicken-breast-sliced-white-plat"
+ },
+ {
+  "file": "pale/steamed-chicken-breast-sliced-white-plat-4.jpg",
+  "labels": [
+   "pale",
+   "red"
+  ],
+  "query": "steamed-chicken-breast-sliced-white-plat"
+ },
+ {
+  "file": "pale/steamed-fish-fillet-on-plate-top-view-1.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-fish-fillet-on-plate-top-view"
+ },
+ {
+  "file": "pale/steamed-fish-fillet-on-plate-top-view-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-fish-fillet-on-plate-top-view"
+ },
+ {
+  "file": "pale/steamed-fish-fillet-on-plate-top-view-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-fish-fillet-on-plate-top-view"
+ },
+ {
+  "file": "pale/steamed-fish-fillet-on-plate-top-view-5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-fish-fillet-on-plate-top-view"
+ },
+ {
+  "file": "rice/steamed-rice-bowl-plain-overhead-wooden--1.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-rice-bowl-plain-overhead-wooden-"
+ },
+ {
+  "file": "rice/steamed-rice-bowl-plain-overhead-wooden--2.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-rice-bowl-plain-overhead-wooden-"
+ },
+ {
+  "file": "rice/steamed-rice-bowl-plain-overhead-wooden--3.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-rice-bowl-plain-overhead-wooden-"
+ },
+ {
+  "file": "rice/steamed-rice-bowl-plain-overhead-wooden--4.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-rice-bowl-plain-overhead-wooden-"
+ },
+ {
+  "file": "fried/steamed-tofu-cubes-on-white-plate-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "steamed-tofu-cubes-on-white-plate"
+ },
+ {
+  "file": "brown/steamed-tofu-cubes-on-white-plate-3.jpg",
+  "labels": [
+   "brown"
+  ],
+  "query": "steamed-tofu-cubes-on-white-plate"
+ },
+ {
+  "file": "pale/steamed-tofu-cubes-on-white-plate-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "steamed-tofu-cubes-on-white-plate"
+ },
+ {
+  "file": "rice/steamed-white-rice-in-bowl-close-up-top--1.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-in-bowl-close-up-top-"
+ },
+ {
+  "file": "rice/steamed-white-rice-in-bowl-close-up-top--2.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-in-bowl-close-up-top-"
+ },
+ {
+  "file": "rice/steamed-white-rice-in-bowl-close-up-top--3.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-in-bowl-close-up-top-"
+ },
+ {
+  "file": "rice/steamed-white-rice-in-bowl-close-up-top--4.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-in-bowl-close-up-top-"
+ },
+ {
+  "file": "rice/steamed-white-rice-in-bowl-close-up-top--5.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-in-bowl-close-up-top-"
+ },
+ {
+  "file": "rice/steamed-white-rice-on-plate-top-view-sto-1.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-on-plate-top-view-sto"
+ },
+ {
+  "file": "rice/steamed-white-rice-on-plate-top-view-sto-4.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-on-plate-top-view-sto"
+ },
+ {
+  "file": "rice/steamed-white-rice-on-plate-top-view-sto-5.jpg",
+  "labels": [
+   "rice"
+  ],
+  "query": "steamed-white-rice-on-plate-top-view-sto"
+ },
+ {
+  "file": "soup/sup-ayam-bening-wortel-kentang-mangkuk-a-1.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-ayam-bening-wortel-kentang-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-ayam-bening-wortel-kentang-mangkuk-a-2.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-ayam-bening-wortel-kentang-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-ayam-bening-wortel-kentang-mangkuk-a-3.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-ayam-bening-wortel-kentang-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-ayam-bening-wortel-kentang-mangkuk-a-4.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-ayam-bening-wortel-kentang-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-ayam-bening-wortel-kentang-mangkuk-a-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-ayam-bening-wortel-kentang-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-bening-sayur-mangkuk-foto-dari-atas--2.webp",
+  "labels": [
+   "soup",
+   "greens"
+  ],
+  "query": "sup-bening-sayur-mangkuk-foto-dari-atas-"
+ },
+ {
+  "file": "rice/sup-bening-sayur-mangkuk-foto-dari-atas--3.jpg",
+  "labels": [
+   "rice",
+   "greens",
+   "yellow"
+  ],
+  "query": "sup-bening-sayur-mangkuk-foto-dari-atas-"
+ },
+ {
+  "file": "soup/sup-kacang-merah-kuah-mangkuk-dari-atas-1.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-kacang-merah-kuah-mangkuk-dari-atas"
+ },
+ {
+  "file": "soup/sup-kacang-merah-kuah-mangkuk-dari-atas-2.jpg",
+  "labels": [
+   "soup",
+   "brown"
+  ],
+  "query": "sup-kacang-merah-kuah-mangkuk-dari-atas"
+ },
+ {
+  "file": "soup/sup-kacang-merah-kuah-mangkuk-dari-atas-3.jpg",
+  "labels": [
+   "soup",
+   "orange"
+  ],
+  "query": "sup-kacang-merah-kuah-mangkuk-dari-atas"
+ },
+ {
+  "file": "soup/sup-kacang-merah-kuah-mangkuk-dari-atas-5.jpg",
+  "labels": [
+   "soup",
+   "brown",
+   "orange"
+  ],
+  "query": "sup-kacang-merah-kuah-mangkuk-dari-atas"
+ },
+ {
+  "file": "soup/sup-makaroni-sayur-kuah-bening-mangkuk-a-2.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-makaroni-sayur-kuah-bening-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-makaroni-sayur-kuah-bening-mangkuk-a-4.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-makaroni-sayur-kuah-bening-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-makaroni-sayur-kuah-bening-mangkuk-a-5.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-makaroni-sayur-kuah-bening-mangkuk-a"
+ },
+ {
+  "file": "soup/sup-wortel-kuah-bening-mangkuk-1.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-wortel-kuah-bening-mangkuk"
+ },
+ {
+  "file": "soup/sup-wortel-kuah-bening-mangkuk-2.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-wortel-kuah-bening-mangkuk"
+ },
+ {
+  "file": "soup/sup-wortel-kuah-bening-mangkuk-3.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-wortel-kuah-bening-mangkuk"
+ },
+ {
+  "file": "soup/sup-wortel-kuah-bening-mangkuk-4.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-wortel-kuah-bening-mangkuk"
+ },
+ {
+  "file": "soup/sup-wortel-kuah-bening-mangkuk-5.webp",
+  "labels": [
+   "soup"
+  ],
+  "query": "sup-wortel-kuah-bening-mangkuk"
+ },
+ {
+  "file": "yellow/sweet-corn-kernels-boiled-in-bowl-top-vi-1.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sweet-corn-kernels-boiled-in-bowl-top-vi"
+ },
+ {
+  "file": "yellow/sweet-corn-kernels-boiled-in-bowl-top-vi-2.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sweet-corn-kernels-boiled-in-bowl-top-vi"
+ },
+ {
+  "file": "yellow/sweet-corn-kernels-boiled-in-bowl-top-vi-3.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sweet-corn-kernels-boiled-in-bowl-top-vi"
+ },
+ {
+  "file": "yellow/sweet-corn-kernels-boiled-in-bowl-top-vi-5.jpg",
+  "labels": [
+   "yellow"
+  ],
+  "query": "sweet-corn-kernels-boiled-in-bowl-top-vi"
+ },
+ {
+  "file": "pale/tahu-kukus-putih-di-piring-2.webp",
+  "labels": [
+   "pale"
+  ],
+  "query": "tahu-kukus-putih-di-piring"
+ },
+ {
+  "file": "pale/tahu-putih-potong-dadu-di-piring-putih-5.jpg",
+  "labels": [
+   "pale",
+   "greens"
+  ],
+  "query": "tahu-putih-potong-dadu-di-piring-putih"
+ },
+ {
+  "file": "pale/tahu-putih-rebus-potong-dadu-di-piring-1.webp",
+  "labels": [
+   "pale",
+   "egg",
+   "greens"
+  ],
+  "query": "tahu-putih-rebus-potong-dadu-di-piring"
+ },
+ {
+  "file": "none/taplak-meja-bermotif-foto-dari-atas-meja-1.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "taplak-meja-bermotif-foto-dari-atas-meja"
+ },
+ {
+  "file": "none/taplak-meja-bermotif-foto-dari-atas-meja-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "taplak-meja-bermotif-foto-dari-atas-meja"
+ },
+ {
+  "file": "none/taplak-meja-bermotif-foto-dari-atas-meja-5.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "taplak-meja-bermotif-foto-dari-atas-meja"
+ },
+ {
+  "file": "fried/telur-dadar-di-piring-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "telur-dadar-di-piring"
+ },
+ {
+  "file": "fried/telur-dadar-di-piring-2.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "telur-dadar-di-piring"
+ },
+ {
+  "file": "fried/telur-dadar-di-piring-3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "telur-dadar-di-piring"
+ },
+ {
+  "file": "fried/telur-dadar-di-piring-4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "telur-dadar-di-piring"
+ },
+ {
+  "file": "fried/telur-dadar-di-piring-5.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "telur-dadar-di-piring"
+ },
+ {
+  "file": "egg/telur-dadar-tipis-potong-di-piring-putih-1.webp",
+  "labels": [
+   "egg",
+   "fried"
+  ],
+  "query": "telur-dadar-tipis-potong-di-piring-putih"
+ },
+ {
+  "file": "egg/telur-mata-sapi-di-piring-foto-dari-atas-1.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-mata-sapi-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "egg/telur-mata-sapi-di-piring-foto-dari-atas-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-mata-sapi-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "egg/telur-mata-sapi-di-piring-foto-dari-atas-3.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-mata-sapi-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "egg/telur-mata-sapi-di-piring-foto-dari-atas-4.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-mata-sapi-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "egg/telur-mata-sapi-di-piring-foto-dari-atas-5.webp",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-mata-sapi-di-piring-foto-dari-atas"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-1.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-2.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-3.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-4.jpg",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-5.webp",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring"
+ },
+ {
+  "file": "egg/telur-rebus-belah-dua-di-piring-putih-an-2.webp",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-belah-dua-di-piring-putih-an"
+ },
+ {
+  "file": "egg/telur-rebus-kupas-belah-dua-piring-anak-5.webp",
+  "labels": [
+   "egg"
+  ],
+  "query": "telur-rebus-kupas-belah-dua-piring-anak"
+ },
+ {
+  "file": "fried/tempe-goreng-di-piring-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-di-piring-2.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-di-piring-3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-di-piring-4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-di-piring-5.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-potong-di-piring-putih-foto-1.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-potong-di-piring-putih-foto"
+ },
+ {
+  "file": "fried/tempe-goreng-potong-di-piring-putih-foto-2.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-potong-di-piring-putih-foto"
+ },
+ {
+  "file": "fried/tempe-goreng-potong-di-piring-putih-foto-3.webp",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-potong-di-piring-putih-foto"
+ },
+ {
+  "file": "fried/tempe-goreng-tepung-keemasan-di-piring-1.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-tepung-keemasan-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-tepung-keemasan-di-piring-3.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-tepung-keemasan-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-tepung-keemasan-di-piring-4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-tepung-keemasan-di-piring"
+ },
+ {
+  "file": "fried/tempe-goreng-tepung-keemasan-di-piring-5.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "tempe-goreng-tepung-keemasan-di-piring"
+ },
+ {
+  "file": "brown/teriyaki-chicken-pieces-brown-sauce-on-w-3.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "teriyaki-chicken-pieces-brown-sauce-on-w"
+ },
+ {
+  "file": "brown/teriyaki-chicken-pieces-brown-sauce-on-w-5.jpg",
+  "labels": [
+   "brown",
+   "rice"
+  ],
+  "query": "teriyaki-chicken-pieces-brown-sauce-on-w"
+ },
+ {
+  "file": "pale/tofu-cubes-in-white-bowl-plain-overhead-2.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "tofu-cubes-in-white-bowl-plain-overhead"
+ },
+ {
+  "file": "pale/tofu-cubes-in-white-bowl-plain-overhead-3.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "tofu-cubes-in-white-bowl-plain-overhead"
+ },
+ {
+  "file": "pale/tofu-cubes-in-white-bowl-plain-overhead-4.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "tofu-cubes-in-white-bowl-plain-overhead"
+ },
+ {
+  "file": "red/tomat-merah-iris-di-piring-putih-atas-3.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "tomat-merah-iris-di-piring-putih-atas"
+ },
+ {
+  "file": "red/tomat-potong-di-piring-putih-1.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "tomat-potong-di-piring-putih"
+ },
+ {
+  "file": "red/tomat-potong-di-piring-putih-3.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "tomat-potong-di-piring-putih"
+ },
+ {
+  "file": "red/tomat-potong-di-piring-putih-4.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "tomat-potong-di-piring-putih"
+ },
+ {
+  "file": "greens/tumis-buncis-wortel-di-piring-putih-atas-2.webp",
+  "labels": [
+   "greens",
+   "orange"
+  ],
+  "query": "tumis-buncis-wortel-di-piring-putih-atas"
+ },
+ {
+  "file": "greens/tumis-sawi-hijau-di-piring-1.webp",
+  "labels": [
+   "greens"
+  ],
+  "query": "tumis-sawi-hijau-di-piring"
+ },
+ {
+  "file": "greens/tumis-sawi-hijau-di-piring-2.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "tumis-sawi-hijau-di-piring"
+ },
+ {
+  "file": "greens/tumis-sawi-hijau-di-piring-3.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "tumis-sawi-hijau-di-piring"
+ },
+ {
+  "file": "greens/tumis-sawi-hijau-di-piring-4.jpg",
+  "labels": [
+   "greens"
+  ],
+  "query": "tumis-sawi-hijau-di-piring"
+ },
+ {
+  "file": "greens/tumis-sawi-hijau-di-piring-5.webp",
+  "labels": [
+   "greens"
+  ],
+  "query": "tumis-sawi-hijau-di-piring"
+ },
+ {
+  "file": "red/watermelon-cubes-in-bowl-top-view-1.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-in-bowl-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-in-bowl-top-view-2.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-in-bowl-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-in-bowl-top-view-3.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-in-bowl-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-in-bowl-top-view-4.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-in-bowl-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-in-bowl-top-view-5.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-in-bowl-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-on-white-plate-top-view-1.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-on-white-plate-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-on-white-plate-top-view-2.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-on-white-plate-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-on-white-plate-top-view-3.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-on-white-plate-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-on-white-plate-top-view-4.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-on-white-plate-top-view"
+ },
+ {
+  "file": "red/watermelon-cubes-on-white-plate-top-view-5.jpg",
+  "labels": [
+   "red"
+  ],
+  "query": "watermelon-cubes-on-white-plate-top-view"
+ },
+ {
+  "file": "none/white-ceramic-floor-tiles-photo-1.webp",
+  "labels": [
+   "none"
+  ],
+  "query": "white-ceramic-floor-tiles-photo"
+ },
+ {
+  "file": "none/white-ceramic-floor-tiles-photo-2.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "white-ceramic-floor-tiles-photo"
+ },
+ {
+  "file": "none/white-ceramic-floor-tiles-photo-3.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "white-ceramic-floor-tiles-photo"
+ },
+ {
+  "file": "none/white-ceramic-floor-tiles-photo-4.jpg",
+  "labels": [
+   "none"
+  ],
+  "query": "white-ceramic-floor-tiles-photo"
+ },
+ {
+  "file": "none/white-ceramic-floor-tiles-photo-5.webp",
+  "labels": [
+   "none"
+  ],
+  "query": "white-ceramic-floor-tiles-photo"
+ },
+ {
+  "file": "orange/wortel-rebus-iris-bulat-di-piring-anak-1.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-iris-bulat-di-piring-anak"
+ },
+ {
+  "file": "rice/wortel-rebus-iris-bulat-di-piring-anak-3.webp",
+  "labels": [
+   "rice",
+   "orange"
+  ],
+  "query": "wortel-rebus-iris-bulat-di-piring-anak"
+ },
+ {
+  "file": "rice/wortel-rebus-iris-bulat-di-piring-anak-4.webp",
+  "labels": [
+   "rice",
+   "orange"
+  ],
+  "query": "wortel-rebus-iris-bulat-di-piring-anak"
+ },
+ {
+  "file": "rice/wortel-rebus-iris-bulat-di-piring-anak-5.webp",
+  "labels": [
+   "rice",
+   "pale",
+   "orange"
+  ],
+  "query": "wortel-rebus-iris-bulat-di-piring-anak"
+ },
+ {
+  "file": "orange/wortel-rebus-potong-di-piring-anak-1.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-potong-di-piring-anak"
+ },
+ {
+  "file": "orange/wortel-rebus-potong-di-piring-anak-2.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-potong-di-piring-anak"
+ },
+ {
+  "file": "orange/wortel-rebus-potong-di-piring-anak-3.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-potong-di-piring-anak"
+ },
+ {
+  "file": "orange/wortel-rebus-potong-di-piring-anak-4.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-potong-di-piring-anak"
+ },
+ {
+  "file": "orange/wortel-rebus-potong-di-piring-anak-5.webp",
+  "labels": [
+   "orange"
+  ],
+  "query": "wortel-rebus-potong-di-piring-anak"
+ }
+]

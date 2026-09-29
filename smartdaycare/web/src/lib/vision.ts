@@ -93,10 +93,30 @@ export interface AnalyzeOpts {
 
 export const STAGE_NAMES = ["Membaca warna dan tekstur", "Mencari piring", "Mengenali makanan", "Memeriksa dengan model", "Menghitung porsi"] as const;
 const NONE_DROP = 0.6; // kelompok dibuang bila model menilai bukan makanan di atas ambang ini
-const RELABEL_MIN = 0.6; // kelas diganti hanya bila model yakin
+const RELABEL_MIN = 0.6; // bawaan lama: kelas diganti hanya bila model yakin
 const RELABEL_PRECISION_MIN = 0.75; // …dan hanya ke kelas yang presisinya (pada p > 0,6, data uji) cukup tinggi
 const RELABEL_SURE = 0.8; // …kecuali model sangat yakin: kelas berpresisi rendah pun boleh menjadi tujuan
-const VETO_P = 0.07; // kelompok warna dibuang bila model hampir pasti bukan kelas itu dan tidak bisa diganti kelasnya
+const VETO_P = 0.07; // bawaan lama: kelompok warna dibuang bila model hampir pasti bukan kelas itu
+
+/** Ambang keputusan per kelas: dipakai apa adanya dari berkas model bila ada, sebab ambangnya
+    dihitung dari data uji saat model dilatih (ai/train.py), bukan ditebak di antarmuka.
+    Model lama tanpa ambang di dalam berkas tetap jalan dengan aturan lama. */
+export function ambangDari(net: FoodNet) {
+  const t = (net.meta.thresholds ?? {}) as { relabel_min?: Record<string, number>; veto_p?: Record<string, number> };
+  const precision = (net.meta.val_precision_conf06 ?? {}) as Record<string, number>;
+  const tuned = !!t.relabel_min || !!t.veto_p;
+  return {
+    tuned,
+    /** bolehkah nama menu hasil segmentasi warna diganti ke kelas `target` pada peluang `p`? */
+    mayRelabel: (target: string, p: number) =>
+      tuned
+        ? p >= (t.relabel_min?.[target] ?? RELABEL_SURE)
+        : p > RELABEL_MIN && (typeof precision[target] === "number" ? precision[target] >= RELABEL_PRECISION_MIN || p > RELABEL_SURE : true),
+    /** di bawah peluang ini kelompok berwarna `cat` dianggap salah baca dan dibuang */
+    vetoP: (cat: string) => (tuned ? (t.veto_p?.[cat] ?? VETO_P) : VETO_P),
+  };
+}
+
 const NET_MIN_SIDE = 300; // skala saat model dilatih (sisi terpendek foto 300 px); bingkai yang lebih kecil diperbesar dulu untuk model
 const NET_MAX_SCALE = 2.2;
 
@@ -455,10 +475,9 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
       model.used = true;
       model.name = String(net.meta.name ?? "food-patch");
       model.ms = Math.round(map.ms);
-      // presisi per kelas dari data uji (disimpan saat ekspor): kelas yang sering keliru (mis. sup, pucat, telur)
-      // tidak boleh menjadi tujuan penggantian kelas walau peluangnya tinggi
-      const precision = (net.meta.val_precision_conf06 ?? {}) as Record<string, number>;
-      const mayRelabelTo = (k: string) => (typeof precision[k] === "number" ? precision[k] >= RELABEL_PRECISION_MIN : true);
+      // ambang per kelas dari data uji (disimpan di dalam berkas model saat ekspor): kelas yang sering
+      // keliru (mis. sup, pucat, telur) menuntut peluang lebih tinggi sebelum boleh menamai ulang
+      const thr = ambangDari(net);
       const foodCell = (x: number, y: number) => {
         const k = cls[y * W + x];
         return k !== K.BG && k !== K.PLATE;
@@ -490,8 +509,8 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
         const bc = map.classes[best] as Cat;
         const own = map.classes.indexOf(c);
         g.p = own >= 0 ? probs[own] : undefined;
-        const relabel = bc !== c && bc in CATS && food[best] > RELABEL_MIN && (mayRelabelTo(bc) || food[best] > RELABEL_SURE);
-        if (!relabel && typeof g.p === "number" && g.p < VETO_P) {
+        const relabel = bc !== c && bc in CATS && thr.mayRelabel(bc, food[best]);
+        if (!relabel && typeof g.p === "number" && g.p < thr.vetoP(c)) {
           // warna cocok tetapi model hampir pasti bukan kelas itu (mis. serbet merah, piring kuning): buang
           vetoed.push(g);
           delete groups[c];

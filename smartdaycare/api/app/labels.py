@@ -75,3 +75,28 @@ def fmt_duration(minutes: int) -> str:
     if h:
         return f"{h} jam"
     return f"{m} mnt"
+
+
+# ------------------------------------------------------------------ kelompok menu ----
+# Nama menu bebas (hasil pindai piring memakai nama menu dari daftar dapur, catatan pengasuh
+# memakai istilah singkat). Yang dibutuhkan analitik hanya satu hal: apakah hari itu ada
+# kelompok gizi tertentu di piring — jadi cukup kata kunci, tanpa perlu tabel gizi lengkap.
+MENU_GROUP = {
+    "karbo": ("nasi", "beras", "mi", "bihun", "roti", "biskuit", "jagung", "kentang", "singkong", "bubur", "oat"),
+    "sayur": ("sayur", "bayam", "brokoli", "kangkung", "sawi", "buncis", "wortel", "labu", "sup", "sop", "tumisan"),
+    "protein": ("ayam", "ikan", "daging", "telur", "tempe", "tahu", "kacang", "udang", "ayam suwir", "sarden"),
+    "buah": ("buah", "pisang", "jeruk", "pepaya", "semangka", "melon", "mangga", "alpukat", "pir", "apel"),
+    "susu": ("susu", "yogurt", "keju", "puding"),
+}
+MENU_GROUP_LABEL = {"karbo": "makanan pokok", "sayur": "sayur", "protein": "lauk protein", "buah": "buah", "susu": "susu & olahan"}
+
+
+def menu_groups(items: list[str]) -> set[str]:
+    """Kelompok gizi yang terkandung pada daftar nama menu (cocok untuk nama bebas sekali pun)."""
+    out: set[str] = set()
+    for raw in items or []:
+        t = str(raw).lower()
+        for group, keys in MENU_GROUP.items():
+            if any(k in t for k in keys):
+                out.add(group)
+    return out
