@@ -1,0 +1,14 @@
+{
+  "name": "smartdaycare-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node run.mjs",
+    "install-browser": "npx playwright-core install chromium",
+    "a11y": "node a11y.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.0",
+    "axe-core": "^4.10.2"
+  }
+}

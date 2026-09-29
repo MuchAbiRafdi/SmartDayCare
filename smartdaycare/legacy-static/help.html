@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pusat bantuan — SmartDaycare AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="help">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SmartDaycare AI — beranda">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#0B5F59"/><path d="M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17" cy="22.5" r="2.6" fill="#5EEAD4"/></svg>
+      <span><span class="brand-name">SmartDaycare AI</span><span class="brand-sub">PENITIPAN ANAK YANG TRANSPARAN</span></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainnav">Menu</button>
+    <nav class="mainnav" id="mainnav" aria-label="Navigasi utama">
+      <a href="index.html#fitur">Fitur</a>
+      <a href="index.html#harga">Harga</a>
+      <a href="help.html" class="active" aria-current="page">Bantuan</a>
+      <span data-authlinks style="display:contents"><a class="btn btn-sm" href="login.html">Masuk</a><a class="btn btn-sm btn-primary" href="register.html">Daftar</a></span>
+    </nav>
+  </div>
+</header>
+
+<main id="utama">
+  <div class="wrap">
+    <div class="page-title" style="text-align:center;padding-top:52px">
+      <h1>Ada yang bisa kami bantu?</h1>
+      <p style="margin:0 auto">Cari jawaban cepat atau kirim pertanyaan ke tim kami.</p>
+    </div>
+    <div class="help-search"><label for="faq-search" class="sr">Cari pertanyaan</label><input id="faq-search" type="search" placeholder="Cari, cth. kamera, kode anak, kalori"></div>
+
+    <section style="padding-bottom:40px;max-width:820px;margin:0 auto">
+      <p class="eyebrow">Pertanyaan umum</p>
+      <div id="faq-list"></div>
+    </section>
+
+    <section class="grid-2" style="padding-bottom:20px">
+      <div class="panel" id="privasi">
+        <div class="panel-head"><div><h2>Kebijakan privasi</h2><p>Berlaku sejak 1 Januari 2026.</p></div></div>
+        <ul style="font-size:14px;padding-left:18px;color:var(--ink-2);margin:0">
+          <li>Data anak dipakai hanya untuk pengasuhan dan pelaporan kepada orang tua atau wali sah.</li>
+          <li>Rekaman kamera tersimpan 7 hari lalu dihapus otomatis.</li>
+          <li>Wajah anak lain diburamkan pada tampilan orang tua.</li>
+          <li>Setiap akses kamera tercatat: siapa, kapan, dan untuk apa.</li>
+          <li>Data tersimpan di Indonesia dan tidak dibagikan kepada pihak lain.</li>
+          <li>Permintaan salinan atau penghapusan data diproses paling lambat 7 hari kerja.</li>
+        </ul>
+      </div>
+      <div class="panel" id="syarat">
+        <div class="panel-head"><div><h2>Syarat layanan</h2></div></div>
+        <ul style="font-size:14px;padding-left:18px;color:var(--ink-2);margin:0">
+          <li>Akun bersifat pribadi. Jangan bagikan kata sandi atau tangkapan layar kamera.</li>
+          <li>Kode anak hanya untuk orang tua atau wali sah.</li>
+          <li>Angka gizi adalah perkiraan, bukan pengganti nasihat dokter atau ahli gizi.</li>
+          <li>Pemberitahuan melengkapi, bukan menggantikan, pengawasan pengasuh.</li>
+          <li>Pemeliharaan diberitahukan sekurang-kurangnya 24 jam sebelumnya.</li>
+          <li>Pengelola daycare bertanggung jawab atas kebenaran data anak dan akun staf.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid-2" style="padding-bottom:60px">
+      <form class="panel" id="ticket-form" novalidate>
+        <div class="panel-head"><div><h2>Kirim pertanyaan</h2><p>Dibalas ke e-mail Anda dalam satu hari kerja.</p></div></div>
+        <div class="form-row">
+          <div class="field"><label for="t-name">Nama</label><input id="t-name" name="name" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="t-email">E-mail</label><input id="t-email" name="email" type="email" required autocomplete="email"></div>
+        </div>
+        <div class="field"><label for="t-topic">Topik</label><select id="t-topic" name="topic"><option>Akun dan kode anak</option><option>Kamera dan privasi</option><option>Catatan makan dan gizi</option><option>Permintaan salinan atau penghapusan data</option><option>Tagihan daycare</option><option>Lainnya</option></select></div>
+        <div class="field"><label for="t-msg">Pesan</label><textarea id="t-msg" name="msg" required placeholder="Ceritakan sedetail mungkin"></textarea></div>
+        <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Kirim</button>
+      </form>
+      <div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Kontak langsung</h2></div></div>
+          <dl class="kv" style="grid-template-columns:110px 1fr">
+            <dt>Telepon</dt><dd>+62 22 2034 5510<br><span class="muted">Senin–Sabtu, 08.00–17.00</span></dd>
+            <dt>E-mail</dt><dd>bantuan@smartdaycare.id</dd>
+            <dt>Darurat anak</dt><dd>Hubungi daycare langsung.</dd>
+          </dl>
+        </div>
+        <div class="panel hidden" id="my-tickets">
+          <div class="panel-head"><div><h2>Pertanyaan Anda</h2></div></div>
+          <div id="ticket-list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer" style="margin-top:0">
+  <div class="wrap slim">
+    <div>© <span data-year>2026</span> SmartDaycare AI · Jl. Cihampelas No. 118, Bandung</div>
+    <div><a href="index.html">Beranda</a> · <a href="dashboard.html">Dasbor</a> · <a href="#privasi">Privasi</a> · <a href="#syarat">Syarat</a></div>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

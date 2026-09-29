@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk — SmartDaycare AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="login">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="auth-layout">
+  <aside class="auth-side">
+    <a class="brand" href="index.html" aria-label="SmartDaycare AI — beranda">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#0B5F59"/><path d="M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17" cy="22.5" r="2.6" fill="#5EEAD4"/></svg>
+      <span><span class="brand-name">SmartDaycare AI</span><span class="brand-sub">CERIA ANANDA DAYCARE</span></span>
+    </a>
+    <div>
+      <h2>Hari anak Anda, terlihat dan tercatat.</h2>
+      <p class="lede">Kamera ruangan, catatan makan dengan foto piring, suhu tubuh, dan pemberitahuan penting dalam satu dasbor.</p>
+      <ul class="auth-points">
+        <li>Hanya anak Anda yang tampil dengan nama; anak lain diburamkan</li>
+        <li>Setiap akses kamera tercatat</li>
+        <li>Rekaman terhapus otomatis setelah 7 hari</li>
+      </ul>
+      <div class="auth-status">
+        <div><div class="n" id="auth-present">—</div><div class="c">anak hadir hari ini</div></div>
+        <div><div class="n" id="auth-air">—</div><div class="c">kualitas udara ruangan</div></div>
+        <div><div class="n" data-clock>--:--:--</div><div class="c">waktu Bandung</div></div>
+      </div>
+    </div>
+    <p class="legal" style="color:#7F948F;margin:0">© <span data-year>2026</span> SmartDaycare AI · Ceria Ananda Daycare, Bandung</p>
+  </aside>
+
+  <main class="auth-form" id="utama">
+    <div class="auth-box">
+      <a class="auth-mobile-brand" href="index.html">
+        <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#0B5F59"/><path d="M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17" cy="22.5" r="2.6" fill="#5EEAD4"/></svg>
+        <span class="brand-name">SmartDaycare AI</span>
+      </a>
+      <h1>Masuk</h1>
+      <p class="sub">Gunakan e-mail yang terdaftar di daycare.</p>
+
+      <div class="callout hidden" id="switch-note" style="margin-bottom:18px"></div>
+      <div class="form-err" id="login-err" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" autocomplete="username" inputmode="email" required placeholder="nama@email.com">
+        </div>
+        <div class="field">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <label for="password">Kata sandi</label>
+            <a href="#" id="forgot-link" style="font-size:13px">Lupa kata sandi?</a>
+          </div>
+          <div class="pw-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+            <button type="button" aria-label="Tampilkan kata sandi">Lihat</button>
+          </div>
+        </div>
+        <label class="check" style="margin:4px 0 20px"><input type="checkbox" name="remember"><span>Tetap masuk di perangkat ini</span></label>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Masuk</button>
+      </form>
+
+      <div id="forgot-box" class="hidden" style="margin-top:22px;border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--wash)">
+        <h3 style="font-size:15px">Atur ulang kata sandi</h3>
+        <form id="forgot-form" novalidate>
+          <div class="field">
+            <label for="f-email">E-mail terdaftar</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="nama@email.com">
+          </div>
+          <button class="btn" type="submit">Kirim tautan</button>
+        </form>
+        <p id="forgot-done" class="hidden" style="margin:0;font-size:14px"></p>
+      </div>
+
+      <p class="auth-foot">Belum punya akun? <a href="register.html"><b>Daftar</b></a></p>
+      <p class="auth-legal"><a href="index.html">← Kembali ke beranda</a> · <a href="help.html">Bantuan</a></p>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

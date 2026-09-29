@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dasbor Pengasuh — SmartDaycare AI</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="caregiver" data-auth="caregiver" data-title="Dasbor Pengasuh">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="shell">
+  <aside class="sidebar" data-sidebar></aside>
+  <div class="shell-main">
+    <header class="topbar" data-topbar></header>
+    <main class="content" id="utama">
+
+      <div class="grid-4" id="cg-metrics" style="margin-bottom:22px"></div>
+
+      <section class="tabpane active" id="tab-anak" role="tabpanel" data-nav="Anak hari ini" data-icon="users">
+        <div class="page-head">
+          <div><h1>Anak hari ini</h1><p class="sub">Setiap tombol membuka satu formulir singkat. Orang tua langsung menerima catatannya.</p></div>
+          <div class="actions no-print"><button class="btn" data-print type="button">Cetak rekap</button></div>
+        </div>
+        <div class="tile-grid" id="tiles"></div>
+      </section>
+
+      <section class="tabpane" id="tab-timbang" role="tabpanel" data-nav="Pindai piring" data-icon="scan">
+        <div class="layout-2col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Pindai piring</h2><p>Arahkan kamera ke piring lalu tekan Pindai. Makanan dikenali dan nilai gizinya dihitung otomatis. Periksa hasilnya, lalu kirim ke orang tua.</p></div></div>
+            <form id="scan-form" novalidate>
+              <div class="form-row">
+                <div class="field"><label for="scan-child">Anak</label><select id="scan-child" name="child" data-kids></select></div>
+                <div class="field"><label for="scan-meal">Waktu makan</label><select id="scan-meal" name="meal"><option>Makan siang</option><option>Sarapan</option><option>Camilan pagi</option><option>Camilan sore</option></select></div>
+              </div>
+              <div class="field"><span class="lbl">Tahap</span><div class="seg seg-block" id="scan-stage" role="group" aria-label="Tahap pindaian"><button type="button" data-stage="pre" aria-pressed="true">Sebelum makan</button><button type="button" data-stage="post" aria-pressed="false">Sesudah makan</button></div><p class="hint" id="scan-stage-hint"></p></div>
+              <div class="viewfinder" id="viewfinder">
+                <video id="scan-video" playsinline muted autoplay hidden></video>
+                <img id="scan-photo" alt="Foto piring" hidden>
+                <canvas class="overlay" id="scan-canvas" aria-hidden="true"></canvas>
+                <div class="vf-empty" id="vf-empty"><b>Kamera belum aktif</b><span>Nyalakan kamera, atau pilih foto piring dari perangkat.</span></div>
+                <span class="live-chip" id="scan-chip" hidden><span class="rec"></span>Kamera aktif</span>
+              </div>
+              <div class="scan-actions">
+                <button class="btn btn-primary" type="button" id="scan-btn" disabled>Pindai piring</button>
+                <button class="btn" type="button" id="cam-start">Nyalakan kamera</button>
+                <label class="btn" for="scan-file" tabindex="0">Pilih foto</label><input type="file" id="scan-file" accept="image/*" capture="environment" hidden>
+                <button class="btn btn-ghost" type="button" id="cam-flip" hidden>Ganti kamera</button>
+              </div>
+              <ol class="stages" id="scan-stages" hidden></ol>
+            </form>
+            <div class="scan-result" id="scan-result" aria-live="polite" hidden></div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Menunggu pindaian sesudah makan</h2><p>Piring yang sudah dipindai saat disajikan.</p></div></div>
+              <ul class="activity" id="plate-pending"></ul>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Terkirim ke orang tua hari ini</h2></div></div>
+              <ul class="activity" id="meal-log"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-obat" role="tabpanel" data-nav="Obat" data-icon="pill">
+        <div class="layout-2col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Pemberian obat hari ini</h2><p>Hanya obat dengan catatan tertulis orang tua.</p></div></div>
+            <div class="table-wrap"><table class="data" id="med-table"><thead><tr><th>Pukul</th><th>Anak</th><th>Obat</th><th>Dosis</th><th>Oleh</th><th>Catatan</th></tr></thead><tbody></tbody></table></div>
+          </div>
+          <form class="panel" id="med-form">
+            <div class="panel-head"><div><h2>Catat pemberian</h2></div></div>
+            <div class="field"><label for="med-child">Anak</label><select id="med-child" name="child" data-kids></select></div>
+            <div class="form-row">
+              <div class="field"><label for="med-name">Obat</label><input id="med-name" name="med" type="text" required placeholder="cth. Parasetamol sirup"></div>
+              <div class="field"><label for="med-dose">Dosis</label><input id="med-dose" name="dose" type="text" required placeholder="cth. 5 ml"></div>
+            </div>
+            <div class="field"><label for="med-note">Catatan</label><input id="med-note" name="note" type="text" placeholder="cth. Diminum habis setelah makan"></div>
+            <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Simpan &amp; beri tahu orang tua</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-kejadian" role="tabpanel" data-nav="Kejadian" data-icon="alert">
+        <div class="layout-2col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Kejadian hari ini</h2><p>Tandai selesai setelah ditangani.</p></div></div>
+            <div id="inc-list"></div>
+          </div>
+          <form class="panel" id="inc-form">
+            <div class="panel-head"><div><h2>Laporkan kejadian</h2></div></div>
+            <div class="field"><label for="inc-child">Anak</label><select id="inc-child" name="child" data-kids></select></div>
+            <div class="form-row form-row-wide">
+              <div class="field"><label for="inc-kind">Jenis</label><select id="inc-kind" name="kind"><option>Terjatuh ringan</option><option>Terbentur</option><option>Muntah</option><option>Demam</option><option>Pertengkaran antar anak</option><option>Lainnya</option></select></div>
+              <div class="field"><label for="inc-sev">Tingkat</label><select id="inc-sev" name="sev"><option value="medium">Perhatian</option><option value="high">Penting</option><option value="low">Info</option></select></div>
+            </div>
+            <div class="field"><label for="inc-room">Ruangan</label><select id="inc-room" name="room"><option>Ruang Bermain Utama</option><option>Ruang Tidur Anak</option><option>Ruang Makan</option><option>Halaman</option></select></div>
+            <div class="field"><label for="inc-note">Apa yang terjadi dan penanganannya</label><textarea id="inc-note" name="note" required placeholder="cth. Terpeleset di dekat wastafel, tidak ada luka, diberi kompres dingin 10 menit"></textarea></div>
+            <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Catat &amp; beri tahu orang tua</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-serah" role="tabpanel" data-nav="Serah terima" data-icon="swap">
+        <div class="layout-2col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Catatan serah terima</h2><p>Dibaca oleh shift berikutnya dan admin.</p></div></div>
+            <div id="handover-list"></div>
+          </div>
+          <form class="panel" id="handover-form">
+            <div class="panel-head"><div><h2>Tulis untuk shift berikutnya</h2></div></div>
+            <div class="field"><label for="ho-to">Diteruskan kepada</label><select id="ho-to" name="to"></select></div>
+            <div class="field"><label for="ho-note">Catatan</label><textarea id="ho-note" name="note" required placeholder="cth. Bima cek suhu tiap 30 menit; stok tisu basah tinggal 1 pak"></textarea></div>
+            <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Teruskan</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-kamera" role="tabpanel" data-nav="Kamera &amp; udara" data-icon="camera">
+        <div class="layout-2col">
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2 id="cg-title">Ruang Bermain Utama</h2><p>Tampilan staf: semua anak diberi nama.</p></div>
+              <div class="cam-switch" role="group" aria-label="Pilih kamera">
+                <button class="btn btn-sm" type="button" data-cam="K1" aria-pressed="true">Bermain</button>
+                <button class="btn btn-sm" type="button" data-cam="K2" aria-pressed="false">Tidur</button>
+                <button class="btn btn-sm" type="button" data-cam="K3" aria-pressed="false">Makan</button>
+                <button class="btn btn-sm" type="button" data-cam="K4" aria-pressed="false">Dapur</button>
+              </div>
+            </div>
+            <div class="stream">
+              <img class="room" id="cg-img" src="assets/img/room-play.jpg" alt="Tampilan kamera">
+              <canvas class="overlay" id="cg-canvas" aria-hidden="true"></canvas>
+              <span class="live-chip" id="cg-chip"><span class="rec"></span>Kamera 1 · Langsung</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Udara ruangan</h2><p>Buka jendela bila status “Pantau”.</p></div></div>
+            <ul class="air-list" id="cg-air"></ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-back" id="act-modal" role="dialog" aria-modal="true" aria-labelledby="act-title">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><h2 id="act-title">Tindakan</h2><button class="btn btn-sm btn-ghost" type="button" data-close-modal aria-label="Tutup">✕</button></div>
+    <form class="modal-body" id="act-form">
+      <div id="act-fields"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="btn" type="button" data-close-modal>Batal</button><button class="btn btn-primary" type="submit">Simpan</button></div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/vision.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

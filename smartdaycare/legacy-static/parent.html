@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dasbor Orang Tua — SmartDaycare AI</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="parent" data-auth="parent" data-title="Dasbor Orang Tua">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="shell">
+  <aside class="sidebar" data-sidebar></aside>
+  <div class="shell-main">
+    <header class="topbar" data-topbar></header>
+    <main class="content" id="utama">
+
+      <div class="hidden" id="no-child">
+        <div class="panel" style="max-width:520px;margin:40px auto;text-align:center">
+          <h2>Belum ada anak yang tertaut</h2>
+          <p class="muted">Masukkan kode anak dari daycare, contohnya <span class="code-box">KA-2201</span>.</p>
+          <form id="link-form" style="max-width:300px;margin:0 auto">
+            <div class="field"><label for="code" class="sr">Kode anak</label><input id="code" name="code" type="text" required placeholder="KA-2201" style="text-transform:uppercase;text-align:center;font-size:16px"></div>
+            <button class="btn btn-primary btn-block" type="submit">Tautkan anak</button>
+          </form>
+        </div>
+      </div>
+
+      <div id="dash">
+        <div class="page-head">
+          <div class="child-card" id="child-card" style="flex:1;min-width:260px"></div>
+          <div class="actions no-print">
+            <label for="child-select" class="sr">Pilih anak</label>
+            <select id="child-select"></select>
+            <button class="btn" data-print type="button">Cetak laporan</button>
+          </div>
+        </div>
+
+        <section class="tabpane active" id="tab-hari" role="tabpanel" data-nav="Hari ini" data-icon="today">
+          <div class="grid-4" id="sum-metrics" style="margin-bottom:20px"></div>
+          <div class="layout-2col">
+            <div class="panel">
+              <div class="panel-head"><div><h2>Garis waktu hari ini</h2></div><span class="status-pill on"><span class="live-dot"></span>Langsung</span></div>
+              <ul class="timeline" id="child-timeline"></ul>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Jadwal harian</h2></div></div>
+              <dl class="kv" style="grid-template-columns:100px 1fr;font-size:13.5px">
+                <dt>07.00–08.15</dt><dd>Kedatangan dan cek suhu</dd>
+                <dt>08.15–10.00</dt><dd>Bermain terarah</dd>
+                <dt>10.00–10.20</dt><dd>Camilan pagi</dd>
+                <dt>11.45–12.30</dt><dd>Makan siang</dd>
+                <dt>13.00–14.30</dt><dd>Tidur siang</dd>
+                <dt>15.00–15.20</dt><dd>Camilan sore</dd>
+                <dt>16.00–17.30</dt><dd>Penjemputan</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section class="tabpane" id="tab-kamera" role="tabpanel" data-nav="Kamera" data-icon="camera">
+          <div class="layout-2col">
+            <div class="panel">
+              <div class="panel-head">
+                <div><h2 id="stream-title">Ruang Bermain Utama</h2><p id="stream-note">Memuat…</p></div>
+                <div class="cam-switch no-print" role="group" aria-label="Pilih ruangan">
+                  <button class="btn btn-sm" type="button" data-cam="K1" aria-pressed="true">Bermain</button>
+                  <button class="btn btn-sm" type="button" data-cam="K2" aria-pressed="false">Tidur</button>
+                  <button class="btn btn-sm" type="button" data-cam="K3" aria-pressed="false">Makan</button>
+                </div>
+              </div>
+              <div class="stream">
+                <img class="room" id="stream-img" src="assets/img/room-play.jpg" alt="Tampilan kamera">
+                <canvas class="overlay" id="stream-canvas" aria-hidden="true"></canvas>
+                <span class="live-chip" id="stream-chip"><span class="rec"></span>Kamera 1 · Langsung</span>
+              </div>
+              <div class="stream-foot">
+                <span><b>Privasi:</b> anak lain diburamkan</span>
+                <span><b>Rekaman:</b> terhapus setelah 7 hari</span>
+                <span><b>Akses:</b> tercatat di daycare</span>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Ruangan</h2></div></div>
+              <dl class="kv" style="grid-template-columns:1fr auto;font-size:13.5px">
+                <dt>Ruang Bermain Utama</dt><dd class="muted">Kamera 1</dd>
+                <dt>Ruang Tidur Anak</dt><dd class="muted">Kamera 2</dd>
+                <dt>Ruang Makan</dt><dd class="muted">Kamera 3</dd>
+                <dt>Dapur</dt><dd class="muted">Hanya staf</dd>
+              </dl>
+              <p class="inline-note" style="margin-top:16px">Ada yang mengkhawatirkan? Hubungi daycare di +62 22 2034 5510.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tabpane" id="tab-gizi" role="tabpanel" data-nav="Makan &amp; gizi" data-icon="plate">
+          <div class="callout hidden" id="food-wait" style="margin-bottom:18px"></div>
+          <div id="food-body">
+            <div class="panel">
+              <div class="panel-head"><div><h2 id="food-title">Makan siang hari ini</h2><p id="food-head"></p></div><div class="food-switch" id="food-switch" hidden></div></div>
+              <div class="food-compare" id="food-photos">
+                <figure><div class="food-photo"><img id="food-img-pre" src="assets/img/plate-before.jpg" alt="Piring saat disajikan"><canvas id="food-cv-pre" aria-hidden="true"></canvas></div><figcaption id="food-cap-pre">Saat disajikan</figcaption></figure>
+                <figure><div class="food-photo"><img id="food-img-post" src="assets/img/plate-after.jpg" alt="Piring sesudah makan"><canvas id="food-cv-post" aria-hidden="true"></canvas></div><figcaption id="food-cap-post">Sesudah makan</figcaption></figure>
+              </div>
+              <div class="table-wrap" style="margin-top:16px">
+                <table class="data" id="food-table">
+                  <thead><tr><th>Menu</th><th class="num">Disajikan (g)</th><th class="num">Sisa (g)</th><th class="num">Dimakan (g)</th><th class="num">Energi (kkal)</th><th class="num">Protein (g)</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <p class="inline-note" id="food-left"></p>
+              <p class="inline-note" id="food-src"></p>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:20px">
+            <div class="panel">
+              <div class="panel-head"><div><h2>Asupan hari ini</h2><p>Dibandingkan kebutuhan harian anak.</p></div></div>
+              <div id="macros"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Makan siang 7 hari terakhir</h2></div></div>
+              <div class="chart-box"><canvas id="weekly-chart" role="img" aria-label="Bagan kalori makan siang tujuh hari"></canvas><p class="cap" id="weekly-cap"></p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tabpane" id="tab-kesehatan" role="tabpanel" data-nav="Kesehatan" data-icon="heart">
+          <div class="layout-2col">
+            <div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Suhu tubuh hari ini</h2></div></div>
+                <div class="table-wrap"><table class="data" id="temp-table"><thead><tr><th>Pukul</th><th class="num">Suhu</th><th>Status</th><th>Diukur oleh</th></tr></thead><tbody></tbody></table></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Obat yang diberikan</h2></div></div>
+                <div id="med-list"></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Profil kesehatan</h2></div></div>
+              <dl class="kv" id="health-kv" style="grid-template-columns:130px 1fr"></dl>
+              <p class="inline-note" style="margin-top:14px">Perubahan alergi atau obat dilakukan lewat admin daycare.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tabpane" id="tab-notif" role="tabpanel" data-nav="Pemberitahuan" data-icon="bell" data-count="unread">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Pemberitahuan</h2><p id="notif-count"></p></div><a class="btn btn-sm" href="account.html#pemberitahuan">Atur saluran</a></div>
+            <div id="notif-list"></div>
+          </div>
+        </section>
+
+        <section class="tabpane" id="tab-laporan" role="tabpanel" data-nav="Laporan" data-icon="file">
+          <div class="panel">
+            <div class="panel-head no-print"><div><h2>Laporan harian</h2><p>Dapat dicetak atau disimpan sebagai PDF.</p></div><button class="btn btn-primary btn-sm" data-print type="button">Cetak</button></div>
+            <div id="report"></div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/vision.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>
