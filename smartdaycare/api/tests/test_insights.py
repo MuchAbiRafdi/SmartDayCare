@@ -296,6 +296,30 @@ def test_changepoint_menyebut_tanggal_mulai() -> None:
     assert "sejak Senin 20/07" in got["text"] and "2,4/5" in got["text"] and "4,0/5" in got["text"]
 
 
+def test_titik_ubah_kedaluwarsa_tidak_ditampilkan() -> None:
+    """Perpindahan yang terjadi sebulan sebelum periode tidak dijual sebagai kabar minggu ini."""
+    lama = [mk_row(MONDAY + timedelta(days=i), mood=4.0 if i < 28 else 2.4) for i in range(42)]
+    prev = [mk_row(MONDAY + timedelta(days=42 + i), mood=2.4) for i in range(7)]
+    cur = [mk_row(MONDAY + timedelta(days=49 + i), mood=2.4) for i in range(7)]
+    ins, _ = run(lama[:35], prev, cur)
+    assert not [i for i in ins if "sejak" in i["title"] and i["area"] == "mood"]
+
+
+def test_persentil_sebaya_ditulis_tanpa_angka_absolut() -> None:
+    hist = weeks(MONDAY, 6)
+    prev = weeks(MONDAY + timedelta(days=42), 1)
+    cur = weeks(MONDAY + timedelta(days=49), 1, sleep=20)
+    peers = {
+        "n": 5,
+        "stats": {"sleepAvg": {"n": 5, "mean": 90.0, "sd": 8.0}},
+        "values": {"sleepAvg": [80.0, 85.0, 90.0, 95.0, 100.0]},
+    }
+    ins, _ = run(hist, prev, cur, peers)
+    pc = [i for i in ins if "rata-rata anak lain" in i["title"]]
+    assert pc and "lebih rendah dari semua anak lain" in pc[0]["text"]
+    assert "0%" not in pc[0]["text"]
+
+
 def test_periode_datar_tanpa_titk_ubah() -> None:
     hist = weeks(MONDAY, 6)
     prev = weeks(MONDAY + timedelta(days=42), 1)

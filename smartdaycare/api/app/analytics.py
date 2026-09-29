@@ -101,6 +101,18 @@ def sd1(x: float) -> str:
     return ("−" if x < 0 else "") + d1(abs(x))
 
 
+def _peer_position(pr: dict[str, float] | None, child_short: str) -> str:
+    """Posisi relatif di antara pembanding anonim — tanpa menyebut 0 % / 100 % yang kedengarannya absolut."""
+    if pr is None:
+        return "."
+    pct = pr["pct"]
+    if pct >= 99.5:
+        return f" — {child_short} lebih tinggi dari semua anak lain di rentang itu."
+    if pct <= 0.5:
+        return f" — {child_short} lebih rendah dari semua anak lain di rentang itu."
+    return f" — {child_short} berada di atas {round(pct)}% anak lain di rentang itu."
+
+
 def d2(x: float) -> str:
     return f"{x:.2f}".rstrip("0").rstrip(".") if abs(x - round(x, 2)) > 1e-9 else f"{x:.2f}".rstrip("0").rstrip(".")
 
@@ -844,7 +856,7 @@ def _advanced_insights(
                     area,
                     f"{nice} {child_short} {'di atas' if diff > 0 else 'di bawah'} rata-rata anak lain",
                     f"{nice} {child_short} {fmt(float(mine))} {period_label}, sedangkan rata-rata {st['n']} anak lain di daycare {fmt(st['mean'])}"
-                    + (f" — {child_short} berada di atas {round(pr['pct'])}% teman seusianya." if (pr := percentile_rank(float(mine), (peers.get("values") or {}).get(key) or [])) and len((peers.get("values") or {}).get(key) or []) >= 5 else ".")
+                    + (_peer_position(pr, child_short) if (pr := percentile_rank(float(mine), (peers.get("values") or {}).get(key) or [])) and len((peers.get("values") or {}).get(key) or []) >= 5 else ".")
                     + " Setiap anak berbeda; angka ini hanya pembanding, bukan penilaian.",
                     f"{fmt(float(mine))} vs {fmt(st['mean'])} ({st['n']} anak)",
                     delta=round(diff, 2),
@@ -900,8 +912,12 @@ def _changepoint_insights(child_short: str, hist_days: list[dict[str, Any]], cur
         when = date.fromisoformat(pts[at][0])
         before = [v for _, v in pts[:at]]
         after = [v for _, v in pts[at:]]
-        if len(after) < 3:
-            continue  # belum cukup hari untuk menyebutnya perpindahan
+        if len(after) < 3 or len(before) < 6:
+            continue  # belum cukup hari di salah satu sisi untuk menyebutnya perpindahan
+        # hanya perpindahan yang masih "baru": jangan menampilkan tanggal berbulan-bulan lalu
+        # di dasbor minggu ini (membingungkan dan tidak bisa ditindaklanjuti)
+        if (date.fromisoformat(pts[-1][0]) - when).days > 21:
+            continue
         gap = cp["gap"]
         i = _ins(
             "trend",
@@ -1194,6 +1210,8 @@ RECO_IMPACT: dict[str, tuple[int, int]] = {
     "kognitif": (1, 1),
     "sosial-up": (1, 1),
     "hadir": (2, 2),
+    "datang": (2, 2),
+    "kejadian": (3, 2),
     "sehat": (3, 1),
     "stabil": (1, 0),
 }
@@ -1314,8 +1332,12 @@ def build_recommendations(
             add("makan-mood", "Tawarkan makan dalam porsi kecil", "Sajikan porsi kecil lebih dulu lalu tambah bila habis; catat menu yang disukai untuk dibagikan ke orang tua.", i["title"])
         elif a == "makan":
             add("makan", "Variasikan menu pada waktu makan yang sulit", "Coba tekstur dan bentuk yang berbeda, ajak anak memilih di antara dua pilihan, dan beri waktu makan yang tenang.", i["title"])
+        elif a == "kehadiran" and "Jam datang" in t:
+            add("datang", "Samakan jam datang dengan orang tua", f"Ritme pagi {child_short} bergeser; sepakati jam datang yang sama selama seminggu dan lihat apakah mood paginya ikut membaik.", i["title"])
         elif a == "kehadiran" and k == "pattern":
             add("hadir", "Hubungi orang tua soal kehadiran", "Tanyakan kabar anak dan bantu jadwal yang lebih rutin; kehadiran teratur memudahkan adaptasi.", i["title"])
+        elif a == "kesehatan" and "ejadian" in t:
+            add("kejadian", "Bahaskan satu pemicu kejadian dengan tim", f"Kejadian pada {child_short} menumpuk pada pola yang sama; pilih satu pemicu (transisi, rebutan mainan, waktu tenang), sepakati cara menanganinya seminggu ini, lalu bandingkan lagi.", i["title"])
         elif a == "kesehatan":
             add("sehat", "Pantau suhu berkala", "Ukur suhu ulang tiap 30 menit saat hangat; sampaikan ke orang tua bila ≥ 37,8 °C.", i["title"])
     if not recs:

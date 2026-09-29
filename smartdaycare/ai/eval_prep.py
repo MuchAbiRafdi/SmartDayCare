@@ -1,4 +1,6 @@
-"""Siapkan foto uji (split yang sama dengan train.py) sebagai RGBA mentah untuk eval-plates.mjs."""
+"""Siapkan foto uji (split yang sama dengan train.py) sebagai RGBA mentah untuk eval-plates.mjs.
+
+Pakai: python3 eval_prep.py [/tmp/evalset] [--only daftar-foto.txt]"""
 from __future__ import annotations
 
 import json
@@ -11,6 +13,12 @@ from PIL import Image
 from train import CLASSES, list_images, split_by_image
 
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/evalset")
+# --only <berkas>: batasi ke daftar "kelas/nama.jpg" tertentu. Dipakai untuk A/B antar model:
+# hanya foto yang belum pernah dilihat model pembanding, supaya angka kedua pihak jujur.
+args = sys.argv[1:]
+only = None
+if "--only" in args:
+    only = {l.strip() for l in Path(args[args.index("--only") + 1]).read_text().splitlines() if l.strip() and not l.startswith("#")}
 OUT.mkdir(parents=True, exist_ok=True)
 files = list_images()
 primary = np.array([CLASSES.index(ls[0]) for _, ls in files], np.int64)
@@ -18,6 +26,8 @@ val = split_by_image(primary)
 index = []
 for i, ((f, labels), is_val) in enumerate(zip(files, val)):
     if not is_val:
+        continue
+    if only is not None and f"{f.parent.name}/{f.name}" not in only:
         continue
     im = Image.open(f).convert("RGB")
     w, h = im.size

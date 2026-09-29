@@ -130,10 +130,12 @@ Peramban ──HTTPS──▶ Next.js (web)  ── /api/* rewrite ──▶ Fas
   objek status — dasbor orang tua, pengasuh, dan admin selalu konsisten.
 - `src/lib/vision.ts` — pengenal makanan di perangkat: cari piring, kelompokkan area makanan
   berdasarkan warna & tekstur, **periksa tiap kelompok dengan jaringan saraf kecil**
-  (`src/lib/foodnet.ts`, bobot `public/models/food-patch-v2.bin`, dilatih di `ai/` dari 325 foto
-  makanan sungguhan — membuang bagian bukan-makanan, membuang kelompok warna yang menurut model
-  hampir pasti bukan kelas itu, dan mengoreksi kelas bila yakin; bingkai diperbesar dulu ke skala
-  latih model), lalu perkirakan berat dari luas relatif diameter piring (pengaturan admin).
+  (`src/lib/foodnet.ts`, bobot `public/models/food-patch-v3.bin` — 429 foto makanan sungguhan, 77
+  di antaranya tidak pernah dilihat model; membuang bagian bukan-makanan, membuang kelompok warna
+  yang menurut model hampir pasti bukan kelas itu, dan mengoreksi kelas bila yakin, dengan ambang
+  per kelas yang dibaca dari berkas model itu sendiri; peluang sudah dikalibrasi dan bingkai
+  diperbesar dulu ke skala latih model), lalu perkirakan berat dari luas relatif diameter piring
+  (pengaturan admin). Bila v3 belum ada, peramban memuat v2.
   Keyakinan tiap bagian ikut memperhitungkan kesepakatan model dengan kelas warna. Tahap yang
   tampil di layar adalah tahap yang benar-benar dijalankan; bila model tidak termuat, layar
   mengatakannya. Angka kualitas model dan cara mengukurnya ada di `ai/README.md`.
@@ -249,7 +251,8 @@ docker compose logs api | grep "kata sandi sementara"   # bila SD_ADMIN_PASSWORD
 - **Admin** — Beranda (ringkasan operasional & udara), Dashboard perkembangan per anak (KPI,
   tren aktivitas, mood, tidur, makan, analitik per jenis, Insight & Rekomendasi AI, laporan
   perkembangan dengan Download PDF), Analitik Aktivitas · Mood Tracker · Pola Tidur · Pola Makan ·
-  Kehadiran (detail per pola + tabel harian), Laporan Perkembangan, Rekomendasi AI, Pesan &
+  Kehadiran (detail per pola + tabel harian), Laporan Perkembangan, Rekomendasi AI (dampak & usaha
+  tiap saran, penilaian 👍/👎 yang mengurutkan saran berikutnya, panel kualitas pemindai piring), Pesan &
   pengumuman, Kepercayaan Orang Tua (kepuasan, respon feedback, engagement, trust score, tren per
   minggu, balas feedback, ringkasan harian otomatis pukul 16.00 dapat dimatikan/diubah), Akses
   Kamera (setujui/tolak/cabut permintaan orang tua dengan masa berlaku), Perangkat & Sensor,
@@ -263,26 +266,36 @@ docker compose logs api | grep "kata sandi sementara"   # bila SD_ADMIN_PASSWORD
 ### Insight & Rekomendasi AI — cara kerjanya
 
 `api/app/analytics.py` (+ `stats.py`) merangkum catatan pengasuh per hari (aktivitas per jenis,
-rata-rata mood, menit tidur, porsi makan, kehadiran), lalu menghasilkan insight bertipe
-**tren / pola / anomali / positif** dengan bukti angka dan tingkat keyakinan
+mood, menit tidur, porsi makan, jam datang, kejadian, menu, kehadiran), lalu menghasilkan insight
+bertipe **tren / pola / anomali / positif** dengan bukti angka dan tingkat keyakinan
 (tinggi/sedang/rendah, mengikuti jumlah data dan besar efek). Pembandingnya ada tiga:
 
 - **periode sebelumnya** yang sama panjang (aktivitas ≥ 20 %, mood ≥ 0,4 poin, tidur/makan ≥ 15 %);
-- **kebiasaan anak sendiri** hingga 8 minggu ke belakang (rata-rata ± simpangan): hari yang
-  menyimpang ≥ 1,8 simpangan menjadi anomali (skor-z), beda rata-rata periode yang bermakna
-  (uji t Welch ≥ 2) memperkuat tren, garis tren yang konsisten di dalam periode (r ≥ 0,6) menjadi
-  "menurun/meningkat bertahap", dan tiga hari hadir terakhir yang berturut-turut di bawah batas
-  menjadi **peringatan dini** dengan rekomendasi menghubungi orang tua hari itu;
+- **kebiasaan anak sendiri** hingga 8 minggu ke belakang, diukur sebagai **median ± sebaran
+  tahanencil (MAD)** — bukan rata-rata ± simpangan — supaya satu hari buruk tidak menggeser batas
+  "normal": hari yang menyimpang ≥ 1,8 sebaran menjadi anomali, beda rata-rata periode yang bermakna
+  (uji t Welch ≥ 2, dikuatkan Mann–Whitney dan besaran efek Hedges g bila searah) memperkuat tren,
+  garis tren yang konsisten (r ≥ 0,6, dan kemiringan Theil–Sen yang tidak tertarik satu hari aneh)
+  menjadi "menurun/meningkat bertahap", dan tiga hari hadir terakhir yang berturut-turut di bawah
+  batas menjadi **peringatan dini** dengan rekomendasi menghubungi orang tua hari itu;
 - **anak lain di daycare** pada periode yang sama, hanya sebagai agregat anonim (≥ 3 anak,
-  selisih > 1 simpangan kelompok) — pembanding, bukan penilaian.
+  selisih > 1 sebaran kelompok, posisi dinyatakan sebagai persentil) — pembanding, bukan penilaian.
 
-Pola tambahan: hari dalam minggu yang konsisten lebih rendah (≥ 3 minggu, ≥ 70 % minggu) dan
+Pola tambahan: hari dalam minggu yang konsisten lebih rendah (≥ 3 minggu, ≥ 70 % minggu),
 keterkaitan antar catatan pada hari yang sama (korelasi Pearson ≥ 0,45 pada ≥ 10 hari; mis. lama
-tidur siang ↔ mood sore) — kalimatnya memakai "berkaitan", bukan sebab-akibat. Rekomendasi
-menyebut alasannya (insight pemicunya). Profil perkembangan (sosial, motorik, kognitif, emosi)
-dihitung dari proporsi jenis aktivitas dan kestabilan mood. Semua angka bisa dilacak ke tabel
-harian di menu detail; ini bukan asesmen klinis dan kalimat itu tampil di panel. Aturan-aturan
-ini diuji di `api/tests/test_insights.py`.
+tidur siang ↔ mood sore) — kalimatnya memakai "berkaitan", bukan sebab-akibat — **titik ubah**
+(CUSUM: "berubah sejak <tanggal>", hanya bila perpindahannya ≥ 0,8 sebaran, bertahan ≥ 3 hari, dan
+tanggalnya masih dalam 21 hari terakhir), kelompok gizi yang absen dari menu, dan geseran jam datang.
+
+Di luar kartu insight ada **skor pantauan** 0–100 untuk staf: jumlah tertimbang sinyal yang benar-benar
+menyala (mood rendah tiga hari, porsi di bawah setengah, tidur jauh di bawah kebiasaan, suhu ≥ 37,5 °C,
+kejadian berat, hari absen) — tiap komponennya ditampilkan beserta angkanya, dan skor ini tidak
+diperlihatkan ke orang tua sebagai angka. Rekomendasi disebut alasannya (insight pemicunya) dan ditandai
+dampak (1–3) serta usaha (0–3); admin bisa menilai 👍/👎 lewat `/api/analytics/reco-feedback`, dan
+penilaian itu hanya menggeser urutan saran berikutnya (pengali terkunci 0,7–1,3) — tidak pernah menambah
+klaim baru. Profil perkembangan (sosial, motorik, kognitif, emosi) dihitung dari proporsi jenis aktivitas
+dan kestabilan mood. Semua angka bisa dilacak ke tabel harian di menu detail; ini bukan asesmen klinis dan
+kalimat itu tampil di panel. Aturan-aturan ini diuji di `api/tests/test_insights.py`.
 
 Semua perubahan tersimpan di basis data dan tersiar langsung ke dasbor lain yang sedang terbuka.
 

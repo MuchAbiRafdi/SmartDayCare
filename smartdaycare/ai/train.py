@@ -513,16 +513,20 @@ def evaluate(model: nn.Module, xv: torch.Tensor, yv: torch.Tensor, imgv: np.ndar
 
 
 def expected_calibration(probs: torch.Tensor, y: torch.Tensor, bins: int = 10) -> float:
-    """ECE: selisih rata-rata antara keyakinan model dan kebenaran sebenarnya (makin kecil makin baik)."""
-    conf, corr = probs.max(1).values, probs.argmax(1)
+    """ECE: rata-rata |selisih keyakinan − kebenaran| per keranjang peluang (makin kecil makin baik).
+
+    0 = peluang model persis sama dengan tingkat benarnya; 1 = keyakinannya sama sekali tidak berarti.
+    """
+    conf = probs.max(1).values
+    ok = (probs.argmax(1) == y).float()
     e, n = 0.0, len(y)
     for b in range(bins):
         lo, hi = b / bins, (b + 1) / bins
-        sel = (conf >= lo) & (conf < hi)
-        if not sel.any():
-            continue
+        sel = (conf >= lo) & (conf < hi) if b < bins - 1 else (conf >= lo) & (conf <= hi)
         k = int(sel.sum())
-        e += k / n * abs(float(corr[sel].float().mean()) - float(conf[sel].mean()))
+        if not k:
+            continue
+        e += k / n * abs(float(ok[sel].mean()) - float(conf[sel].mean()))
     return e
 
 

@@ -57,6 +57,16 @@ def main() -> None:
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             return self.m.dense(x)
 
+    # Suhu kalibrasi dikelipkan SEKALI di sini (logit/T == (W/T)·x + b/T) supaya ONNX, berkas .bin,
+    # dan contoh verifikasi memakai bobot yang sama persis — kalau pembagianya dilakukan nanti,
+    # jalur peramban dan jalur luar menghasilkan peluang yang berbeda dan verifikasi jadi bohong.
+    temp = float(meta.get("temperature") or 1.0)
+    if abs(temp - 1.0) > 1e-9:
+        with torch.no_grad():
+            model.fc.weight.div_(temp)
+            model.fc.bias.div_(temp)
+        print(f"kalibrasi: logit dibagi suhu {temp} (dikelipkan ke bobot fc)")
+
     onnx_path = ROOT / "models" / f"{name}.onnx"
     torch.onnx.export(
         Dense(model),
@@ -78,10 +88,8 @@ def main() -> None:
         layers.append({"name": f"conv{i + 1}", "type": "conv", "cin": w.shape[1], "cout": w.shape[0], "k": 3, "pool": pool})
         blobs.append(w.ravel())
         blobs.append(b.ravel())
-    # suhu kalibrasi dikelipkan ke lapisan keluaran: logit/T == (W/T)·x + (b/T)
-    temp = float(meta.get("temperature") or 1.0)
-    fw = (model.fc.weight.detach() / temp).numpy().astype(np.float32)
-    fb = (model.fc.bias.detach() / temp).numpy().astype(np.float32)
+    fw = model.fc.weight.detach().numpy().astype(np.float32)  # sudah termasuk pembagian suhu
+    fb = model.fc.bias.detach().numpy().astype(np.float32)
     layers.append({"name": "fc", "type": "fc", "cin": fw.shape[1], "cout": fw.shape[0], "k": 1, "pool": False})
     blobs.append(fw.ravel())
     blobs.append(fb.ravel())
@@ -133,8 +141,14 @@ def main() -> None:
     # 2b) sisi-rawan untuk layar admin: ringkasan kualitas dalam bahasa manusia.
     # Hanya angka hasil uji pada foto yang tidak dilihat model saat latih — tidak ada klaim lain.
     per = meta.get("val_per_class") or {}
-    recall = {k: v.get("recall") for k, v in per.items() if isinstance(v, dict)}
-    weak = sorted([k for k, v in recall.items() if isinstance(v, (int, float)) and v < 0.6])
+    # v2 menyimpan {kelas: {recall:…, precision:…}}, v3 menyimpan angka recall langsung
+    recall = {k: (v.get("recall") if isinstance(v, dict) else v) for k, v in per.items()}
+    recall = {k: v for k, v in recall.items() if isinstance(v, (int, float))}
+    # "lemah" untuk pengguna = kelas yang walau model sudah yakin (p ≥ 0,6) masih sering meleset.
+    # recall per tambalan tidak dipakai di sini: satu tambalan nasi boleh kalah oleh sup di piring
+    # yang sama sementara nama menunya tetap benar dibaca pada tingkat foto.
+    p06 = meta.get("val_precision_conf06") or {}
+    weak = sorted([k for k, v in p06.items() if isinstance(v, (int, float)) and k != "none" and v < 0.70])
     sidecar = {
         "version": meta.get("version") or name,
         "trainedAt": meta.get("trained_at"),
@@ -152,6 +166,7 @@ def main() -> None:
         "confidentPrecision": meta.get("val_precision_conf06") or {},
         "thresholds": meta.get("thresholds") or {},
         "weakClasses": weak,
+        "weakRule": "presisi saat yakin (p ≥ 0,6) di bawah 0,70 pada foto uji",
     }
     side = WEB_MODELS / f"{name}.model.json"
     side.write_text(json.dumps(sidecar, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8")

@@ -1074,7 +1074,7 @@ export function ScannerQuality({ className }: { className?: string }) {
       {weak.length > 0 ? (
         <p className="text-muted flex items-start gap-1.5 text-[12.5px]">
           <HelpCircle size={14} className="mt-0.5 shrink-0" aria-hidden />
-          Masih sering keliru: {weak.join(", ")}. Untuk makanan itu, hasil pindai selalu bisa diedit sebelum disimpan.
+          Paling sering perlu dikoreksi: {weak.join(", ")}. Untuk makanan itu, hasil pindai selalu bisa diedit sebelum disimpan.
         </p>
       ) : (
         <p className="text-emerald-700 flex items-start gap-1.5 text-[12.5px]">

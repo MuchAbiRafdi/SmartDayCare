@@ -177,13 +177,20 @@ Aturan isi:
   pikselnya, piring dicari, area makanan dikelompokkan berdasarkan warna & tekstur, berat
   diperkirakan dari luas relatif diameter piring (pengaturan admin, bawaan 22 cm).
 - Setiap kelompok lalu diperiksa jaringan saraf kecil yang dilatih dari foto makanan sungguhan
-  (`web/src/lib/foodnet.ts`, bobot `public/models/food-patch-v2.bin`, ≈ 155 KB, dilatih di `ai/`
-  dari 325 foto): bagian yang dinilai bukan makanan dibuang, kelompok warna yang menurut model
-  hampir pasti bukan kelas itu dibuang (mis. serbet merah terbaca "tomat"), kelas diganti bila
-  model yakin — hanya ke kelas yang presisinya pada data uji cukup tinggi. Tahap ini tampil
-  sebagai "Memeriksa dengan model" hanya karena memang dijalankan; bila bobot tidak termuat,
-  layar mengatakan hasil hanya dari warna dan bentuk — tidak pernah berpura-pura. Kualitasnya
-  diukur ujung-ke-ujung pada foto uji yang tidak ikut latihan (`ai/README.md`), bukan diklaim.
+  (`web/src/lib/foodnet.ts`, bobot `public/models/food-patch-v3.bin`, ≈ 166 KB, dilatih di `ai/`
+  dari 429 foto — 77 di antaranya tidak pernah dilihat model): bagian yang dinilai bukan makanan
+  dibuang, kelompok warna yang menurut model hampir pasti bukan kelas itu dibuang (mis. serbet
+  merah terbaca "tomat"), kelas diganti bila model yakin — dan ambang "yakin" itu dihitung per
+  kelas dari data uji lalu disimpan DI DALAM berkas model (`ai/train.py` → `meta.thresholds`),
+  sehingga antarmuka tidak menebak angka. Peluangnya sudah dikalibrasi (suhu softmax 1,141;
+  ECE 0,042 → 0,018 pada foto uji) sehingga "yakin" benar-benar berarti yakin. Bila berkas v3 belum
+  ada, peramban memuat v2 dan tetap jujur; bila tidak ada model sama sekali, layar mengatakan hasil
+  hanya dari warna dan bentuk — tidak pernah berpura-pura. Tahap "Memeriksa dengan model" tampil
+  hanya karena memang dijalankan. Kualitasnya diukur ujung-ke-ujung pada foto yang tidak ikut
+  latihan (`ai/README.md`), bukan diklaim.
+- Di layar admin (Rekomendasi AI) ada panel "Kualitas pemindai piring": yang ditampilkan adalah isi
+  `public/models/<model>.model.json` — hasil uji pada foto yang tidak dilihat model, ditulis saat
+  `ai/export.py`. Tidak ada angka kualitas yang diketik manual di antarmuka.
 - Batas kemampuan dinyatakan di tempat ("Berat diperkirakan dari luas makanan di piring") dan
   lencana keyakinan tinggi / sedang / rendah — tanpa piring terdeteksi, lencana paling tinggi
   "sedang" karena skala beratnya tebakan. Bila tidak ada makanan yang dikenali, kalimatnya
@@ -199,3 +206,28 @@ Aturan isi:
   tersebut, dan dihapus setelah tiga hari.
 - Bahasa: "Pindai piring", "Saat disajikan", "Sesudah makan", "Kirim ke orang tua".
   Hindari "scan", "deteksi", "AI".
+
+## 10. Analitik, insight, dan saran (AI harian)
+
+- Semuanya dihitung di server dari catatan pengasuh (`api/app/analytics.py`); tidak ada angka yang
+  dihasilkan model bahasa atau ditempel sebagai hiasan. Rantai tiap angka: entri → baris hari →
+  indikator periode → insight → saran, dan tiap kartu menyebut buktinya dalam satu baris.
+- Kebiasaan anak = **median ± sebaran tahanencil (MAD)** dari ≤ 8 minggu hari hadir sebelumnya,
+  bukan rata-rata ± simpangan: satu hari buruk tidak boleh membuat minggu berikutnya terlihat
+  "normal". Uji beda memakai Welch **dan** Mann–Whitney + besaran efek Hedges g; bila searah,
+  kartunya menyebut keduanya. Titik ubah (CUSUM) menjawab "sejak kapan" dan hanya dilaporkan bila
+  perpindahannya ≥ 0,8 sebaran, sisi barunya bertahan ≥ 3 hari, dan tanggalnya masih dalam 21 hari
+  terakhir — kabar sebulan lalu bukan kabar minggu ini.
+- Kemiringan tren memakai Theil–Sen (median semua kemiringan pasangan titik) supaya satu hari
+  meledak tidak menyeret garis; posisi anak di antara teman memakai persentil, tanpa menyebut anak
+  mana pun.
+- "Skor pantauan" 0–100 adalah jumlah tertimbang sinyal yang benar-benar menyala (mood rendah 3 hari
+  berturut-turut, porsi di bawah setengah, tidur jauh di bawah kebiasaan, suhu ≥ 37,5 °C, kejadian
+  berat, hari absen). Tiap komponen ditampilkan beserta angkanya; ini alat kerja staf, **bukan**
+  diagnosis, dan tidak ditampilkan ke orang tua sebagai angka.
+- Saran ditandai dampak (1–3) dan usaha (0–3) — aturan produk yang tertulis di kode, bukan hasil
+  belajar mesin. Admin boleh menekan 👍/👎; penilaian itu hanya menggeser **urutan** saran (pengali
+  dikunci 0,7–1,3, disimpan di Settings sehingga ikut dicadangkan) dan tidak pernah menambah klaim.
+- Bahasa: "Insight & Rekomendasi AI" boleh, karena lapisan ini memang model yang dilatih dan
+  diperiksa; tetapi tidak ada nama pustaka, nama model, atau istilah statistik di judul kartu —
+  angka statistik hidup di baris "bukti", bukan di kepala kartu.
