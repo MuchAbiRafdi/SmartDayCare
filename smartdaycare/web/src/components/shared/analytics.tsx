@@ -1057,7 +1057,7 @@ export function ScannerQuality({ className }: { className?: string }) {
   const rows = [
     q.photosTrain != null && q.photosVal != null ? { k: "Belajar dari", v: `${q.photosTrain} foto makanan, diuji pada ${q.photosVal} foto yang tidak pernah dilihatnya` } : null,
     photoAcc ? { k: "Kelas utama benar pada", v: `${photoAcc} foto uji — dihitung dari suara terbanyak potongan gambar per foto, bukan hasil akhir pemindai` } : null,
-    photoPrec ? { k: "Nama menu benar saat model yakin", v: `${photoPrec} terhadap isi foto uji (p ≥ 0,6) — di bawah itu hasilnya tetap muncul dengan badge keyakinan rendah dan bisa diganti sebelum disimpan` } : null,
+    photoPrec ? { k: "Nama menu benar saat model yakin", v: `${photoPrec} terhadap isi foto uji (p ≥ 0,6) — angka per kelas inilah yang dipakai badge keyakinan di pemindai; nama yang tidak terbukti tetap bisa diganti sebelum disimpan` } : null,
     q.thresholds?.relabelMin != null ? { k: "Ambang koreksi warna", v: `nama menu hanya diganti bila model yakin (≥ ${Math.round(q.thresholds.relabelMin * 100)}%) dan kelas itu memang jarang meleset` } : null,
     q.temperature != null ? { k: "Peluang sudah dikalibrasi", v: `angka "yakin" model disesuaikan pada ${q.photosVal ?? "banyak"} foto uji, bukan angka mentah jaringan` } : null,
   ].filter(Boolean) as { k: string; v: string }[];

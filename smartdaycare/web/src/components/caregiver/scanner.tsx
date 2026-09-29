@@ -467,7 +467,14 @@ export function Scanner({ preset, onDone }: { preset: { childId: string; meal: M
                           ))}
                           {foods.some((f) => f.name === it.name) ? null : <option value={it.name}>{it.name}</option>}
                         </Select>
-                        <div className="text-muted mt-0.5 truncate text-[11.5px]">
+                        <div
+                          className="text-muted mt-0.5 truncate text-[11.5px]"
+                          title={
+                            rows[i]?.conf
+                              ? "Perkiraan seberapa sering nama seperti ini dibiarkan apa adanya pada uji foto. Keyakinan rendah: periksa dulu namanya."
+                              : "Nama ini ditulis sendiri, bukan hasil pembacaan foto."
+                          }
+                        >
                           {rows[i]?.conf ? "Dikenali otomatis · keyakinan " + VZ.level(rows[i].conf ?? 0) : "Ditambahkan manual"}
                         </div>
                       </div>
