@@ -1,0 +1,10 @@
+# hasil kerja per-checkan & artefak build (bukan bagian produk)
+qa/
+__pycache__/
+.pytest_cache/
+node_modules/
+.next/
+out/
+# cache tambalan hasil ai/prepare.py — bisa dibangun ulang
+smartdaycare/ai/data/*.npz
+smartdaycare/ai/data/patches-summary.json
