@@ -21,7 +21,7 @@ Hasil selalu ditinjau pengasuh sebelum disimpan; yang tersimpan adalah angka set
 
 ## Data
 
-`data/raw/<kelas-utama>/*.jpg` — 429 foto dari pencarian gambar (daftar kueri & label ada di
+`data/raw/<kelas-utama>/*.jpg` — 440 foto dari pencarian gambar (daftar kueri & label ada di
 `prepare.py`, hasilnya `data/manifest.json` dengan `{file, labels[], query}`), 10 kelas makanan
 (`rice greens fried pale brown soup orange yellow red egg`) + `none` (piring kosong, meja, dinding,
 tangan, kain, kertas). 59 foto berlabel ganda (mis. nasi + telur); folder hanya menandai label
@@ -37,6 +37,16 @@ makanan yang warnanya bukan makanan apa pun ikut diambil sebagai `none` (20 per 
 belajar menolak alas meja, serbet, dan sendok. Foto dengan piring berwarna (hijau/mint) tidak diberi label
 `greens` karena piringnya sendiri lolos uji warna. `data/patches-summary.json` mencatat jumlah
 tambalan yang diterima per foto — berguna untuk menemukan label yang bocor.
+
+**Himpunan uji dibekukan** di `data/split.json` (`python3 dataset.py --freeze`): 77 nama foto.
+Tanpa berkas itu, menambah satu foto saja mengubah urutan `list_images()` → shuffle → siapa yang
+jadi foto uji, dan angka dua versi model tidak lagi dibandingkan di atas foto yang sama — padahal
+banding-bandingkan itulah satu-satunya yang kita punya. Semua foto baru karena itu otomatis masuk
+kelompok latih; bila nanti ingin memperbesar himpunan uji, tulis daftar barunya secara sadar dan
+catat di sini bahwa angka lama tidak lagi sebanding. `train.py` menyimpan nama foto uji ke
+`models/<nama>.meta.json` (`val_photos`) supaya setiap angka bisa ditelusuri ke fotonya.
+`python3 dataset.py --check` membuktikan split beku masih cocok dengan isi `data/raw` (keluar dengan
+kode 1 bila ada foto uji yang hilang — artinya angka lama tidak dapat diulang lagi).
 
 ## Latih, ekspor, verifikasi, evaluasi
 
@@ -80,8 +90,11 @@ pernah berlatih di sebagian foto sehingga angkanya menguntungkan v2).
 
 Variabel `train.py`: `SD_EPOCHS` (46), `SD_PATCHES` (tambalan per foto, 88), `SD_NEG` (tambalan
 `none` per foto makanan, 20), `SD_VAL` (fraksi foto uji per kelas, 0,18), `SD_OUT` (nama model),
-`SD_ARCH` (kanal konvolusi, "16,32,48,64,64"). Cache tambalan `data/patches-v3-<P>-<N>.npz` — hapus
-setelah data atau aturan label berubah (nama cache mengandung parameternya).
+`SD_ARCH` (kanal konvolusi, "16,32,48,64,64"), `SD_MIXUP` (0 = mati; 0,2 = campur dua tambalan
+beserta label lunaknya), `SD_TKA` (0 = satu epoch terbaik; 3 = rata-rata bobot tiga epoch terbaik,
+dipakai hanya bila skornya lebih tinggi). Cache tambalan
+`data/patches-<nama-model>-<P>-<N>.npz`; isinya diuji terhadap daftar foto di manifest, jadi cache
+basi tidak bisa dipakai diam-diam (kalau tidak cocok, tambalan dibangun ulang).
 
 ## Arsitektur & format
 
@@ -233,6 +246,47 @@ produk (percobaannya dilakukan pada salinan `vision.ts`; angka-angka ini hasil j
 
 Artinya, untuk kali ini, jalan satu-satunya yang terbukti menggerakkan angka tetap **foto**: foto
 piring daycare asli, dipotret dari atas, per kelas yang lemah.
+
+### Ronde data + kran resep (v4 & v4b) — diukur, dan v3 tetap dipakai
+
+30/09/2026. Dua hal diuji bersamaan supaya sumbangannya bisa dipisahkan: (1) **11 foto baru**
+(sup bening 5, tahu 2, jingga 3, goreng bertepung 1; sebagian membawa dua label) dari 25 hasil
+pencarian yang ditinjau satu-satu — 14 dibuang karena kolase, bertulisan besar, atau terlalu lembut,
+alasannya dicatat di `REJECTED`; dan (2) dua kran resep: `SD_MIXUP 0,2` (campur dua tambalan beserta
+label lunaknya) dan `SD_TKA 3` (rata-rata bobot tiga epoch terbaik, dipakai hanya bila skornya lebih
+tinggi). Kontrolnya `food-patch-v4b`: foto yang sama, resep v3 apa adanya.
+
+Ujung-ke-ujung pada 77 foto uji beku (`eval-plates.mjs`, mesin menganggur, satu jalur kode yang sama):
+
+| model | foto latih | kelas utama | semua label | kelas asing/foto | butir/foto | ms/foto |
+|---|---|---|---|---|---|---|
+| tanpa model | – | 0,519 | 0,403 | 2,49 | 3,05 | 29 |
+| **v3 — yang dipakai** | 352 | **0,571** | **0,442** | 1,81 | 2,40 | 881 |
+| v4 = +11 foto + mixup + rata-rata epoch | 363 | 0,506 | 0,390 | 1,88 | 2,43 | 871 |
+| v4b = +11 foto saja | 363 | 0,545 | 0,416 | **1,71** | 2,29 | 861 |
+
+Pada 28 foto yang tidak dilihat model mana pun: kelas utama 0,500 (v3) / 0,429 (v4) / 0,500 (v4b);
+kelas asing per foto 2,00 / 2,11 / 1,86. Di tingkat tambalan (77 foto, tanpa pemindai): akurasi
+0,625 → 0,619 (v4b) → 0,598 (v4), akurasi seimbang 0,622 → 0,613 → 0,595, suara terbanyak per foto
+0,776 → 0,750 → 0,697.
+
+Bacaannya. Mixup + rata-rata epoch **memadamkan** model (−0,079 pada suara terbanyak per foto) — itu
+salah kran, bukan salah data. Sebelas foto web tambahan tidak menolong akurasi (−0,026 pada kelas
+utama = dua foto dari 77) walau menekan nama keliru (asing/foto 1,81 → 1,71). Karena tidak ada yang
+menang, **tidak ada yang diubah di aplikasi**: `MODEL_URLS` tetap v3 → v2, dan `.bin` v4/v4b sengaja
+tidak ditaruh di `web/public/models` (berkas yang tidak dipakai jangan dikirim ke pengguna). Foto
+barunya tetap di `data/raw` — valid, dan v4b menunjukkan ia tidak merusak. Yang hilang hanya klaim
+bahwa ia menolong.
+
+Satu jebakan yang perlu dicatat: `weakClasses` v4 **kosong**, dan itu bukan kabar baik. Modelnya
+begitu hati-hati sehingga hampir tak pernah melewati ambang "yakin"; presisi tinggi tanpa cakupan
+bukan kemajuan. Panel admin membaca `photoPrecision` dan `photoAccuracy` bersebelahan justru untuk
+itu — angka satu baris tidak boleh dibaca sendiri.
+
+Model dan metadata v4/v4b tetap disimpan di `ai/models/` (`.pt`, `.onnx`, `.meta.json` berisi resep
+dan nama foto uji) supaya hasil ini bisa diulang dan dibantah; hanya artefak perambannya yang dibuang.
+Perlu diingat: ia dilatih pada 440 foto, jadi bila nanti foto daycare asli masuk, mulailah dari resep
+v3 (`SD_MIXUP`/`SD_TKA` dibiarkan mati) dan bandingkan di split beku yang sama.
 
 ### Lencana keyakinan: artinya, dan diukur
 

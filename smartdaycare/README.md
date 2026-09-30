@@ -138,8 +138,8 @@ Peramban ──HTTPS──▶ Next.js (web)  ── /api/* rewrite ──▶ Fas
   objek status — dasbor orang tua, pengasuh, dan admin selalu konsisten.
 - `src/lib/vision.ts` — pengenal makanan di perangkat: cari piring, kelompokkan area makanan
   berdasarkan warna & tekstur, **periksa tiap kelompok dengan jaringan saraf kecil**
-  (`src/lib/foodnet.ts`, bobot `public/models/food-patch-v3.bin` — 429 foto makanan sungguhan, 77
-  di antaranya tidak pernah dilihat model; membuang bagian bukan-makanan, membuang kelompok warna
+  (`src/lib/foodnet.ts`, bobot `public/models/food-patch-v3.bin` — 352 foto makanan sungguhan untuk
+  berlatih, diuji pada 77 foto yang tidak pernah dilihatnya; pangkalan datanya kini 440 foto; membuang bagian bukan-makanan, membuang kelompok warna
   yang menurut model hampir pasti bukan kelas itu, dan mengoreksi kelas bila yakin, dengan ambang
   per kelas yang dibaca dari berkas model itu sendiri; peluang sudah dikalibrasi dan bingkai
   diperbesar dulu ke skala latih model), lalu perkirakan berat dari luas relatif diameter piring
