@@ -149,10 +149,13 @@ def main() -> None:
     # yang sama sementara nama menunya tetap benar dibaca pada tingkat foto.
     p06 = meta.get("val_precision_conf06") or {}
     weak = sorted([k for k, v in p06.items() if isinstance(v, (int, float)) and k != "none" and v < 0.70])
+    n_all, n_val = meta.get("images"), meta.get("images_val")
+    # "images" menghitung SEMUA foto (latih + uji); panel harus menyebut yang benar-benar dilatih
+    n_train = meta.get("images_train") or (n_all - n_val if isinstance(n_all, int) and isinstance(n_val, int) else n_all)
     sidecar = {
         "version": meta.get("version") or name,
         "trainedAt": meta.get("trained_at"),
-        "photosTrain": meta.get("images"),
+        "photosTrain": n_train,
         "photosVal": meta.get("images_val"),
         "patches": meta.get("patches"),
         "params": meta.get("params"),

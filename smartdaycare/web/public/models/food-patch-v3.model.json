@@ -19,7 +19,7 @@
  "patches": 41494,
  "photoAccuracy": 0.7763,
  "photoPrecision": 0.7731,
- "photosTrain": 429,
+ "photosTrain": 352,
  "photosVal": 77,
  "recall": {
   "brown": 0.6958,

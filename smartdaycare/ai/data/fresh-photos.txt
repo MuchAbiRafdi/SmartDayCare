@@ -1,3 +1,8 @@
+# Kandidat foto untuk A/B antar model: hanya foto yang TIDAK dipakai model mana pun untuk berlatih.
+# `eval_prep.py --only berkas-ini` memotong daftar ini dengan split beku (data/split.json), jadi
+# yang benar-benar terpakai adalah irisannya — saat ini 28 foto. Menambah foto latih baru tidak
+# mengubah daftar ini; kalau nanti split diperbesar, perbarui daftar ini bersama catatannya di
+# ai/README.md supaya orang berikutnya tahu dari mana angkanya datang.
 brown/semur-daging-kentang-kuah-kental-piring-3.jpg
 brown/semur-daging-kentang-kuah-kental-piring-4.jpg
 brown/semur-daging-kentang-kuah-kental-piring-5.jpg
