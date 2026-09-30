@@ -1,0 +1,14 @@
+# Contoh MediaMTX: satu kamera RTSP → HLS di /stream/ruang-bermain/index.m3u8
+# Tambahkan blok per kamera; alamat RTSP diambil dari buku panduan kamera (biasanya pengguna admin).
+hls: yes
+hlsAddress: :8888
+hlsAlwaysRemux: yes
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+rtsp: no
+rtmp: no
+webrtc: no
+paths:
+  ruang-bermain:
+    source: rtsp://admin:katasandi@192.168.1.50:554/stream1
+    sourceOnDemand: yes

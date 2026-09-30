@@ -1,0 +1,441 @@
+@import "tailwindcss";
+
+/* ---- Token desain (lihat DESIGN.md) -------------------------------------------------- */
+@theme {
+  --font-sans: "Inter Variable", "Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-wash: #f1f4fa;
+  --color-wash-2: #e6ebf5;
+  --color-line: #e6e9f2;
+  --color-line-strong: #cdd4e4;
+  --color-ink: #1b2340;
+  --color-ink-2: #3a4463;
+  --color-muted: #667088;
+  --color-faint: #9098ad;
+
+  /* Warna aksen peran. Nama "teal-*" dipertahankan sebagai skala aksen; nilainya biru (orang tua &
+     pengasuh) dan ditimpa ungu di .role-admin — lihat DESIGN.md. */
+  --color-teal-100: #e8effd;
+  --color-teal-200: #c9d9fb;
+  --color-teal-300: #a5c0f8;
+  --color-teal-500: #3b7cf6;
+  --color-teal-600: #2f6fed;
+  --color-teal-700: #2459c9;
+  --color-teal-800: #1d47a3;
+  --color-teal-900: #17367c;
+
+  --color-ok: #15803d;
+  --color-ok-wash: #ebf8ef;
+  --color-ok-line: #b9e3c6;
+  --color-warn: #b45309;
+  --color-warn-ink: #8a4b08;
+  --color-warn-wash: #fef5e7;
+  --color-warn-line: #f0d7a8;
+  --color-danger: #b91c1c;
+  --color-danger-wash: #fdeeee;
+  --color-danger-line: #efbfbf;
+
+  --color-side: #2f6fed;
+  --color-side-2: #2a63d8;
+  --color-side-line: rgba(255, 255, 255, 0.16);
+  --color-side-ink: #ffffff;
+  --color-side-faint: #d9e4fc;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --shadow-card: 0 1px 2px rgba(27, 35, 64, 0.04), 0 6px 20px -10px rgba(27, 35, 64, 0.1);
+  --shadow-pop: 0 12px 40px -12px rgba(27, 35, 64, 0.28);
+}
+
+/* Gradasi yang diizinkan (fungsi tercatat di DESIGN.md §3) */
+:root {
+  --accent: #2f6fed;
+  --accent-2: #3b7cf6;
+  --accent-deep: #2459c9;
+  --grad-hero: linear-gradient(160deg, #ffffff 0%, #f4f7ff 45%, #eef2ff 100%);
+  --grad-text: linear-gradient(90deg, #6c5ce7, #8b7cf6);
+  --grad-primary: linear-gradient(180deg, var(--accent-2), var(--accent));
+  --grad-wash: linear-gradient(180deg, #edf2fd, transparent);
+  --grad-stage: linear-gradient(150deg, #1d47a3 0%, #2f6fed 60%, #3b7cf6 100%);
+
+  --grad-app: linear-gradient(180deg, #f5f7fb 0%, #f5f7fb 100%);
+  --grad-side: linear-gradient(180deg, var(--accent-2) 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  --grad-side-glow: radial-gradient(420px 260px at 0% 0%, rgba(255, 255, 255, 0.14), transparent 70%);
+  /* Ujung tergelap→terterang dijaga agar teks putih 13 px tetap ≥ 4,5:1 (AA) di seluruh pita */
+  --grad-band: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent) 100%);
+  --grad-band-glow: radial-gradient(70% 90% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 70%);
+  --grad-card: linear-gradient(165deg, #ffffff 0%, #ffffff 100%);
+  --grad-card-ok: linear-gradient(165deg, #ffffff 0%, #eefaf1 100%);
+  --grad-card-warn: linear-gradient(165deg, #ffffff 0%, #fef5e6 100%);
+  --grad-card-danger: linear-gradient(165deg, #ffffff 0%, #fdeeee 100%);
+  --grad-tile: linear-gradient(160deg, #ffffff 0%, #f3f6fd 100%);
+  --grad-reveal: linear-gradient(160deg, #e8effd 0%, #ffffff 100%);
+}
+
+/* Dasbor admin (Tema 4): aksen ungu */
+.role-admin {
+  --accent: #6c5ce7;
+  --accent-2: #7d6ff2;
+  --accent-deep: #5747c8;
+  --color-teal-100: #eeecfd;
+  --color-teal-200: #d7d2fb;
+  --color-teal-300: #b7adf7;
+  --color-teal-500: #7d6ff2;
+  --color-teal-600: #6c5ce7;
+  --color-teal-700: #5747c8;
+  --color-teal-800: #4638a3;
+  --color-teal-900: #372c7f;
+  --color-side: #6c5ce7;
+  --color-side-2: #5d4dd6;
+  --color-side-faint: #e4e0fc;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    background-image: none;
+    font-feature-settings: "cv11", "ss01", "tnum";
+  }
+  ::selection {
+    background: #c9d9fb;
+  }
+  /* Anak grid tidak boleh melebarkan kolomnya melewati lebar layar (tabel lebar cukup menggulir). */
+  .grid > * {
+    min-width: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-teal-600);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-ink font-semibold tracking-[-0.01em];
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+  }
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    body {
+      background: #fff;
+    }
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-[1180px] px-5 md:px-8;
+  }
+  .panel {
+    @apply border-line bg-surface shadow-card rounded-[14px] border;
+  }
+  .panel-head {
+    @apply border-line flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4;
+  }
+  .panel-body {
+    @apply p-5;
+  }
+  .field {
+    @apply border-line-strong bg-surface text-ink placeholder:text-faint disabled:bg-wash disabled:text-muted flex w-full rounded-md border px-3 py-2 text-[15px] shadow-none transition-colors focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 focus:outline-none disabled:cursor-not-allowed;
+    min-height: 42px;
+  }
+  select.field {
+    @apply appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235F6A6E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-position: right 10px center;
+  }
+  .kv {
+    @apply grid grid-cols-[minmax(0,130px)_minmax(0,1fr)] gap-x-4 gap-y-2 text-[14px];
+  }
+  .kv dt {
+    @apply text-muted;
+  }
+  .kv dd {
+    @apply text-ink font-medium;
+  }
+  .table-wrap {
+    /* relative: agar elemen sr-only (absolut) di dalam tabel ikut terpotong wadah gulir,
+       bukan melebarkan dokumen di layar sempit */
+    @apply relative -mx-5 overflow-x-auto px-5;
+  }
+  .table {
+    @apply w-full border-collapse text-[14px];
+  }
+  .table th {
+    @apply border-line text-muted border-b pr-3 pb-2 text-left text-[12px] font-semibold tracking-[0.04em] whitespace-nowrap uppercase;
+  }
+  .table td {
+    @apply border-line text-ink border-b py-2.5 pr-3 align-top;
+  }
+  .table th:last-child,
+  .table td:last-child {
+    @apply pr-0;
+  }
+  .table tr:last-child td {
+    @apply border-b-0;
+  }
+  .table .num {
+    @apply text-right whitespace-nowrap tabular-nums;
+  }
+  .prose-sd p + p {
+    @apply mt-3;
+  }
+  .grad-text {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-bg {
+    background: var(--grad-hero);
+  }
+  .hero-glow {
+    background: radial-gradient(60% 60% at 80% 10%, rgba(94, 234, 212, 0.22), transparent 70%);
+  }
+  .stage-bg {
+    background: var(--grad-stage);
+  }
+  .band-wash {
+    background: var(--grad-wash);
+  }
+  .bar {
+    @apply bg-wash-2 h-2 w-full overflow-hidden rounded-full;
+  }
+  .bar > span {
+    @apply block h-full rounded-full bg-teal-600 transition-[width] duration-500;
+  }
+  .tl {
+    @apply relative m-0 list-none p-0 pl-6;
+  }
+  .tl::before {
+    content: "";
+    @apply bg-line-strong absolute top-2 bottom-2 left-[7px] w-px;
+  }
+  .tl li {
+    @apply relative pb-4;
+  }
+  .tl li::before {
+    content: "";
+    @apply bg-surface absolute top-[7px] -left-6 h-[15px] w-[15px] rounded-full border-2 border-teal-600;
+  }
+  .tl li.sev-high::before {
+    @apply border-danger bg-danger-wash;
+  }
+  .tl li.sev-medium::before {
+    @apply border-warn bg-warn-wash;
+  }
+  .tl li.future::before {
+    @apply border-line-strong border-dashed;
+  }
+  .overlay-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* ---- Warna dasbor ------------------------------------------------------------------- */
+  .app-main {
+    background: var(--grad-app);
+  }
+  .side-bg {
+    background: var(--grad-side-glow), var(--grad-side);
+  }
+  /* Pita identitas di awal setiap dasbor: satu bidang berwarna per halaman */
+  .band {
+    background: var(--grad-band-glow), var(--grad-band);
+    color: #fff;
+    box-shadow: var(--shadow-card);
+  }
+  .band h1,
+  .band h2,
+  .band h3 {
+    color: #fff;
+  }
+  .band ::selection {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  /* Pil di atas pita: latar gelap tembus pandang supaya teks terang tetap kontras di ujung pita yang paling terang */
+  .band-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[12.5px] leading-5 font-semibold whitespace-nowrap;
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(4, 30, 28, 0.32);
+    color: #fff;
+  }
+  .band-pill-ok {
+    border-color: rgba(167, 243, 208, 0.4);
+    color: #d1fae5;
+  }
+  .band-pill-warn {
+    border-color: rgba(253, 230, 138, 0.45);
+    color: #fde68a;
+  }
+  .band-pill-danger {
+    border-color: rgba(254, 202, 202, 0.5);
+    color: #fecaca;
+  }
+  /* Kartu angka: rona tipis sesuai maknanya */
+  .metric {
+    background: var(--grad-card);
+  }
+  .metric-ok {
+    background: var(--grad-card-ok);
+  }
+  .metric-warn {
+    background: var(--grad-card-warn);
+  }
+  .metric-danger {
+    background: var(--grad-card-danger);
+  }
+  .tile {
+    background: var(--grad-tile);
+  }
+  .code-reveal {
+    background: var(--grad-reveal);
+  }
+
+  /* ---- Pola antarmuka mockup ------------------------------------------------------------ */
+  .side-item {
+    @apply flex w-full items-center gap-2.5 rounded-[10px] px-3 py-[9px] text-left text-[14px] font-medium text-white/88 transition-colors hover:bg-white/12 hover:text-white;
+  }
+  .side-item-active {
+    @apply bg-white font-semibold text-teal-700 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.25)] hover:bg-white hover:text-teal-700;
+  }
+  .tile-btn {
+    @apply border-line bg-surface text-ink-2 hover:border-line-strong flex min-h-[86px] flex-col items-center justify-center gap-2 rounded-[12px] border px-2 py-3 text-center text-[12.5px] leading-tight font-medium transition-[border-color,box-shadow,background-color];
+  }
+  .tile-btn[aria-pressed="true"],
+  .tile-btn.active {
+    @apply border-teal-600 bg-teal-100/60 text-teal-800 ring-2 ring-teal-600/15;
+  }
+  .tile-icon {
+    @apply flex h-10 w-10 items-center justify-center rounded-[10px];
+  }
+  .chip {
+    @apply border-line bg-surface text-ink-2 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[13px] font-medium whitespace-nowrap transition-colors hover:border-teal-600;
+  }
+  .chip[aria-pressed="true"],
+  .chip.active {
+    @apply border-teal-600 bg-teal-600 text-white;
+  }
+  .kpi {
+    @apply border-line bg-surface shadow-card flex items-center gap-3.5 rounded-[14px] border px-4 py-4;
+  }
+  .kpi-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] text-[20px];
+  }
+  .kpi-value {
+    @apply text-ink text-[24px] leading-none font-bold tracking-[-0.02em];
+  }
+  .kpi-value small {
+    @apply text-muted ml-1 text-[13px] font-medium;
+  }
+  .bubble {
+    @apply max-w-[78%] rounded-[14px] px-3.5 py-2.5 text-[14px] leading-[1.45] break-words;
+  }
+  .bubble-them {
+    @apply text-ink rounded-tl-[4px] bg-[#f1f4fa];
+  }
+  .bubble-me {
+    @apply rounded-tr-[4px] bg-[#e5f5ea] text-[#14351f];
+  }
+  .summary-tile {
+    @apply rounded-[12px] px-3.5 py-3;
+  }
+  .summary-tile .lbl {
+    @apply text-[12px] font-semibold;
+  }
+  .summary-tile .val {
+    @apply mt-1 text-[20px] leading-none font-bold tracking-[-0.01em];
+  }
+  .summary-tile .sub {
+    @apply text-muted mt-1 text-[12px];
+  }
+  .photo-grid {
+    @apply grid grid-cols-3 gap-2;
+  }
+  .photo-grid > * {
+    @apply bg-wash-2 aspect-square overflow-hidden rounded-[10px];
+  }
+  .photo-grid img {
+    @apply h-full w-full object-cover;
+  }
+  .live-tag {
+    @apply absolute top-2 right-2 inline-flex items-center gap-1 rounded-[6px] bg-[#e0262d] px-1.5 py-0.5 text-[11px] font-bold tracking-[0.04em] text-white;
+  }
+  .toggle {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors;
+  }
+  .toggle[aria-checked="true"] {
+    @apply bg-emerald-500;
+  }
+  .toggle[aria-checked="false"] {
+    @apply bg-slate-300;
+  }
+  .toggle > span {
+    @apply bg-surface block h-5 w-5 rounded-full shadow transition-transform;
+  }
+  .toggle[aria-checked="true"] > span {
+    transform: translateX(21px);
+  }
+  .toggle[aria-checked="false"] > span {
+    transform: translateX(2px);
+  }
+  .sentiment-positif {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+  .sentiment-netral {
+    @apply bg-amber-50 text-amber-700;
+  }
+  .sentiment-negatif {
+    @apply bg-rose-50 text-rose-700;
+  }
+  @media print {
+    .print-only {
+      display: block !important;
+    }
+    .panel {
+      box-shadow: none;
+      break-inside: avoid;
+    }
+    /* "Download PDF": hanya kartu laporan yang dicetak, tanpa bilah sisi, topbar, dan panel lain */
+    body.printing-report * {
+      visibility: hidden;
+    }
+    body.printing-report .print-area,
+    body.printing-report .print-area * {
+      visibility: visible;
+    }
+    body.printing-report .print-area {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      margin: 0;
+      border: 0;
+    }
+  }
+}

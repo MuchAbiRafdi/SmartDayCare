@@ -1,0 +1,123 @@
+{
+  "input": "C:\\Users\\ACER\\Downloads\\Template Hackathon USM 2026.docx",
+  "fonts_by_char_count": {},
+  "direct_run_formatting_runs": 73,
+  "direct_paragraph_formatting_paragraphs": 36,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 3,
+      "text": "A. JUDUL",
+      "style": "Normal"
+    },
+    {
+      "para_index": 6,
+      "text": "B. RINGKASAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 9,
+      "text": "C. KATA KUNCI",
+      "style": "Normal"
+    },
+    {
+      "para_index": 12,
+      "text": "D. PENDAHULUAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 15,
+      "text": "E. PETA JALAN PENGEMBANGAN PRODUK",
+      "style": "Normal"
+    },
+    {
+      "para_index": 18,
+      "text": "E. METODE",
+      "style": "Normal"
+    },
+    {
+      "para_index": 21,
+      "text": "F. RENCANA OPERASIONAL PENGEMBANGAN PRODUK ",
+      "style": "Normal"
+    },
+    {
+      "para_index": 22,
+      "text": "(Catatan: Bagian ini wajib dikerjakan Bersama Mitra)",
+      "style": "Normal"
+    },
+    {
+      "para_index": 25,
+      "text": "G. JADWAL PENELITIAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 29,
+      "text": "H. DAFTAR PUSTAKA",
+      "style": "Normal"
+    },
+    {
+      "para_index": 36,
+      "text": "FORMAT USULAN PROPOSAL ",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "text": "A. JUDUL",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "text": "Tuliskan judul usulan penelitian maksimal 20 kata",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "text": "[\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026...\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026.\u2026\u2026\u2026\u2026..\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026.\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026..\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026\u2026",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "text": "B. RINGKASAN",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 3,
+        "run_text": "A. JUDUL",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "Tuliskan judul usulan penelitian maksimal 20 kat",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "a",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "B. RINGKASAN",
+        "style": "Normal"
+      },
+      {
+        "para_index": 7,
+        "run_text": "Tuliskan ",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

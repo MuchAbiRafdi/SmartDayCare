@@ -1,0 +1,50 @@
+# Produksi: Caddy (HTTPS otomatis) → web (Next.js) → api (FastAPI). Jalankan dari folder deploy/:
+#   cp .env.example .env && nano .env      # isi DOMAIN, SD_ADMIN_EMAIL, pengirim email/WA
+#   docker compose up -d --build
+# Kamera (opsional): docker compose --profile kamera up -d  → MediaMTX di /stream/*
+services:
+  api:
+    build: ../api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SD_ENV: production
+      SD_DATA_DIR: /srv/api/data
+      SD_BACKUP_DIR: /srv/api/data/backups
+    volumes:
+      - api-data:/srv/api/data
+    expose: ["8000"]
+
+  web:
+    build:
+      context: ../web
+      args:
+        API_URL: http://api:8000
+    restart: unless-stopped
+    depends_on: [api]
+    expose: ["3000"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [web, api]
+    env_file: .env
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  # Opsional: ubah RTSP kamera menjadi HLS yang bisa diputar peramban (lihat docs/PERANGKAT.md)
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    profiles: ["kamera"]
+    restart: unless-stopped
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+    expose: ["8888"]
+
+volumes:
+  api-data:
+  caddy-data:
+  caddy-config:
