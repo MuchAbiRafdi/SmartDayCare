@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartDaycare AI — Penitipan anak yang bisa Anda lihat setiap hari</title>
+<meta name="description" content="Kamera ruangan, catatan makan dengan foto piring, dan kualitas udara dalam satu laporan harian untuk orang tua dan pengelola daycare.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="landing">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SmartDaycare AI — beranda">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#0B5F59"/><path d="M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17" cy="22.5" r="2.6" fill="#5EEAD4"/></svg>
+      <span><span class="brand-name">SmartDaycare AI</span><span class="brand-sub">PENITIPAN ANAK YANG TRANSPARAN</span></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mainnav">Menu</button>
+    <nav class="mainnav" id="mainnav" aria-label="Navigasi utama">
+      <a href="#fitur">Fitur</a>
+      <a href="#cara-kerja">Cara kerja</a>
+      <a href="#privasi">Privasi</a>
+      <a href="#harga">Harga</a>
+      <a href="help.html">Bantuan</a>
+      <span data-authlinks style="display:contents"><a class="btn btn-sm" id="cta-login" href="login.html">Masuk</a><a class="btn btn-sm btn-primary" id="cta-register" href="register.html">Daftar</a></span>
+    </nav>
+  </div>
+</header>
+
+<main id="utama">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Untuk orang tua dan pengelola daycare</p>
+          <h1>Setiap hari anak Anda, <span class="grad-text">terlihat</span> dan tercatat.</h1>
+          <p class="lede">Kamera ruangan, catatan makan dengan foto piring, dan kualitas udara dalam satu laporan harian. Dibuka dari ponsel, tanpa aplikasi tambahan.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="register.html">Daftar sekarang</a>
+            <a class="btn btn-ghost-light btn-lg" href="login.html">Masuk ke akun</a>
+          </div>
+          <p class="hero-note">Digunakan setiap hari di Ceria Ananda Daycare, Bandung.</p>
+        </div>
+        <div class="app-window" aria-label="Ringkasan langsung dari fasilitas">
+          <div class="bar"><i></i><i></i><i></i><span>Ceria Ananda · <span data-clock>--:--:-- WIB</span></span></div>
+          <div class="shot">
+            <img src="assets/img/room-play.jpg" alt="Ruang Bermain Utama Ceria Ananda Daycare">
+            <span class="tag"><span class="live-dot"></span>Kamera 1 · Ruang Bermain Utama</span>
+          </div>
+          <div class="rows">
+            <div class="r"><span>Anak hadir sekarang</span><b id="hw-present">—</b></div>
+            <div class="r"><span>Kualitas udara</span><b id="hw-air">—</b></div>
+            <div class="r"><span>Kejadian terakhir</span><b id="hw-last">—</b></div>
+            <div class="r"><span>Rekaman kamera</span><b>Tersimpan 7 hari</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="trust-strip">
+      <span>Wajah anak lain diburamkan</span>
+      <span>Rekaman terhapus setelah 7 hari</span>
+      <span>Setiap akses kamera tercatat</span>
+      <span>Tanpa skor rekaan</span>
+    </div>
+  </div>
+
+  <section class="block" id="untuk-siapa">
+    <div class="wrap">
+      <p class="eyebrow">Untuk siapa</p>
+      <div class="section-head">
+        <h2>Satu layanan, tiga sudut pandang.</h2>
+        <p>Orang tua melihat, pengasuh mencatat, pengelola memastikan semuanya berjalan.</p>
+      </div>
+      <div class="role-cards">
+        <div class="role-card">
+          <img class="thumb" src="assets/img/room-play.jpg" alt="Ruang bermain">
+          <h3>Orang tua</h3>
+          <p class="for">Untuk ayah, ibu, dan wali</p>
+          <ul>
+            <li>Kamera ruangan tempat anak berada</li>
+            <li>Foto piring sebelum dan sesudah makan</li>
+            <li>Suhu tubuh, obat, dan pemberitahuan penting</li>
+            <li>Laporan harian yang bisa dicetak</li>
+          </ul>
+          <a class="btn" href="register.html?role=parent">Daftar sebagai orang tua</a>
+        </div>
+        <div class="role-card">
+          <img class="thumb" src="assets/img/plate-before.jpg" alt="Piring makan siang anak">
+          <h3>Pengasuh</h3>
+          <p class="for">Untuk staf yang mendampingi anak</p>
+          <ul>
+            <li>Tandai tiba, catat suhu, tandai pulang</li>
+            <li>Pindai piring dengan kamera, nilai gizi terhitung otomatis</li>
+            <li>Catatan obat dan serah terima shift</li>
+            <li>Kejadian ditandai selesai dari ponsel</li>
+          </ul>
+          <a class="btn" href="register.html?role=caregiver">Daftar sebagai pengasuh</a>
+        </div>
+        <div class="role-card">
+          <img class="thumb" src="assets/img/room-dine.jpg" alt="Ruang makan daycare">
+          <h3>Pengelola daycare</h3>
+          <p class="for">Untuk pemilik dan admin</p>
+          <ul>
+            <li>Ringkasan kehadiran, kejadian, dan udara</li>
+            <li>Riwayat siapa membuka kamera dan kapan</li>
+            <li>Kelola akun staf, kode anak, dan batas peringatan</li>
+            <li>Semua catatan bisa diekspor</li>
+          </ul>
+          <a class="btn" href="#kontak">Minta penawaran</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block band-wash" id="fitur">
+    <div class="wrap">
+      <p class="eyebrow">Fitur</p>
+      <div class="section-head">
+        <h2>Bukan sekadar “anak baik-baik saja”.</h2>
+        <p>Setiap informasi punya waktu, satuan, dan siapa yang mencatatnya.</p>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <div class="icon-tile" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+          <h3>Lihat ruangan anak dari ponsel</h3>
+          <p>Kamera mengikuti ruangan tempat anak Anda berada. Nama anak Anda tampil di layar; wajah anak lain diburamkan.</p>
+          <ul>
+            <li>Tiga ruangan anak dapat dibuka orang tua; dapur hanya untuk staf</li>
+            <li>Setiap tontonan tercatat di riwayat akses daycare</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/img/room-sleep.jpg" alt="Ruang tidur anak dengan pencahayaan lembut">
+      </div>
+
+      <div class="feature-row rev">
+        <div>
+          <div class="icon-tile" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
+          <h3>Tahu persis apa yang dimakan</h3>
+          <p>Pengasuh memindai piring dengan kamera saat disajikan dan sesudah makan. Makanan dikenali otomatis, beratnya diperkirakan, dan nilai gizinya dihitung. Anda melihat foto piring, gram per menu, perkiraan kalori, dan riwayat tujuh hari.</p>
+          <ul>
+            <li>Alergi anak tampil di setiap layar pengasuh</li>
+            <li>Nafsu makan yang turun terlihat lebih awal</li>
+          </ul>
+        </div>
+        <div class="plate-grid">
+          <img class="shot" src="assets/img/plate-before.jpg" alt="Piring sebelum makan" style="height:220px">
+          <img class="shot" src="assets/img/plate-after.jpg" alt="Piring sesudah makan" style="height:220px">
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <div class="icon-tile" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h8a2 2 0 1 1-2 2"/></svg></div>
+          <h3>Udara ruangan yang sehat</h3>
+          <p>Suhu, kelembapan, dan kesegaran udara diukur di setiap ruangan. Bila ruangan perlu ventilasi, pengasuh diberi tahu lebih dulu.</p>
+          <ul>
+            <li>Batas peringatan diatur pengelola daycare</li>
+            <li>Riwayat per ruangan tersedia untuk admin</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/img/room-play.jpg" alt="Ruang bermain utama dengan jendela lebar">
+      </div>
+
+      <div class="feature-row rev">
+        <div>
+          <div class="icon-tile" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+          <h3>Pemberitahuan yang penting saja</h3>
+          <p>Anak terjatuh, mendekati dapur, atau menangis cukup lama: pengasuh menangani, Anda menerima ringkasannya — waktu, ruangan, siapa yang menangani, dan kondisi anak.</p>
+          <ul>
+            <li>Tiga tingkat: Penting, Perhatian, Info</li>
+            <li>Lewat WhatsApp, e-mail, atau di aplikasi</li>
+          </ul>
+        </div>
+        <img class="shot" src="assets/img/room-dine.jpg" alt="Ruang makan yang rapi dan terang">
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="cara-kerja">
+    <div class="wrap">
+      <p class="eyebrow">Cara kerja</p>
+      <div class="section-head"><h2>Mulai dalam tiga langkah.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">LANGKAH 1</div><h3>Daycare memasang</h3><p>Kamera dan sensor udara dipasang di setiap ruangan, staf dilatih dalam satu hari.</p></div>
+        <div class="step"><div class="n">LANGKAH 2</div><h3>Orang tua menerima kode</h3><p>Daftar dengan e-mail, masukkan kode anak, dan dasbor langsung terbuka.</p></div>
+        <div class="step"><div class="n">LANGKAH 3</div><h3>Setiap hari, satu laporan</h3><p>Tiba, suhu, makan, tidur, kejadian, pulang — dalam satu garis waktu yang bisa dicetak.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block band-wash" id="privasi">
+    <div class="wrap">
+      <p class="eyebrow">Keamanan &amp; privasi</p>
+      <div class="section-head"><h2>Anak-anak berhak atas privasi.</h2></div>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Hanya orang yang berhak</h3>
+          <p>Kamera anak Anda hanya bisa dibuka oleh akun yang tertaut dengan kode anak, pengasuh yang bertugas, dan admin daycare.</p>
+          <h3 style="margin-top:20px">Wajah anak lain diburamkan</h3>
+          <p style="margin:0">Pada tampilan orang tua, hanya anak Anda yang ditandai dengan nama.</p>
+        </div>
+        <div class="panel">
+          <h3>Rekaman tidak disimpan selamanya</h3>
+          <p>Rekaman kamera terhapus otomatis setelah 7 hari. Catatan harian dapat dihapus atas permintaan.</p>
+          <h3 style="margin-top:20px">Semua akses tercatat</h3>
+          <p style="margin:0">Siapa membuka kamera, kapan, dan untuk apa — dapat diminta orang tua kepada daycare.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:20px"><b>Tidak ada skor yang tidak bisa dijelaskan.</b> Setiap angka punya satuan, waktu, dan cara pengukurannya.</div>
+    </div>
+  </section>
+
+  <section class="block" id="harga">
+    <div class="wrap">
+      <p class="eyebrow">Harga</p>
+      <div class="section-head">
+        <h2>Per anak aktif, per bulan.</h2>
+        <p>Orang tua tidak dikenakan biaya. Harga sudah termasuk pajak, pemasangan, dan pelatihan staf.</p>
+      </div>
+      <div class="seg" id="billing" role="group" aria-label="Periode tagihan">
+        <button type="button" data-billing="month" aria-pressed="true">Bulanan</button>
+        <button type="button" data-billing="year" aria-pressed="false">Tahunan · hemat 2 bulan</button>
+      </div>
+      <div class="pricing">
+        <div class="price-card">
+          <div class="pname">Dasar</div>
+          <div class="price" data-price-month="35000" data-price-year="29000">Rp 35.000</div>
+          <div class="per" data-per>per anak / bulan</div>
+          <ul>
+            <li>Laporan harian dan pemberitahuan</li>
+            <li>Absensi, suhu tubuh, catatan obat</li>
+            <li>Pindai piring &amp; nilai gizi</li>
+            <li>Hingga 30 anak, 1 lokasi</li>
+          </ul>
+          <a class="btn" href="#kontak">Minta penawaran</a>
+        </div>
+        <div class="price-card featured">
+          <div class="pname">Utama — paling dipilih</div>
+          <div class="price" data-price-month="65000" data-price-year="55000">Rp 65.000</div>
+          <div class="per" data-per>per anak / bulan</div>
+          <ul>
+            <li>Semua fitur Dasar</li>
+            <li>Kamera ruangan langsung untuk orang tua</li>
+            <li>Sensor udara di setiap ruangan</li>
+            <li>Pemberitahuan kejadian</li>
+            <li>Riwayat akses dan ekspor data</li>
+            <li>Hingga 80 anak, 1 lokasi</li>
+          </ul>
+          <a class="btn btn-light" href="#kontak">Minta penawaran</a>
+        </div>
+        <div class="price-card">
+          <div class="pname">Yayasan</div>
+          <div class="price">Hubungi kami</div>
+          <div class="per">untuk 2 lokasi atau lebih</div>
+          <ul>
+            <li>Semua fitur Utama di setiap lokasi</li>
+            <li>Ringkasan lintas cabang</li>
+            <li>Integrasi tagihan dan absensi</li>
+            <li>Dukungan prioritas</li>
+          </ul>
+          <a class="btn" href="#kontak">Hubungi tim kami</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block band-wash" id="faq">
+    <div class="wrap">
+      <p class="eyebrow">Pertanyaan umum</p>
+      <div class="section-head"><h2>Yang sering ditanyakan orang tua.</h2></div>
+      <div class="grid-2">
+        <div>
+          <details class="faq"><summary>Siapa saja yang bisa melihat kamera anak saya?</summary><div class="a">Hanya akun orang tua yang tertaut dengan kode anak, pengasuh yang bertugas, dan admin daycare. Setiap kali kamera dibuka, tercatat siapa yang membukanya.</div></details>
+          <details class="faq"><summary>Bagaimana cara mendapat akun?</summary><div class="a">Daycare memberikan kode anak (contoh KA-2201). Daftar dengan e-mail Anda, masukkan kode, dan dasbor langsung terbuka.</div></details>
+          <details class="faq"><summary>Apakah angka kalori akurat?</summary><div class="a">Angka berasal dari berat piring sebelum dan sesudah makan. Kami menampilkannya sebagai perkiraan, lengkap dengan gram sisa per menu.</div></details>
+        </div>
+        <div>
+          <details class="faq"><summary>Apa yang terjadi saat anak terjatuh?</summary><div class="a">Pengasuh di ruangan segera menangani, lalu menandai kejadian selesai. Anda menerima ringkasan: waktu, ruangan, siapa yang menangani, dan kondisi anak.</div></details>
+          <details class="faq"><summary>Apakah butuh aplikasi khusus?</summary><div class="a">Tidak. Semuanya berjalan di peramban ponsel dan komputer. Pemberitahuan dapat dikirim lewat WhatsApp atau e-mail.</div></details>
+          <details class="faq"><summary>Bisakah saya meminta penghapusan data anak?</summary><div class="a">Bisa. Ajukan lewat halaman Akun atau ke admin daycare. Data dihapus paling lambat 7 hari setelah permintaan.</div></details>
+        </div>
+      </div>
+      <p style="margin-top:18px"><a href="help.html">Lihat semua pertanyaan di Pusat Bantuan →</a></p>
+    </div>
+  </section>
+
+  <section class="block" id="kontak">
+    <div class="wrap">
+      <p class="eyebrow">Hubungi kami</p>
+      <div class="grid-2">
+        <div>
+          <div class="section-head" style="margin-bottom:18px">
+            <h2>Minta penawaran untuk daycare Anda.</h2>
+            <p>Ceritakan jumlah anak dan ruangan. Kami membalas dalam satu hari kerja.</p>
+          </div>
+          <dl class="kv" style="grid-template-columns:110px 1fr">
+            <dt>Telepon</dt><dd>+62 22 2034 5510</dd>
+            <dt>E-mail</dt><dd>halo@smartdaycare.id</dd>
+            <dt>Jam layanan</dt><dd>Senin–Sabtu, 08.00–17.00 WIB</dd>
+            <dt>Kantor</dt><dd>Jl. Cihampelas No. 118, Bandung 40131</dd>
+          </dl>
+        </div>
+        <form class="panel" id="contact-form" novalidate>
+          <div class="form-row">
+            <div class="field"><label for="c-name">Nama</label><input id="c-name" name="name" type="text" required autocomplete="name"></div>
+            <div class="field"><label for="c-email">E-mail</label><input id="c-email" name="email" type="email" required autocomplete="email"></div>
+          </div>
+          <div class="field"><label for="c-org">Nama daycare</label><input id="c-org" name="org" type="text" placeholder="cth. Daycare Melati, 2 lokasi"></div>
+          <div class="field"><label for="c-msg">Pesan</label><textarea id="c-msg" name="msg" required placeholder="Jumlah anak, jumlah ruangan, dan kapan ingin mulai"></textarea></div>
+          <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Kirim permintaan</button>
+          <p class="legal" style="margin:10px 0 0;text-align:center">Dengan mengirim, Anda menyetujui <a href="help.html#privasi">Kebijakan Privasi</a> kami.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Mulai hari ini.</h2>
+      <p>Sudah punya kode anak dari daycare? Buat akun dalam satu menit.</p>
+      <div class="row">
+        <a class="btn btn-light btn-lg" href="register.html">Buat akun</a>
+        <a class="btn btn-ghost-light btn-lg" href="login.html">Masuk</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <div style="color:#fff;font-weight:700;font-size:15px;margin-bottom:8px">SmartDaycare AI</div>
+      <p style="max-width:38ch">Kamera ruangan, catatan makan, dan kualitas udara dalam satu laporan harian.</p>
+      <p>Jl. Cihampelas No. 118, Bandung 40131<br>+62 22 2034 5510 · halo@smartdaycare.id</p>
+    </div>
+    <div><h4>Produk</h4><p><a href="#fitur">Fitur</a></p><p><a href="#harga">Harga</a></p><p><a href="#privasi">Keamanan &amp; privasi</a></p><p><a href="#cara-kerja">Cara kerja</a></p></div>
+    <div><h4>Akun</h4><p><a href="login.html">Masuk</a></p><p><a href="register.html">Daftar</a></p><p><a href="dashboard.html">Dasbor</a></p><p><a href="help.html">Pusat bantuan</a></p></div>
+    <div><h4>Perusahaan</h4><p><a href="#kontak">Hubungi kami</a></p><p><a href="help.html#privasi">Kebijakan privasi</a></p><p><a href="help.html#syarat">Syarat layanan</a></p><p style="color:#7F948F;margin-top:14px">© <span data-year>2026</span> SmartDaycare AI</p></div>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

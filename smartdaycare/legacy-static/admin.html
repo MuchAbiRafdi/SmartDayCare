@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administrasi — SmartDaycare AI</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="admin" data-auth="admin" data-title="Administrasi">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="shell">
+  <aside class="sidebar" data-sidebar></aside>
+  <div class="shell-main">
+    <header class="topbar" data-topbar></header>
+    <main class="content" id="utama">
+
+      <section class="tabpane active" id="tab-ringkasan" role="tabpanel" data-nav="Ringkasan" data-icon="grid">
+        <div class="page-head">
+          <div><h1>Ringkasan hari ini</h1><p class="sub">Ceria Ananda Daycare</p></div>
+          <div class="actions no-print"><button class="btn" data-open-modal="user-modal" type="button">Tambah akun</button><button class="btn" data-print type="button">Cetak</button></div>
+        </div>
+        <div class="grid-3" id="ad-metrics" style="margin-bottom:20px"></div>
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>Karbon dioksida per ruangan</h2><p>Garis putus-putus adalah batas yang ditetapkan di Pengaturan.</p></div>
+            <div><label for="iot-room" class="sr">Ruangan</label><select id="iot-room" style="width:auto;min-width:200px;height:38px"></select></div>
+          </div>
+          <div class="chart-box"><canvas id="iot-chart" role="img" aria-label="Bagan garis karbon dioksida"></canvas><p class="cap" id="iot-last">Memuat…</p></div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-perangkat" role="tabpanel" data-nav="Kamera &amp; sensor" data-icon="cpu">
+        <div class="page-head">
+          <div><h1>Kamera &amp; sensor</h1><p class="sub">4 kamera dan 4 sensor udara.</p></div>
+          <div class="actions"><button class="btn" id="check-devices" type="button">Periksa koneksi</button></div>
+        </div>
+        <div class="progress" id="dev-progress" style="display:none;margin-top:0"><div class="plabel"><span>Menghubungi perangkat…</span><span class="pct">0%</span></div><div class="track"><i></i></div></div>
+        <div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Kamera</h2></div></div>
+            <div class="table-wrap"><table class="data" id="cam-table"><thead><tr><th>Kamera</th><th>Ruangan</th><th>Status</th><th>Orang tua</th><th>Terakhir</th></tr></thead><tbody></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Sensor udara</h2></div></div>
+            <div class="table-wrap"><table class="data" id="sensor-table"><thead><tr><th>Ruangan</th><th class="num">Suhu °C</th><th class="num">Lembap %</th><th class="num">CO₂ ppm</th><th class="num">Debu</th><th class="num">Baterai</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:20px">
+          <div class="panel-head"><div><h2>Penyimpanan rekaman</h2></div></div>
+          <dl class="kv" style="grid-template-columns:190px 1fr">
+            <dt>Masa simpan rekaman</dt><dd>7 hari, lalu terhapus otomatis</dd>
+            <dt>Foto piring &amp; catatan</dt><dd>Selama anak terdaftar</dd>
+            <dt>Lokasi penyimpanan</dt><dd>Pusat data di Indonesia</dd>
+            <dt>Unduh rekaman</dt><dd>Hanya admin, tercatat di Riwayat akses</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-catatan" role="tabpanel" data-nav="Catatan harian" data-icon="list">
+        <div class="page-head"><div><h1>Catatan harian</h1><p class="sub" id="log-count"></p></div></div>
+        <div class="panel">
+          <div class="toolbar">
+            <select id="log-type"><option value="all">Semua jenis</option><option value="incident">Kejadian</option><option value="meal">Makan</option><option value="med">Obat</option><option value="checkin">Tiba</option><option value="checkout">Pulang</option><option value="temp">Suhu</option><option value="note">Catatan</option><option value="handover">Serah terima</option></select>
+            <input id="log-search" type="search" placeholder="Cari nama anak, pengasuh, atau kata kunci" style="width:100%;max-width:360px">
+          </div>
+          <div class="table-wrap"><table class="data" id="log-table"><thead><tr><th>Pukul</th><th>Jenis</th><th>Anak</th><th>Detail</th><th>Oleh</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-akses" role="tabpanel" data-nav="Riwayat akses" data-icon="key">
+        <div class="page-head"><div><h1>Riwayat akses</h1><p class="sub">Siapa membuka apa, kapan, dan untuk tujuan apa.</p></div></div>
+        <div class="panel">
+          <div class="toolbar">
+            <select id="acc-role"><option value="all">Semua peran</option><option value="parent">Orang tua</option><option value="caregiver">Pengasuh</option><option value="admin">Admin</option><option value="system">Sistem</option></select>
+            <span class="spacer"></span>
+            <button class="btn btn-sm" id="acc-export" type="button">Unduh CSV</button>
+          </div>
+          <div class="table-wrap"><table class="data" id="acc-table"><thead><tr><th>Waktu</th><th>Pengguna</th><th>Peran</th><th>Tindakan</th><th>Tujuan</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-akun" role="tabpanel" data-nav="Akun &amp; kode anak" data-icon="users">
+        <div class="page-head">
+          <div><h1>Akun &amp; kode anak</h1><p class="sub">Orang tua mendaftar dengan kode anak; staf dengan kode undangan.</p></div>
+          <div class="actions"><button class="btn btn-primary" data-open-modal="user-modal" type="button">Tambah akun</button></div>
+        </div>
+        <div class="panel">
+          <div class="toolbar"><select id="user-role"><option value="all">Semua peran</option><option value="parent">Orang tua</option><option value="caregiver">Pengasuh</option><option value="admin">Admin</option></select></div>
+          <div class="table-wrap"><table class="data" id="user-table"><thead><tr><th>Nama &amp; e-mail</th><th>Peran</th><th>Anak / area</th><th>Status</th><th>Tindakan</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Kode anak</h2><p>Bagikan hanya kepada orang tua atau wali sah.</p></div></div>
+            <div class="table-wrap"><table class="data" id="code-table"><thead><tr><th>Anak</th><th>Kode</th><th>Akun tertaut</th></tr></thead><tbody></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Kode undangan staf</h2><p>Berikan kepada staf baru saat mendaftar.</p></div></div>
+            <dl class="kv" style="grid-template-columns:110px 1fr">
+              <dt>Pengasuh</dt><dd><span class="code-box">CERIA-STAF-2026</span></dd>
+              <dt>Admin</dt><dd><span class="code-box">CERIA-ADMIN-2026</span></dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="tabpane" id="tab-pengaturan" role="tabpanel" data-nav="Pengaturan" data-icon="settings">
+        <div class="page-head"><div><h1>Pengaturan</h1><p class="sub">Berlaku langsung di semua dasbor setelah disimpan.</p></div></div>
+        <div class="grid-2">
+          <div>
+            <form class="panel" id="settings-form">
+              <div class="panel-head"><div><h2>Batas peringatan</h2></div></div>
+              <div class="form-row">
+                <div class="field"><label for="s-temp">Suhu ruangan maks (°C)</label><input id="s-temp" name="tempMax" type="number" step="0.5" min="20" max="35"></div>
+                <div class="field"><label for="s-hum">Kelembapan maks (%)</label><input id="s-hum" name="humMax" type="number" step="1" min="40" max="90"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label for="s-co2">CO₂ maks (ppm)</label><input id="s-co2" name="co2Max" type="number" step="50" min="600" max="2000"></div>
+                <div class="field"><label for="s-pm">Debu halus maks (µg/m³)</label><input id="s-pm" name="pm25Max" type="number" step="1" min="10" max="100"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label for="s-bw">Suhu tubuh: batas pantau (°C)</label><input id="s-bw" name="bodyTempWatch" type="number" step="0.1" min="36.5" max="38.5"></div>
+                <div class="field"><label for="s-bh">Suhu tubuh: batas tinggi (°C)</label><input id="s-bh" name="bodyTempHigh" type="number" step="0.1" min="37" max="40"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label for="s-ret">Masa simpan rekaman (hari)</label><input id="s-ret" name="retentionDays" type="number" step="1" min="1" max="30"></div>
+                <div class="field"><label for="s-plate">Diameter piring anak (cm)</label><input id="s-plate" name="plateDiameterCm" type="number" step="1" min="12" max="40"><p class="hint">Dipakai untuk memperkirakan berat saat piring dipindai.</p></div>
+              </div>
+              <button class="btn btn-primary" type="submit" style="margin-top:18px">Simpan pengaturan</button>
+            </form>
+            <div class="panel">
+              <div class="panel-head"><div><h2>Fasilitas</h2></div></div>
+              <dl class="kv" style="grid-template-columns:100px 1fr">
+                <dt>Nama</dt><dd>Ceria Ananda Daycare</dd>
+                <dt>Alamat</dt><dd>Jl. Cihampelas No. 118, Bandung 40131</dd>
+                <dt>Telepon</dt><dd>+62 22 2034 5510</dd>
+                <dt>Jam buka</dt><dd>Senin–Sabtu, 07.00–17.30</dd>
+                <dt>Paket</dt><dd>Utama · 6 anak aktif</dd>
+              </dl>
+            </div>
+            <div class="panel" style="border-color:var(--danger-line)">
+              <div class="panel-head"><div><h2>Kosongkan catatan aplikasi</h2><p>Menghapus catatan yang dibuat dari aplikasi. Akun tidak terhapus.</p></div></div>
+              <button class="btn btn-danger" id="reset-log" type="button">Kosongkan catatan</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Menu dan nilai gizi</h2><p>Per 100 g. Dipakai saat piring dipindai; pengasuh dapat memilih menu ini untuk mengoreksi hasil.</p></div></div>
+            <div class="table-wrap"><table class="data" id="food-ref"><thead><tr><th>Menu</th><th class="num">kkal</th><th class="num">Protein</th><th class="num">Karbo</th><th class="num">Lemak</th><th></th></tr></thead><tbody></tbody></table></div>
+            <form id="food-form" style="margin-top:18px">
+              <div class="form-row">
+                <div class="field"><label for="f-name">Nama menu</label><input id="f-name" name="name" type="text" required placeholder="cth. Sup bayam"></div>
+                <div class="field"><label for="f-kcal">kkal / 100 g</label><input id="f-kcal" name="kcal" type="number" min="0" required></div>
+              </div>
+              <div class="form-row-3">
+                <div class="field"><label for="f-p">Protein (g)</label><input id="f-p" name="protein" type="number" step="0.1" min="0" required></div>
+                <div class="field"><label for="f-c">Karbo (g)</label><input id="f-c" name="carbs" type="number" step="0.1" min="0" required></div>
+                <div class="field"><label for="f-f">Lemak (g)</label><input id="f-f" name="fat" type="number" step="0.1" min="0" required></div>
+              </div>
+              <button class="btn" type="submit" style="margin-top:16px">Tambah menu</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-back" id="user-modal" role="dialog" aria-modal="true" aria-labelledby="um-title">
+  <div class="modal">
+    <div class="modal-head"><h2 id="um-title">Tambah akun</h2><button class="btn btn-sm btn-ghost" type="button" data-close-modal aria-label="Tutup">✕</button></div>
+    <div class="modal-body">
+      <form id="user-form" novalidate>
+        <div class="form-row">
+          <div class="field"><label for="u-name">Nama lengkap</label><input id="u-name" name="name" type="text" required></div>
+          <div class="field"><label for="u-role">Peran</label><select id="u-role" name="role"><option value="parent">Orang tua</option><option value="caregiver">Pengasuh</option><option value="admin">Admin daycare</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="u-email">E-mail</label><input id="u-email" name="email" type="email" required></div>
+          <div class="field"><label for="u-phone">Nomor WhatsApp</label><input id="u-phone" name="phone" type="tel"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="u-pw">Kata sandi sementara</label><input id="u-pw" name="password" type="text" required placeholder="Min. 8 karakter, huruf dan angka"></div>
+          <div class="field"><label for="u-code">Kode anak (untuk orang tua)</label><input id="u-code" name="code" type="text" placeholder="cth. KA-2201"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" style="margin-top:18px">Buat akun</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-back" id="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><h2 id="pm-title">Kata sandi diatur ulang</h2><button class="btn btn-sm btn-ghost" type="button" data-close-modal aria-label="Tutup">✕</button></div>
+    <div class="modal-body"><p id="pw-out" style="font-size:14.5px;margin:0"></p></div>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Kiriman perangkat & API: langsung ke layanan API (tanpa lewat Next.js)
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	# Siaran kamera (MediaMTX/go2rtc): hanya untuk pengguna yang sudah masuk.
+	# API memeriksa cookie sesi dan hak orang tua per kamera (X-Forwarded-Uri).
+	handle_path /stream/* {
+		forward_auth api:8000 {
+			uri /api/devices/stream-check
+		}
+		reverse_proxy mediamtx:8888
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+}

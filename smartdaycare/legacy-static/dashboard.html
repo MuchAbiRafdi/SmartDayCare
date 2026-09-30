@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beranda — SmartDaycare AI</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="hub" data-auth="any" data-title="Beranda">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="shell">
+  <aside class="sidebar" data-sidebar></aside>
+  <div class="shell-main">
+    <header class="topbar" data-topbar></header>
+    <main class="content" id="utama">
+
+      <div class="hub-hero">
+        <div>
+          <p class="eyebrow">Ceria Ananda Daycare</p>
+          <h1><span data-greeting>Selamat datang</span>, <span id="hub-name">…</span>.</h1>
+          <p id="hub-role">…</p>
+        </div>
+        <div class="hub-live" aria-label="Status fasilitas saat ini">
+          <div><div class="n" id="hl-present">—</div><div class="c">Anak hadir</div></div>
+          <div><div class="n" id="hl-air">—</div><div class="c">Kualitas udara</div></div>
+          <div><div class="n" id="hl-open">—</div><div class="c">Kejadian belum selesai</div></div>
+        </div>
+      </div>
+
+      <div class="page-head" style="margin-bottom:14px"><h1 style="font-size:17px">Dasbor</h1></div>
+      <div class="hub-cards" id="hub-cards"></div>
+
+      <div class="layout-2col">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Aktivitas terbaru</h2></div><span class="status-pill on"><span class="live-dot"></span>Langsung</span></div>
+          <ul class="activity" id="hub-activity"></ul>
+        </div>
+        <div>
+          <div class="panel hidden" id="link-box">
+            <div class="panel-head"><div><h2>Tautkan anak</h2><p>Kode anak diberikan oleh daycare.</p></div></div>
+            <form id="link-form">
+              <div class="field"><label for="code">Kode anak</label><input id="code" name="code" type="text" required placeholder="cth. KA-2201" style="text-transform:uppercase"></div>
+              <button class="btn btn-primary btn-block" type="submit">Tautkan</button>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Fasilitas</h2></div></div>
+            <dl class="kv" style="grid-template-columns:96px 1fr">
+              <dt>Nama</dt><dd>Ceria Ananda Daycare</dd>
+              <dt>Alamat</dt><dd>Jl. Cihampelas No. 118, Bandung</dd>
+              <dt>Telepon</dt><dd>+62 22 2034 5510</dd>
+              <dt>Jam buka</dt><dd>Senin–Sabtu, 07.00–17.30</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

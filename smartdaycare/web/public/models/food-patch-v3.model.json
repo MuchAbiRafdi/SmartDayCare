@@ -1,0 +1,72 @@
+{
+ "balancedAccuracy": 0.6217,
+ "confidentPrecision": {
+  "brown": 0.7247,
+  "egg": 0.6174,
+  "fried": 0.7462,
+  "greens": 0.9694,
+  "none": 0.4758,
+  "orange": 0.6621,
+  "pale": 0.5893,
+  "red": 0.8786,
+  "rice": 0.9235,
+  "soup": 0.7736,
+  "yellow": 0.8459
+ },
+ "eceAfter": 0.018,
+ "params": 84539,
+ "patchAccuracy": 0.625,
+ "patches": 41494,
+ "photoAccuracy": 0.7763,
+ "photoPrecision": 0.7731,
+ "photosTrain": 352,
+ "photosVal": 77,
+ "recall": {
+  "brown": 0.6958,
+  "egg": 0.4319,
+  "fried": 0.6737,
+  "greens": 0.8966,
+  "none": 0.6762,
+  "orange": 0.2979,
+  "pale": 0.6342,
+  "red": 0.8892,
+  "rice": 0.3877,
+  "soup": 0.4602,
+  "yellow": 0.7952
+ },
+ "temperature": 1.141,
+ "thresholds": {
+  "relabel_min": {
+   "brown": 0.8,
+   "egg": 0.85,
+   "fried": 0.925,
+   "greens": 0.4,
+   "orange": 0.95,
+   "pale": 0.925,
+   "red": 0.475,
+   "rice": 0.6,
+   "soup": 0.95,
+   "yellow": 0.65
+  },
+  "veto_p": {
+   "brown": 0.04,
+   "egg": 0.04,
+   "fried": 0.04,
+   "greens": 0.04,
+   "orange": 0.04,
+   "pale": 0.04,
+   "red": 0.04,
+   "rice": 0.04,
+   "soup": 0.04,
+   "yellow": 0.04
+  }
+ },
+ "trainedAt": "2026-09-29",
+ "version": "food-patch-v3",
+ "weakClasses": [
+  "egg",
+  "orange",
+  "pale"
+ ],
+ "weakRule": "presisi saat yakin (p ≥ 0,6) di bawah 0,70 pada foto uji"
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akun &amp; pengaturan — SmartDaycare AI</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%230B5F59'/%3E%3Cpath d='M9 19.5c0-4.4 3.6-8 8-8s8 3.6 8 8' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='17' cy='22.5' r='2.6' fill='%235EEAD4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="account" data-auth="any" data-title="Akun &amp; pengaturan">
+<a class="skip-link" href="#utama">Langsung ke konten</a>
+
+<div class="shell">
+  <aside class="sidebar" data-sidebar></aside>
+  <div class="shell-main">
+    <header class="topbar" data-topbar></header>
+    <main class="content" id="utama">
+
+      <div class="page-head">
+        <div style="display:flex;gap:14px;align-items:center">
+          <div class="avatar lg" id="acc-avatar">?</div>
+          <div><h1 id="acc-name">…</h1><p class="sub" id="acc-role">…</p></div>
+        </div>
+      </div>
+
+      <div class="layout-2col">
+        <div>
+          <form class="panel" id="profile-form">
+            <div class="panel-head"><div><h2>Profil</h2></div></div>
+            <div class="form-row">
+              <div class="field"><label for="p-name">Nama lengkap</label><input id="p-name" name="name" type="text" required autocomplete="name"></div>
+              <div class="field"><label for="p-phone">Nomor WhatsApp</label><input id="p-phone" name="phone" type="tel" autocomplete="tel"></div>
+            </div>
+            <div class="field"><label for="p-email">E-mail</label><input id="p-email" name="email" type="email" readonly><p class="hint">Dipakai untuk masuk. Hubungi admin untuk mengubahnya.</p></div>
+            <button class="btn btn-primary" type="submit" style="margin-top:18px">Simpan profil</button>
+          </form>
+
+          <form class="panel" id="pw-form">
+            <div class="panel-head"><div><h2>Kata sandi</h2></div></div>
+            <div class="field" style="max-width:360px"><label for="c-cur">Kata sandi saat ini</label><div class="pw-wrap"><input id="c-cur" name="current" type="password" required autocomplete="current-password"><button type="button" aria-label="Tampilkan kata sandi">Lihat</button></div></div>
+            <div class="form-row">
+              <div class="field"><label for="c-new">Kata sandi baru</label><input id="c-new" name="newpw" type="password" required autocomplete="new-password" placeholder="Minimal 8 karakter"><div class="pw-meter" id="pw-meter" data-score="0" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+              <div class="field"><label for="c-conf">Ulangi kata sandi baru</label><input id="c-conf" name="confirm" type="password" required autocomplete="new-password"></div>
+            </div>
+            <button class="btn" type="submit" style="margin-top:18px">Perbarui kata sandi</button>
+          </form>
+
+          <div class="panel" id="pemberitahuan">
+            <div class="panel-head"><div><h2>Pemberitahuan</h2><p>Tersimpan otomatis.</p></div></div>
+            <form id="notify-form">
+              <label class="switch"><span class="l">WhatsApp<span class="d">Ke nomor di profil Anda</span></span><input type="checkbox" name="wa"></label>
+              <label class="switch"><span class="l">E-mail<span class="d">Ringkasan dan pemberitahuan penting</span></span><input type="checkbox" name="email"></label>
+              <label class="switch"><span class="l">Di aplikasi<span class="d">Lonceng di dasbor</span></span><input type="checkbox" name="push"></label>
+              <label class="switch"><span class="l">Penting<span class="d">Jatuh, suhu tinggi, area dapur</span></span><input type="checkbox" name="high"></label>
+              <label class="switch"><span class="l">Perhatian<span class="d">Suhu sedikit naik, makan kurang dari 60%</span></span><input type="checkbox" name="medium"></label>
+              <label class="switch"><span class="l">Info<span class="d">Tiba, makan selesai, tidur siang</span></span><input type="checkbox" name="low"></label>
+              <label class="switch"><span class="l">Laporan harian pukul 17.30<span class="d">Satu ringkasan setiap sore</span></span><input type="checkbox" name="daily"></label>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel hidden" id="kids-box">
+            <div class="panel-head"><div><h2>Anak tertaut</h2></div></div>
+            <ul class="activity" style="margin:0 0 16px" id="kids-list"></ul>
+            <form id="link-form">
+              <div class="field"><label for="code">Tautkan anak lain</label><input id="code" name="code" type="text" required placeholder="Kode anak, cth. KA-2202" style="text-transform:uppercase"></div>
+              <button class="btn btn-block" type="submit" style="margin-top:14px">Tautkan</button>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Sesi</h2></div></div>
+            <p style="font-size:14px" id="session-info">…</p>
+            <button class="btn btn-block" type="button" data-logout>Keluar dari semua perangkat</button>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Data &amp; privasi</h2></div></div>
+            <p style="font-size:14px">Minta salinan catatan anak atau penghapusannya. Diproses paling lambat 7 hari kerja.</p>
+            <a class="btn btn-block" href="help.html#privasi">Ajukan permintaan data</a>
+          </div>
+          <div class="panel" style="border-color:var(--danger-line)">
+            <div class="panel-head"><div><h2>Hapus akun</h2></div></div>
+            <p style="font-size:13.5px" class="muted" id="delete-note">Menghapus akun Anda dari SmartDaycare AI. Catatan anak tetap tersimpan di daycare.</p>
+            <button class="btn btn-danger btn-block" id="delete-account" type="button">Hapus akun saya</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pages.js"></script>
+</body>
+</html>

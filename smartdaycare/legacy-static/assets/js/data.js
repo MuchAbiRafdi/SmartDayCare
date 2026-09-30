@@ -1,0 +1,240 @@
+/* Data dasar fasilitas SmartDaycare AI — Ceria Ananda Daycare, Bandung.
+   Catatan harian (absensi, suhu, obat, makan, kejadian, serah terima, akses)
+   yang dibuat dari aplikasi tersimpan di penyimpanan peramban (lihat core.js). */
+const SEED = {
+  facility: { name: "Ceria Ananda Daycare", city: "Bandung", address: "Jl. Cihampelas No. 118, Bandung 40131", phone: "+62 22 2034 5510", hours: "Senin–Sabtu, 07.00–17.30" },
+  inviteCodes: { caregiver: "CERIA-STAF-2026", admin: "CERIA-ADMIN-2026" },
+  rooms: [
+    { id: "R-BERMAIN", name: "Ruang Bermain Utama", short: "Bermain", camera: "K1" },
+    { id: "R-TIDUR", name: "Ruang Tidur Anak", short: "Tidur", camera: "K2" },
+    { id: "R-MAKAN", name: "Ruang Makan", short: "Makan", camera: "K3" },
+    { id: "R-DAPUR", name: "Dapur (khusus staf)", short: "Dapur", camera: "K4" }
+  ],
+  cameras: [
+    { id: "K1", label: "Kamera 1", room: "Ruang Bermain Utama", img: "assets/img/room-play.jpg", mode: "play", parents: true },
+    { id: "K2", label: "Kamera 2", room: "Ruang Tidur Anak", img: "assets/img/room-sleep.jpg", mode: "sleep", parents: true },
+    { id: "K3", label: "Kamera 3", room: "Ruang Makan", img: "assets/img/room-dine.jpg", mode: "dine", parents: true },
+    { id: "K4", label: "Kamera 4", room: "Dapur (khusus staf)", img: "assets/img/room-dine.jpg", mode: "dine", parents: false }
+  ],
+  sensors: [
+    { id: "S1", room: "Ruang Bermain Utama", battery: 87 },
+    { id: "S2", room: "Ruang Tidur Anak", battery: 92 },
+    { id: "S3", room: "Ruang Makan", battery: 74 },
+    { id: "S4", room: "Dapur (khusus staf)", battery: 66 }
+  ],
+  air: [
+    { room: "Ruang Bermain Utama", temp: 25.4, hum: 58, co2: 612, pm25: 9 },
+    { room: "Ruang Tidur Anak", temp: 24.8, hum: 60, co2: 545, pm25: 7 },
+    { room: "Ruang Makan", temp: 26.1, hum: 55, co2: 704, pm25: 11 },
+    { room: "Dapur (khusus staf)", temp: 29.3, hum: 66, co2: 890, pm25: 22 }
+  ],
+  co2History: {
+    "Ruang Bermain Utama": [588, 594, 601, 610, 618, 626, 631, 624, 617, 612, 609, 612],
+    "Ruang Tidur Anak": [512, 518, 524, 530, 538, 544, 549, 552, 548, 546, 545, 545],
+    "Ruang Makan": [640, 655, 672, 690, 712, 735, 748, 741, 726, 714, 707, 704],
+    "Dapur (khusus staf)": [802, 818, 835, 851, 870, 884, 902, 915, 908, 896, 891, 890]
+  },
+  thresholds: { tempMax: 28.0, humMax: 70, co2Max: 1000, pm25Max: 35, bodyTempWatch: 37.3, bodyTempHigh: 37.8, retentionDays: 7, plateDiameterCm: 22 },
+  children: [
+    { id: "CHK-001", code: "KA-2201", name: "Kirana Ayu Lestari", short: "Kirana", dob: "2022-03-14", age: "4 tahun", parentName: "Andi Lestari", caregiver: "Ratna Dewi", room: "Ruang Bermain Utama", status: "normal", statusText: "Baik", allergies: "Kacang tanah", meds: null, checkin: "07:42", checkout: "16:45",
+      timeline: [
+        { t: "07:42", cls: "t-ok", title: "Tiba dan pemeriksaan suhu", desc: "Suhu 36,6°C. Kondisi fisik baik. Diantar oleh Ibu." },
+        { t: "08:15", cls: "t-ok", title: "Bermain di Ruang Bermain Utama", desc: "Bergabung dengan kelompok usia 4 tahun." },
+        { t: "10:02", cls: "t-ok", title: "Camilan pagi", desc: "Pisang 60 g dan susu 100 ml. Habis." },
+        { t: "11:45", cls: "t-ok", title: "Pindah ke Ruang Makan", desc: "Duduk di meja 2." },
+        { t: "12:20", cls: "t-ok", title: "Makan siang selesai", desc: "85% porsi habis, sekitar 310 kkal. Foto piring tersedia." },
+        { t: "13:05", cls: "t-ok", title: "Tidur siang", desc: "Ruang Tidur Anak, dipan 2." },
+        { t: "15:10", cls: "t-ok", title: "Camilan sore", desc: "Biskuit gandum 2 keping dan air putih." },
+        { t: "16:45", cls: "t-ok", title: "Dijemput oleh Ibu", desc: "Pulang dalam kondisi baik. Bekal botol minum dibawa pulang." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:20",
+        items: [
+          { name: "Nasi putih", pre: 150, post: 35, kcal: 150, protein: 3.1, carbs: 33.4, fat: 0.4 },
+          { name: "Ayam goreng", pre: 60, post: 10, kcal: 124, protein: 11.8, carbs: 1.2, fat: 7.6 },
+          { name: "Sup wortel", pre: 50, post: 15, kcal: 12, protein: 0.4, carbs: 2.6, fat: 0.1 },
+          { name: "Tumis sawi", pre: 40, post: 32, kcal: 3, protein: 0.2, carbs: 0.5, fat: 0.1 },
+          { name: "Jeruk", pre: 50, post: 5, kcal: 21, protein: 0.4, carbs: 5.3, fat: 0.1 }
+        ], leftover: "Sisa terbanyak: tumis sawi (32 g). Sisa lain: nasi 35 g." } },
+      target: { kcal: 1200, protein: 32, carbs: 160, fat: 40 },
+      consumed: { kcal: 512, protein: 19.4, carbs: 68.1, fat: 12.2 },
+      weekly: [296, 318, 0, 305, 322, 288, 310],
+      temps: [ { t: "07:42", v: 36.6 }, { t: "10:30", v: 36.5 }, { t: "12:30", v: 36.7 } ],
+      emergency: [{ n: "Andi Lestari (Ibu)", p: "+62 812-2041-7788" }, { n: "Rudi Lestari (Ayah)", p: "+62 813-2204-9910" }]
+    },
+    { id: "CHK-002", code: "KA-2202", name: "Bima Pratama Wijaya", short: "Bima", dob: "2023-06-02", age: "3 tahun", parentName: "Budi Wijaya", caregiver: "Ratna Dewi", room: "Ruang Bermain Utama", status: "attention", statusText: "Perlu perhatian", allergies: "Susu sapi", meds: "Antibiotik sirup 5 ml, 12.00", checkin: "07:55", checkout: "15:40",
+      timeline: [
+        { t: "07:55", cls: "t-warn", title: "Tiba, suhu 37,4°C", desc: "Sedikit di atas batas pantau 37,3°C. Suhu dicek ulang tiap 30 menit." },
+        { t: "08:20", cls: "t-ok", title: "Bermain di Ruang Bermain Utama", desc: "Aktivitas ringan, ditemani pengasuh." },
+        { t: "10:30", cls: "t-ok", title: "Cek suhu ulang: 37,2°C", desc: "Turun. Minum air putih 150 ml." },
+        { t: "11:45", cls: "t-ok", title: "Pindah ke Ruang Makan", desc: "Duduk di meja 1." },
+        { t: "12:00", cls: "t-ok", title: "Obat diberikan", desc: "Antibiotik sirup 5 ml sesuai catatan orang tua." },
+        { t: "12:20", cls: "t-warn", title: "Makan siang 52% porsi", desc: "Nafsu makan menurun, sekitar 157 kkal. Makan perlahan dengan dua jeda." },
+        { t: "13:00", cls: "t-ok", title: "Tidur siang", desc: "Ruang Tidur Anak, dipan 1." },
+        { t: "15:40", cls: "t-ok", title: "Dijemput lebih awal oleh Ayah", desc: "Suhu terakhir 37,1°C. Disarankan istirahat di rumah dan cek suhu malam hari." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:21",
+        items: [
+          { name: "Nasi tim", pre: 140, post: 68, kcal: 94, protein: 1.9, carbs: 21.0, fat: 0.3 },
+          { name: "Ikan dori kukus", pre: 55, post: 20, kcal: 42, protein: 8.9, carbs: 0.0, fat: 0.5 },
+          { name: "Wortel rebus", pre: 40, post: 22, kcal: 7, protein: 0.2, carbs: 1.6, fat: 0.0 },
+          { name: "Melon", pre: 50, post: 8, kcal: 14, protein: 0.2, carbs: 3.4, fat: 0.1 }
+        ], leftover: "Sisa terbanyak: nasi tim (68 g). Anak makan perlahan, dua kali jeda." } },
+      target: { kcal: 1100, protein: 28, carbs: 150, fat: 38 },
+      consumed: { kcal: 301, protein: 13.1, carbs: 41.2, fat: 6.4 },
+      weekly: [270, 262, 0, 248, 231, 205, 157],
+      temps: [ { t: "07:55", v: 37.4 }, { t: "10:30", v: 37.2 }, { t: "12:30", v: 37.1 } ],
+      emergency: [{ n: "Budi Wijaya (Ayah)", p: "+62 822-1408-5521" }, { n: "Maya Wijaya (Ibu)", p: "+62 856-2488-1130" }]
+    },
+    { id: "CHK-003", code: "KA-2203", name: "Salsabila Zahra Putri", short: "Salsa", dob: "2021-11-20", age: "4 tahun", parentName: "Dedi Putri", caregiver: "Sari Puspita", room: "Ruang Bermain Utama", status: "normal", statusText: "Baik", allergies: "Tidak ada", meds: null, checkin: "07:38", checkout: "17:05",
+      timeline: [
+        { t: "07:38", cls: "t-ok", title: "Tiba dan pemeriksaan suhu", desc: "Suhu 36,4°C. Kondisi fisik baik." },
+        { t: "08:10", cls: "t-ok", title: "Bermain di Ruang Bermain Utama", desc: "Kegiatan mewarnai bersama." },
+        { t: "12:20", cls: "t-ok", title: "Makan siang selesai", desc: "92% porsi habis, sekitar 363 kkal." },
+        { t: "13:10", cls: "t-ok", title: "Tidur siang", desc: "Ruang Tidur Anak, dipan 4." },
+        { t: "17:05", cls: "t-ok", title: "Dijemput oleh Ayah", desc: "Pulang dalam kondisi baik. Hasil mewarnai dibawa pulang." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:19",
+        items: [
+          { name: "Nasi putih", pre: 150, post: 12, kcal: 179, protein: 3.7, carbs: 39.9, fat: 0.4 },
+          { name: "Ayam goreng", pre: 60, post: 4, kcal: 139, protein: 13.2, carbs: 1.3, fat: 8.5 },
+          { name: "Sup wortel", pre: 50, post: 6, kcal: 15, protein: 0.5, carbs: 3.3, fat: 0.1 },
+          { name: "Tumis sawi", pre: 40, post: 9, kcal: 11, protein: 0.8, carbs: 1.9, fat: 0.3 },
+          { name: "Jeruk", pre: 50, post: 10, kcal: 19, protein: 0.4, carbs: 4.7, fat: 0.1 }
+        ], leftover: "Sisa minimal: nasi 12 g, sawi 9 g." } },
+      target: { kcal: 1200, protein: 32, carbs: 160, fat: 40 },
+      consumed: { kcal: 540, protein: 21.8, carbs: 72.4, fat: 13.1 },
+      weekly: [340, 355, 0, 348, 361, 352, 363],
+      temps: [ { t: "07:38", v: 36.4 }, { t: "12:30", v: 36.5 } ],
+      emergency: [{ n: "Dedi Putri (Ayah)", p: "+62 813-9412-6670" }]
+    },
+    { id: "CHK-004", code: "KA-2204", name: "Rizky Aditya Nugraha", short: "Rizky", dob: "2024-01-09", age: "2 tahun", parentName: "Agus Nugraha", caregiver: "Sari Puspita", room: "Ruang Tidur Anak", status: "normal", statusText: "Baik", allergies: "Telur", meds: null, checkin: "08:05", checkout: "16:30",
+      timeline: [
+        { t: "08:05", cls: "t-ok", title: "Tiba dan pemeriksaan suhu", desc: "Suhu 36,5°C. Kondisi fisik baik." },
+        { t: "08:31", cls: "t-warn", title: "Menangis cukup lama", desc: "Sekitar 3 menit. Tenang setelah digendong Sari Puspita." },
+        { t: "12:22", cls: "t-ok", title: "Makan siang selesai", desc: "Sekitar 207 kkal. Sisa nasi tim 25 g." },
+        { t: "12:35", cls: "t-ok", title: "Tidur siang", desc: "Ruang Tidur Anak, dipan 3." },
+        { t: "16:30", cls: "t-ok", title: "Dijemput oleh Ayah", desc: "Pulang dalam kondisi baik. Tidur siang 75 menit." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:22",
+        items: [
+          { name: "Nasi tim", pre: 120, post: 25, kcal: 124, protein: 2.6, carbs: 27.6, fat: 0.3 },
+          { name: "Ayam cincang kukus", pre: 45, post: 8, kcal: 74, protein: 8.1, carbs: 0.4, fat: 4.2 },
+          { name: "Labu kukus", pre: 40, post: 6, kcal: 9, protein: 0.3, carbs: 2.2, fat: 0.0 }
+        ], leftover: "Sisa minimal: nasi tim 25 g." } },
+      target: { kcal: 1000, protein: 25, carbs: 135, fat: 35 },
+      consumed: { kcal: 330, protein: 13.4, carbs: 45.0, fat: 7.3 },
+      weekly: [198, 214, 0, 220, 190, 211, 207],
+      temps: [ { t: "08:05", v: 36.5 }, { t: "12:30", v: 36.6 } ],
+      emergency: [{ n: "Agus Nugraha (Ayah)", p: "+62 821-3009-4418" }]
+    },
+    { id: "CHK-005", code: "KA-2205", name: "Nadia Kartika Sari", short: "Nadia", dob: "2022-08-30", age: "4 tahun", parentName: "Rina Sari", caregiver: "Ratna Dewi", room: "Ruang Makan", status: "normal", statusText: "Baik", allergies: "Tidak ada", meds: "Vitamin D3, 2 tetes, 09.30", checkin: "07:50", checkout: "16:55",
+      timeline: [
+        { t: "07:50", cls: "t-ok", title: "Tiba dan pemeriksaan suhu", desc: "Suhu 36,5°C. Kondisi fisik baik." },
+        { t: "09:30", cls: "t-ok", title: "Vitamin diberikan", desc: "Vitamin D3 2 tetes sesuai catatan orang tua." },
+        { t: "12:20", cls: "t-ok", title: "Makan siang selesai", desc: "88% porsi habis, sekitar 333 kkal." },
+        { t: "16:55", cls: "t-ok", title: "Dijemput oleh Ibu", desc: "Pulang dalam kondisi baik." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:20",
+        items: [
+          { name: "Nasi putih", pre: 150, post: 20, kcal: 169, protein: 3.5, carbs: 37.6, fat: 0.4 },
+          { name: "Ayam goreng", pre: 60, post: 8, kcal: 129, protein: 12.3, carbs: 1.2, fat: 7.9 },
+          { name: "Sup wortel", pre: 50, post: 10, kcal: 14, protein: 0.5, carbs: 3.0, fat: 0.1 },
+          { name: "Jeruk", pre: 50, post: 6, kcal: 21, protein: 0.4, carbs: 5.2, fat: 0.1 }
+        ], leftover: "Menolak sawi (tidak disajikan ulang). Sisa lain minimal." } },
+      target: { kcal: 1200, protein: 32, carbs: 160, fat: 40 },
+      consumed: { kcal: 505, protein: 19.9, carbs: 66.8, fat: 12.6 },
+      weekly: [321, 330, 0, 318, 342, 336, 333],
+      temps: [ { t: "07:50", v: 36.5 } ],
+      emergency: [{ n: "Rina Sari (Ibu)", p: "+62 858-6002-9934" }]
+    },
+    { id: "CHK-006", code: "KA-2206", name: "Dimas Arya Saputra", short: "Dimas", dob: "2023-02-17", age: "3 tahun", parentName: "Joko Saputra", caregiver: "Sari Puspita", room: "Ruang Bermain Utama", status: "normal", statusText: "Baik", allergies: "Udang", meds: null, checkin: "08:01", checkout: "17:10",
+      timeline: [
+        { t: "08:01", cls: "t-ok", title: "Tiba dan pemeriksaan suhu", desc: "Suhu 36,7°C. Kondisi fisik baik." },
+        { t: "09:17", cls: "t-danger", title: "Terjatuh saat bermain", desc: "Tersandung karpet. Ditangani Sari Puspita dalam 2 menit. Tidak ada luka, kompres dingin 10 menit." },
+        { t: "12:21", cls: "t-ok", title: "Makan siang selesai", desc: "81% porsi habis, sekitar 316 kkal." },
+        { t: "17:10", cls: "t-ok", title: "Dijemput oleh Ayah", desc: "Pulang dalam kondisi baik. Tidak ada keluhan setelah terjatuh pagi tadi." }
+      ],
+      nutrition: { lunch: { served: "11:50", scannedPost: "12:21",
+        items: [
+          { name: "Nasi putih", pre: 150, post: 30, kcal: 156, protein: 3.2, carbs: 34.7, fat: 0.4 },
+          { name: "Ayam goreng", pre: 60, post: 12, kcal: 119, protein: 11.3, carbs: 1.1, fat: 7.3 },
+          { name: "Sup wortel", pre: 50, post: 8, kcal: 15, protein: 0.5, carbs: 3.2, fat: 0.1 },
+          { name: "Tumis sawi", pre: 40, post: 18, kcal: 8, protein: 0.5, carbs: 1.3, fat: 0.2 },
+          { name: "Jeruk", pre: 50, post: 12, kcal: 18, protein: 0.3, carbs: 4.4, fat: 0.1 }
+        ], leftover: "Sisa: nasi 30 g, sawi 18 g." } },
+      target: { kcal: 1100, protein: 28, carbs: 150, fat: 38 },
+      consumed: { kcal: 468, protein: 18.5, carbs: 62.0, fat: 11.5 },
+      weekly: [302, 297, 0, 311, 320, 308, 316],
+      temps: [ { t: "08:01", v: 36.7 }, { t: "09:25", v: 36.8 } ],
+      emergency: [{ n: "Joko Saputra (Ayah)", p: "+62 812-8834-1207" }]
+    }
+  ],
+  incidents: [
+    { id: "KJ-1042", t: "09:17", room: "Ruang Bermain Utama", type: "Anak terjatuh", sev: "high", sevText: "Penting", childId: "CHK-006", child: "Dimas Arya Saputra", resolved: true, by: "Sari Puspita", resolvedAt: "09:19", note: "Tersandung karpet. Tidak ada luka. Kompres dingin 10 menit, orang tua dihubungi." },
+    { id: "KJ-1041", t: "08:58", room: "Dapur (khusus staf)", type: "Mendekati area dapur", sev: "high", sevText: "Penting", childId: "CHK-002", child: "Bima Pratama Wijaya", resolved: true, by: "Ratna Dewi", resolvedAt: "08:59", note: "Diarahkan kembali ke ruang bermain. Pintu dapur dipastikan tertutup." },
+    { id: "KJ-1040", t: "08:31", room: "Ruang Bermain Utama", type: "Menangis cukup lama", sev: "medium", sevText: "Perhatian", childId: "CHK-004", child: "Rizky Aditya Nugraha", resolved: true, by: "Sari Puspita", resolvedAt: "08:35", note: "Sekitar 3 menit. Tenang setelah digendong. Kemungkinan mengantuk." }
+  ],
+  medLogs: [
+    { t: "12:00", childId: "CHK-002", child: "Bima Pratama Wijaya", med: "Antibiotik sirup", dose: "5 ml", by: "Ratna Dewi", note: "Diminum habis setelah makan." },
+    { t: "09:30", childId: "CHK-005", child: "Nadia Kartika Sari", med: "Vitamin D3", dose: "2 tetes", by: "Ratna Dewi", note: "Sesuai catatan orang tua." }
+  ],
+  access: [
+    { t: "12:05", user: "Hendra Gunawan", role: "admin", action: "Melihat rekaman Kamera 1, pukul 09.15–09.20", purpose: "Verifikasi kejadian KJ-1042" },
+    { t: "09:19", user: "Andi Lestari", role: "parent", action: "Membuka Kamera 1", purpose: "Akses rutin" },
+    { t: "09:18", user: "Sistem", role: "system", action: "Mengirim pemberitahuan penting ke 2 perangkat", purpose: "Kejadian KJ-1042" },
+    { t: "08:02", user: "Ratna Dewi", role: "caregiver", action: "Membuka Kamera 1 sampai 4", purpose: "Pengawasan shift pagi" }
+  ],
+  handovers: [
+    { t: "08:10", from: "Sari Puspita", to: "Ratna Dewi", note: "Stok susu UHT 6 kotak di pantry; termometer cadangan baterai penuh." }
+  ],
+  users: [
+    { id: "U-P01", seed: true, name: "Andi Lestari", email: "andi.lestari@gmail.com", phone: "+62 812-2041-7788", password: "Kirana2026", role: "parent", children: ["CHK-001"] },
+    { id: "U-P02", seed: true, name: "Budi Wijaya", email: "budi.wijaya@gmail.com", phone: "+62 822-1408-5521", password: "Bima2026", role: "parent", children: ["CHK-002"] },
+    { id: "U-P03", seed: true, name: "Dedi Putri", email: "dedi.putri@gmail.com", phone: "+62 813-9412-6670", password: "Salsa2026", role: "parent", children: ["CHK-003"] },
+    { id: "U-P04", seed: true, name: "Agus Nugraha", email: "agus.nugraha@gmail.com", phone: "+62 821-3009-4418", password: "Rizky2026", role: "parent", children: ["CHK-004"] },
+    { id: "U-P05", seed: true, name: "Rina Sari", email: "rina.sari@gmail.com", phone: "+62 858-6002-9934", password: "Nadia2026", role: "parent", children: ["CHK-005"] },
+    { id: "U-P06", seed: true, name: "Joko Saputra", email: "joko.saputra@gmail.com", phone: "+62 812-8834-1207", password: "Dimas2026", role: "parent", children: ["CHK-006"] },
+    { id: "U-C01", seed: true, name: "Ratna Dewi", email: "ratna.dewi@ceriaananda.id", phone: "+62 812-3300-1180", password: "Ratna2026", role: "caregiver", area: "Ruang Bermain dan Makan", shift: "Pagi (07.00–14.00)" },
+    { id: "U-C02", seed: true, name: "Sari Puspita", email: "sari.puspita@ceriaananda.id", phone: "+62 812-3300-1181", password: "Sari2026", role: "caregiver", area: "Ruang Bermain dan Tidur", shift: "Siang (11.00–17.30)" },
+    { id: "U-A01", seed: true, name: "Hendra Gunawan", email: "hendra@ceriaananda.id", phone: "+62 812-3300-1100", password: "Hendra2026", role: "admin", area: "Seluruh fasilitas" }
+  ],
+  foods: [
+    { name: "Nasi putih", kcal: 130, protein: 2.7, carbs: 28.9, fat: 0.3 },
+    { name: "Nasi tim", kcal: 110, protein: 2.3, carbs: 24.0, fat: 0.2 },
+    { name: "Ayam goreng", kcal: 248, protein: 23.6, carbs: 2.4, fat: 15.2 },
+    { name: "Ayam cincang kukus", kcal: 200, protein: 21.9, carbs: 1.1, fat: 11.4 },
+    { name: "Ikan dori kukus", kcal: 120, protein: 25.4, carbs: 0.0, fat: 1.4 },
+    { name: "Sup wortel", kcal: 34, protein: 1.1, carbs: 7.4, fat: 0.3 },
+    { name: "Wortel rebus", kcal: 39, protein: 0.9, carbs: 8.8, fat: 0.2 },
+    { name: "Tumis sawi", kcal: 38, protein: 2.5, carbs: 6.0, fat: 1.2 },
+    { name: "Labu kukus", kcal: 26, protein: 1.0, carbs: 6.5, fat: 0.1 },
+    { name: "Jeruk", kcal: 47, protein: 0.9, carbs: 11.8, fat: 0.1 },
+    { name: "Melon", kcal: 34, protein: 0.6, carbs: 8.2, fat: 0.2 },
+    { name: "Pisang", kcal: 89, protein: 1.1, carbs: 22.8, fat: 0.3 },
+    { name: "Telur rebus", kcal: 155, protein: 12.6, carbs: 1.1, fat: 10.6 },
+    { name: "Telur mata sapi", kcal: 196, protein: 13.6, carbs: 0.8, fat: 15.3 },
+    { name: "Telur dadar", kcal: 154, protein: 10.6, carbs: 0.6, fat: 11.7 },
+    { name: "Tahu kukus", kcal: 76, protein: 8.1, carbs: 1.9, fat: 4.8 },
+    { name: "Tempe goreng", kcal: 225, protein: 18.5, carbs: 9.4, fat: 13.0 },
+    { name: "Ayam kecap", kcal: 185, protein: 18.0, carbs: 6.5, fat: 9.8 },
+    { name: "Semur daging", kcal: 180, protein: 17.5, carbs: 5.8, fat: 9.9 },
+    { name: "Sup ayam", kcal: 55, protein: 4.6, carbs: 3.0, fat: 2.6 },
+    { name: "Brokoli kukus", kcal: 35, protein: 2.4, carbs: 7.2, fat: 0.4 },
+    { name: "Jagung rebus", kcal: 96, protein: 3.4, carbs: 21.0, fat: 1.5 },
+    { name: "Tomat", kcal: 18, protein: 0.9, carbs: 3.9, fat: 0.2 },
+    { name: "Pepaya", kcal: 43, protein: 0.5, carbs: 11.0, fat: 0.3 },
+    { name: "Semangka", kcal: 30, protein: 0.6, carbs: 7.6, fat: 0.2 },
+    { name: "Susu UHT", kcal: 61, protein: 3.2, carbs: 4.8, fat: 3.3 },
+    { name: "Biskuit gandum", kcal: 430, protein: 7.0, carbs: 68.0, fat: 14.0 }
+  ],
+  faq: [
+    { q: "Siapa saja yang bisa melihat kamera anak saya?", a: "Hanya akun orang tua atau wali yang terhubung dengan kode anak, pengasuh yang bertugas, dan admin daycare. Wajah anak lain diburamkan pada tampilan orang tua, dan setiap kali kamera dibuka, tercatat siapa yang membukanya." },
+    { q: "Berapa lama rekaman disimpan?", a: "Rekaman tersimpan 7 hari lalu terhapus otomatis. Foto piring makan dan catatan harian tetap tersedia selama anak terdaftar." },
+    { q: "Bagaimana cara orang tua mendapat akun?", a: "Daycare memberikan kode anak (contoh format KA-2201). Daftar dengan e-mail Anda, masukkan kode, dan dasbor anak langsung terbuka. Tanpa kode, akun tetap dibuat dan bisa ditautkan kemudian." },
+    { q: "Bagaimana nilai gizi makanan dihitung?", a: "Pengasuh memindai piring dengan kamera saat disajikan dan sesudah anak makan. Makanan di piring dikenali otomatis dari foto, beratnya diperkirakan dari luas di piring, lalu dikalikan nilai gizi per 100 g dari tabel komposisi pangan. Pengasuh memeriksa dan dapat mengoreksi menu atau berat sebelum dikirim. Angka ditampilkan sebagai perkiraan, lengkap dengan gram per menu dan foto piringnya." },
+    { q: "Apa yang terjadi saat anak terjatuh atau mendekati dapur?", a: "Pengasuh di ruangan mendapat pemberitahuan dalam hitungan detik, menangani, lalu menandai kejadian selesai. Orang tua menerima ringkasan: waktu, ruangan, siapa yang menangani, dan kondisi anak." },
+    { q: "Apakah butuh aplikasi khusus?", a: "Tidak. SmartDaycare AI berjalan di peramban ponsel dan komputer. Pemberitahuan dapat dikirim lewat WhatsApp atau e-mail sesuai pilihan Anda di halaman Akun." },
+    { q: "Bagaimana dengan daycare yang belum punya kamera?", a: "Paket Utama dan Yayasan sudah termasuk pemasangan kamera dan sensor udara oleh tim kami. Paket Dasar dapat memakai kamera yang sudah ada bila kompatibel." },
+    { q: "Bisakah saya meminta penghapusan data anak?", a: "Bisa. Ajukan lewat halaman Akun atau ke admin daycare. Seluruh data anak dihapus paling lambat 7 hari setelah permintaan." }
+  ]
+};
