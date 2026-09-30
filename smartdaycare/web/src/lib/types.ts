@@ -365,6 +365,10 @@ export interface DayRow {
   menu: string[];
   tempMax: number | null;
   incidents: number;
+  /** menit sejak tengah malam saat catatan masuk (07.45 → 465) */
+  checkinMin?: number | null;
+  /** kelompok gizi yang muncul di menu hari itu: karbo / sayur / protein / buah / susu */
+  menuGroups?: string[];
   notes: { at: string; by: string; text: string }[];
 }
 
@@ -389,6 +393,32 @@ export interface PeriodSummary {
   slotAvg: Record<string, number>;
   incidents: number;
   feverDays: number;
+  incidentDays?: number;
+  incidentSevDays?: number;
+  incidentAfternoon?: number;
+  medNotes?: number;
+  /** jumlah hari per kelompok gizi yang muncul di menu */
+  menuGroups?: Record<string, number>;
+  menuDistinct?: number;
+  arriveAvg?: number | null;
+  arriveLateDays?: number;
+  /** hari sekolah yang sudah lewat tanpa catatan hadir (hari ini tidak dihitung) */
+  absentDays?: number;
+}
+
+/** Skor pantauan: sinyal yang menyala hari ini, tiap komponen menyebut aturannya. */
+export interface WatchComponent {
+  key: string;
+  label: string;
+  points: number;
+  detail: string;
+}
+
+export interface WatchScore {
+  score: number;
+  level: "tenang" | "wajar" | "perlu dipantau";
+  components: WatchComponent[];
+  note: string;
 }
 
 export type InsightKind = "trend" | "pattern" | "anomaly" | "positive";
@@ -411,6 +441,10 @@ export interface BaselineStat {
   n: number;
   mean: number;
   sd: number;
+  /** median kebiasaan — pusat yang dipakai membandingkan (tahan satu hari ekstrem) */
+  center?: number;
+  /** sebaran tahanencil (1,4826 × MAD) */
+  scale?: number;
 }
 
 export interface Baseline {
@@ -421,6 +455,7 @@ export interface Baseline {
   sleep: BaselineStat | null;
   meal: BaselineStat | null;
   activities: BaselineStat | null;
+  arrive?: BaselineStat | null;
 }
 
 export interface Recommendation {
@@ -428,6 +463,16 @@ export interface Recommendation {
   title: string;
   text: string;
   why: string;
+  area?: Insight["area"];
+  /** dampak 1–3 dan usaha 0–3 — aturan produk, bukan hasil belajar mesin */
+  impact?: number;
+  impactLabel?: string;
+  effort?: number;
+  effortLabel?: string;
+  score?: number;
+  /** pengali dari penilaian admin sebelumnya (1 = belum ada penilaian) */
+  weight?: number;
+  rank?: number;
 }
 
 export interface ProfileArea {
@@ -451,6 +496,7 @@ export interface Analytics {
   kinds: { kind: string; label: string; count: number }[];
   insights: Insight[];
   recommendations: Recommendation[];
+  watch?: WatchScore;
   profile: ProfileArea[];
   teacherNotes: { at: string; by: string; text: string }[];
   method: string;
@@ -658,4 +704,24 @@ export interface Device {
   stream?: string | null;
   streamKind?: string | null;
   createdAt?: string;
+}
+
+/** Isi web/public/models/<model>.model.json — hasil uji pada foto yang tidak dilihat saat latih.
+   Dibaca langsung oleh panel "Kualitas pemindai piring", bukan dikirim API analitik. */
+export interface ScannerQuality {
+  version: string;
+  trainedAt?: string | null;
+  photosTrain?: number;
+  photosVal?: number;
+  patches?: number;
+  params?: number;
+  photoAccuracy?: number;
+  photoPrecision?: number;
+  patchAccuracy?: number;
+  balancedAccuracy?: number;
+  temperature?: number;
+  recall?: Record<string, number>;
+  confidentPrecision?: Record<string, number>;
+  thresholds?: { relabelMin?: number; vetoP?: number };
+  weakClasses?: string[];
 }

@@ -40,6 +40,8 @@ export interface FoodNet {
   patch: number;
   window: number;
   stride: number;
+  /** suhu softmax hasil kalibrasi; 1 = model lama tanpa kalibrasi */
+  temperature: number;
   layers: (ConvLayer | FcLayer)[];
   meta: Record<string, unknown>;
 }
@@ -82,6 +84,7 @@ export function parseFoodNet(buf: ArrayBuffer): FoodNet {
     patch: number;
     window: number;
     stride: number;
+    temperature?: number;
     layers: { name: string; type: "conv" | "fc"; cin: number; cout: number; k: number; pool: boolean }[];
     meta: Record<string, unknown>;
   };
@@ -105,6 +108,7 @@ export function parseFoodNet(buf: ArrayBuffer): FoodNet {
     return { type: "fc", cin: l.cin, cout: l.cout, w, b };
   });
   off += p * 2;
+  const metaTemp = Number((header.meta as { temperature?: unknown }).temperature);
   return {
     classes: header.classes,
     none: header.classes.indexOf("none"),
@@ -113,6 +117,7 @@ export function parseFoodNet(buf: ArrayBuffer): FoodNet {
     patch: header.patch,
     window: header.window,
     stride: header.stride,
+    temperature: Number.isFinite(header.temperature ?? metaTemp) && Number(header.temperature ?? metaTemp) > 0 ? Number(header.temperature ?? metaTemp) : 1,
     layers,
     meta: header.meta,
   };
@@ -120,17 +125,25 @@ export function parseFoodNet(buf: ArrayBuffer): FoodNet {
 
 let cached: Promise<FoodNet | null> | null = null;
 
+/** Berkas yang dicoba berurutan; model baru dipakai begitu tersedia, model lama tetap jalan bila belum ada. */
+export const MODEL_URLS = ["/models/food-patch-v3.bin", "/models/food-patch-v2.bin"];
+
 /** Memuat model sekali per sesi; null bila berkas tidak tersedia (mis. luring). */
-export function loadFoodNet(url = "/models/food-patch-v2.bin"): Promise<FoodNet | null> {
+export function loadFoodNet(url?: string | string[]): Promise<FoodNet | null> {
   if (!cached) {
     cached = (async () => {
-      try {
-        const r = await fetch(url, { cache: "force-cache" });
-        if (!r.ok) return null;
-        return parseFoodNet(await r.arrayBuffer());
-      } catch {
-        return null;
+      const urls = Array.isArray(url) ? url : url ? [url] : MODEL_URLS;
+      for (const u of urls) {
+        try {
+          const r = await fetch(u, { cache: "force-cache" });
+          if (!r.ok) continue;
+          const net = parseFoodNet(await r.arrayBuffer());
+          if (net.layers.length) return net;
+        } catch {
+          // coba berkas berikutnya
+        }
       }
+      return null;
     })().then((net) => {
       if (!net) cached = null; // coba lagi pada pemanggilan berikutnya
       return net;

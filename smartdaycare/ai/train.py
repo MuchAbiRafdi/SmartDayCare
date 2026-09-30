@@ -1,26 +1,43 @@
 """Latih pengenal makanan per-tambalan (patch) untuk pemindai piring.
 
-Jalankan:  python3 train.py            (≈ 10–25 menit di CPU 2 inti)
-Keluaran:  models/food-patch-v2.pt      bobot PyTorch + metadata
-           models/food-patch-v2.meta.json
+Jalankan:  python3 train.py            (≈ 25–45 menit di CPU 2 inti)
+Keluaran:  models/<nama>.pt             bobot PyTorch + metadata
+           models/<nama>.meta.json
 
 Ide: foto piring dipotong menjadi tambalan 48×48 px pada skala 10–32 % sisi
 terpendek gambar (foto latih diseragamkan ke sisi terpendek 300 px, sama
 dengan bingkai analisis di aplikasi yang ≤ 320 px). Setiap tambalan diberi
 label salah satu kelas foto asalnya bila warna dan teksturnya masuk akal
 untuk kelas itu (supervisi lemah). Satu foto boleh berlabel lebih dari satu
-kelas (piring anak: nasi + brokoli + jagung); tambalan hanya dipakai bila
-tepat satu kelas yang masuk akal, sehingga tidak ada tebakan ganda.
+kelas (piring anak: nasi + brokoli + jagung); tambalan yang cocok untuk
+beberapa label foto tetap dipakai, sebagai target lunak (peluang dibagi rata),
+sehingga tidak ada tebakan sepihak.
 Kelas `none` diambil dari foto tanpa makanan (piring kosong, nampan, meja,
-dinding, bayangan, lantai, tangan, kain, kertas).
+dinding, bayangan, lantai, tangan, kain, kertas) DITAMBAH tepian foto makanan:
+potongan di luar lingkaran piring pada foto makanan adalah latar sungguhan
+(taplak, meja, lantai) sehingga model belajar "bukan makanan" pada konteks yang
+sama dengan tempat ia dipakai. Tepian hanya dijadikan `none` bila warnanya
+tidak masuk akal untuk satu pun label foto itu.
 
-Jaringan kecil (≈ 80 ribu parameter, 5 konvolusi + rata-rata global) supaya
+Di ujung latihan, model dikalibrasi (suhu softmax, disesuaikan pada data uji)
+dan dihitung ambang keputusan per kelas dari data uji yang sama:
+* `relabel_min[c]` — peluang minimum agar kelas c boleh MENGGANTI kelas warna
+  (dipilih supaya presisi prediksi c ≥ 0,85 pada data uji);
+* `veto_p[c]` — di bawah peluang ini kelas warna c dianggap salah baca
+  (persentil ke-2 peluang c pada foto yang benar-benar memuat c, dijepit 0,04–0,15).
+Keduanya ikut disimpan di berkas model dan dibaca aplikasi
+(`web/src/lib/vision.ts`), jadi ambangnya mengikuti model, bukan angka tetap.
+
+Jaringan kecil (≈ 100 ribu parameter, 5 konvolusi + rata-rata global) supaya
 bisa dijalankan di peramban tanpa pustaka tambahan (lihat web/src/lib/foodnet.ts).
 Karena semua lapisan konvolusional, di peramban jaringan dijalankan sekali
 untuk seluruh bingkai dan menghasilkan peta kelas rapat (langkah 8 px).
 
-Variabel lingkungan: SD_EPOCHS (48), SD_PATCHES (80), SD_OUT (food-patch-v2),
-SD_ARCH ("12,24,48,64,64" = kanal tiap konvolusi; 3 konvolusi pertama diikuti max-pool).
+Variabel lingkungan: SD_EPOCHS (46), SD_PATCHES (88), SD_NEG (20), SD_OUT (food-patch-v3),
+SD_ARCH ("16,32,48,64,64" = kanal tiap konvolusi; 3 konvolusi pertama diikuti max-pool),
+SD_VAL (fraksi foto uji per kelas, 0.18), SD_MIXUP (0 = mati; 0,2 = campur dua tambalan berikut
+label lunaknya), SD_TKA (0 = ambil satu epoch terbaik; 3 = rata-rata bobot tiga epoch terbaik,
+lalu dibandingkan dengan satu terbaik — yang lebih tinggi yang dipakai).
 """
 from __future__ import annotations
 
@@ -37,22 +54,33 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 
+# Daftar foto, label, dan split tinggal di dataset.py — modul itu bisa dipakai `eval_prep.py`
+# tanpa memasang kerangka latih.
+from dataset import (
+    CLASSES,
+    NONE_IDX,
+    SEED,
+    VAL_FRAC,
+    list_images,
+    split_for,
+)
+
 ROOT = Path(__file__).resolve().parent
-RAW = ROOT / "data" / "raw"
-MANIFEST = ROOT / "data" / "manifest.json"
 MODELS = ROOT / "models"
 
-CLASSES = ["rice", "greens", "fried", "pale", "brown", "soup", "orange", "yellow", "red", "egg", "none"]
 PATCH = 48
 MIN_SIDE = 300
 MEAN = (0.5, 0.5, 0.5)
 STD = (0.25, 0.25, 0.25)
-SEED = 7
-EPOCHS = int(os.environ.get("SD_EPOCHS", "48"))
-PER_IMAGE = int(os.environ.get("SD_PATCHES", "80"))
-OUT_NAME = os.environ.get("SD_OUT", "food-patch-v2")
-ARCH = tuple(int(c) for c in os.environ.get("SD_ARCH", "12,24,48,64,64").split(","))
-CACHE = ROOT / "data" / f"patches-v2-{PER_IMAGE}.npz"
+EPOCHS = int(os.environ.get("SD_EPOCHS", "46"))
+PER_IMAGE = int(os.environ.get("SD_PATCHES", "88"))
+PER_NEG = int(os.environ.get("SD_NEG", "20"))
+OUT_NAME = os.environ.get("SD_OUT", "food-patch-v3")
+ARCH = tuple(int(c) for c in os.environ.get("SD_ARCH", "16,32,48,64,64").split(","))
+MIXUP = float(os.environ.get("SD_MIXUP", "0"))  # campuran dua tambalan; 0 = mati
+TKA = int(os.environ.get("SD_TKA", "0"))  # rata-rata bobot TKA epoch terbaik; 0/1 = pilih satu
+# nama cache memuat nama model + parameternya; isinya juga diuji terhadap daftar foto sekarang
+CACHE = ROOT / "data" / f"patches-{OUT_NAME}-{PER_IMAGE}-{PER_NEG}.npz"
 
 
 # ---------------------------------------------------------------- data ----
@@ -102,24 +130,36 @@ def warm_white(h: float, s: float) -> bool:
 
 
 def plausible(cls: str, h: float, s: float, v: float, tex: float) -> bool:
-    """Saringan warna + tekstur longgar: apakah tambalan ini masuk akal untuk kelas itu?"""
+    """Saringan warna + tekstur: apakah tambalan ini masuk akal untuk kelas itu?
+
+    Sengaja longgar (yang tegas hanya pembeda yang benar-benar terbaca di piksel),
+    sebab tambalan yang cocok untuk beberapa label tetap dipakai sebagai target lunak.
+    """
     if cls == "rice":
-        return s < 0.28 and v > 0.62 and warm_white(h, s) and tex >= 0.02
+        # nasi = putih hangat DAN berbutir; permukaan licin (telur dadar putih, piring) bukan nasi
+        return s < 0.28 and v > 0.62 and warm_white(h, s) and tex >= 0.03
     if cls == "greens":
         return hue_in(h, 55, 120) and s > 0.18 and v > 0.15
     if cls == "fried":
         return hue_in(h, 12, 48) and s > 0.28 and 0.25 < v < 0.97
     if cls == "pale":
-        if not (s < 0.42 and 0.45 < v < 0.98):
+        # tahu / kentang rebus / ikan kukus: putih hangat s/d kuning sangat muda, sedikit bertekstur
+        if not (s < 0.34 and v > 0.5):
             return False
-        if s < 0.2:
-            return warm_white(h, s) and tex >= 0.02
-        return hue_in(h, 20, 70)
+        if not warm_white(h, s):
+            return False
+        return tex >= 0.012 or (hue_in(h, 20, 70) and s < 0.2 and tex >= 0.006)
     if cls == "brown":
         return hue_in(h, 345, 45) and s > 0.22 and v < 0.62
     if cls == "soup":
-        # kuah + isi: tolak putih polos (bibir mangkuk, taplak) dan bagian sangat gelap
-        return 0.2 < v < 0.92 and not (s < 0.1 and v > 0.8 and tex < 0.02)
+        # kuah + isi: v di tengah, dan bukan bidang rata (bibir mangkuk, taplak, dinding, kain warna)
+        if not (0.18 < v < 0.94):
+            return False
+        if s < 0.12 and tex < 0.02:
+            return False
+        if s > 0.62 and tex < 0.015:
+            return False
+        return True
     if cls == "orange":
         return hue_in(h, 12, 45) and s > 0.42 and v > 0.5
     if cls == "yellow":
@@ -127,7 +167,10 @@ def plausible(cls: str, h: float, s: float, v: float, tex: float) -> bool:
     if cls == "red":
         return hue_in(h, 335, 18) and s > 0.38 and v > 0.25
     if cls == "egg":
-        return (s < 0.28 and v > 0.7 and warm_white(h, s) and tex >= 0.02) or (hue_in(h, 32, 62) and s > 0.4 and v > 0.5)
+        # putih telur = licin-setengah butir dan lebih halus daripada nasi; kuning = jenuh kekuningan
+        white = s < 0.26 and v > 0.7 and warm_white(h, s) and 0.006 <= tex < 0.032
+        yolk = hue_in(h, 32, 62) and s > 0.4 and v > 0.5
+        return white or yolk
     return True  # none
 
 
@@ -139,47 +182,113 @@ def load_image(p: Path) -> np.ndarray:
     return np.asarray(im)
 
 
-def sample_patches(arr: np.ndarray, labels: list[str], rng: random.Random, want: int) -> list[tuple[np.ndarray, str]]:
-    """Ambil tambalan acak; label = satu-satunya kelas foto yang masuk akal untuk warnanya."""
+def grid_stats(arr: np.ndarray, step: int = 12) -> tuple[list[tuple[int, int]], list[tuple[float, float, float, float]]]:
+    """(pusat sel, HSV+tekstur sel) pada kisi kasar — dipakai memandu pencarian tambalan."""
+    H, W = arr.shape[:2]
+    centers: list[tuple[int, int]] = []
+    stats: list[tuple[float, float, float, float]] = []
+    for cy in range(step // 2, H - step // 2, step):
+        for cx in range(step // 2, W - step // 2, step):
+            sub = arr[max(0, cy - step // 2) : cy + step // 2, max(0, cx - step // 2) : cx + step // 2]
+            small = sub[:: max(1, sub.shape[0] // 8), :: max(1, sub.shape[1] // 8)]
+            h, s, v = mean_hsv(small)
+            centers.append((cx, cy))
+            stats.append((h, s, v, texture(small)))
+    return centers, stats
+
+
+def guide_cells(stats: list[tuple[float, float, float, float]], labels: list[str]) -> list[int]:
+    """Indeks sel kisi yang warnanya masuk akal untuk salah satu label foto."""
+    return [i for i, (h, s, v, tex) in enumerate(stats) if any(plausible(c, h, s, v, tex) for c in labels)]
+
+
+def _accept(crop: np.ndarray, labels: list[str]) -> dict[str, float] | None:
+    """Bobot label untuk satu tambalan: hanya kelas foto yang warnanya cocok yang dipakai.
+
+    Bila beberapa kelas cocok (mis. goreng dan oranye pada tempe), targetnya lunak —
+    peluang dibagi rata, bukan ditebak satu.
+    """
+    side = crop.shape[0]
+    sub = crop[:: max(1, side // 16), :: max(1, side // 16)]
+    h, s, v = mean_hsv(sub)
+    ok = [c for c in labels if plausible(c, h, s, v, texture(sub))]
+    if not ok:
+        return None
+    return {c: 1.0 / len(ok) for c in ok}
+
+
+def crop_at(arr: np.ndarray, cx: float, cy: float, side: int) -> np.ndarray | None:
+    H, W = arr.shape[:2]
+    x0 = int(min(max(0, cx - side / 2), W - side))
+    y0 = int(min(max(0, cy - side / 2), H - side))
+    if x0 < 0 or y0 < 0 or x0 + side > W or y0 + side > H:
+        return None
+    return arr[y0 : y0 + side, x0 : x0 + side]
+
+
+def sample_patches(
+    arr: np.ndarray, labels: list[str], rng: random.Random, want: int, cells: list[tuple[int, int]], guides: list[int]
+) -> list[tuple[np.ndarray, dict[str, float]]]:
+    """Tambalan dari bagian yang mungkin makanan: dipandu kisi warna, lalu disaring lagi."""
     H, W = arr.shape[:2]
     m = min(W, H)
-    out: list[tuple[np.ndarray, str]] = []
+    out: list[tuple[np.ndarray, dict[str, float]]] = []
     tries = 0
     central = labels != ["none"]
-    while len(out) < want and tries < want * 10:
+    while len(out) < want and tries < want * 12:
         tries += 1
         side = int(m * rng.uniform(0.10, 0.32))
-        if central:  # makanan biasanya di tengah foto
+        if guides and rng.random() < 0.6:
+            cx, cy = cells[rng.choice(guides)]
+            cx += rng.uniform(-side * 0.35, side * 0.35)
+            cy += rng.uniform(-side * 0.35, side * 0.35)
+        elif central:  # makanan biasanya di tengah foto
             cx = rng.uniform(0.15, 0.85) * W
             cy = rng.uniform(0.15, 0.85) * H
-            x0 = int(min(max(0, cx - side / 2), W - side))
-            y0 = int(min(max(0, cy - side / 2), H - side))
         else:
-            x0 = rng.randint(0, W - side)
-            y0 = rng.randint(0, H - side)
-        crop = arr[y0 : y0 + side, x0 : x0 + side]
-        sub = crop[:: max(1, side // 16), :: max(1, side // 16)]
-        h, s, v = mean_hsv(sub)
-        tex = texture(sub)
-        ok = [c for c in labels if plausible(c, h, s, v, tex)]
-        if len(ok) != 1:
+            cx = rng.uniform(0, W - side)
+            cy = rng.uniform(0, H - side)
+        crop = crop_at(arr, cx, cy, side)
+        if crop is None:
             continue
-        im = Image.fromarray(crop).resize((PATCH, PATCH), Image.BILINEAR)
-        out.append((np.asarray(im), ok[0]))
+        w = _accept(crop, labels)
+        if w is None:
+            continue
+        out.append((np.asarray(Image.fromarray(crop).resize((PATCH, PATCH), Image.BILINEAR)), w))
     return out
 
 
-def list_images() -> list[tuple[Path, list[str]]]:
-    """Daftar (berkas, label-label) dari data/manifest.json; fallback ke nama folder."""
-    if MANIFEST.exists():
-        entries = json.loads(MANIFEST.read_text())
-        files = [(RAW / e["file"], list(e["labels"])) for e in entries]
-        return [(f, ls) for f, ls in files if f.exists() and all(c in CLASSES for c in ls)]
-    files: list[tuple[Path, list[str]]] = []
-    for c in CLASSES:
-        for f in sorted((RAW / c).glob("*")):
-            files.append((f, [c]))
-    return files
+def edge_negatives(arr: np.ndarray, labels: list[str], rng: random.Random, want: int) -> list[np.ndarray]:
+    """Tambalan latar dari tepi foto makanan (taplak, meja, lantai, dinding).
+
+    Hanya dipakai bila tidak masuk akal untuk SATU PUN kelas makanan: kalau warnanya
+    bisa jadi makanan, penilaiannya dibiarkan pada foto `none` yang memang aman,
+    agar model tidak diajak menyebut meja sebagai "pucat" atau "goreng".
+    """
+    H, W = arr.shape[:2]
+    food = [c for c in CLASSES if c != "none"]
+    out: list[np.ndarray] = []
+    tries = 0
+    while len(out) < want and tries < want * 14:
+        tries += 1
+        side = int(min(W, H) * rng.uniform(0.10, 0.26))
+        band = rng.random() < 0.5
+        if band:
+            cx = rng.uniform(0, W - side)
+            cy = rng.choice([0.0, 1.0]) * (H - side)
+        else:
+            cx = rng.choice([0.0, 1.0]) * (W - side)
+            cy = rng.uniform(0, H - side)
+        crop = arr[int(cy) : int(cy) + side, int(cx) : int(cx) + side]
+        if crop.shape[0] < side or crop.shape[1] < side:
+            continue
+        sub = crop[:: max(1, side // 16), :: max(1, side // 16)]
+        h, s, v = mean_hsv(sub)
+        tex = texture(sub)
+        if any(plausible(c, h, s, v, tex) for c in food):
+            continue
+        out.append(np.asarray(Image.fromarray(crop).resize((PATCH, PATCH), Image.BILINEAR)))
+    return out
 
 
 def build_cache() -> dict[str, np.ndarray]:
@@ -187,6 +296,7 @@ def build_cache() -> dict[str, np.ndarray]:
     files = list_images()
     X: list[np.ndarray] = []
     Y: list[int] = []
+    S: list[np.ndarray] = []
     IMG: list[int] = []
     per_image: list[dict[str, object]] = []
     for idx, (f, labels) in enumerate(files):
@@ -195,12 +305,29 @@ def build_cache() -> dict[str, np.ndarray]:
             want = int(PER_IMAGE * 0.75)
         else:
             want = int(PER_IMAGE * (1 + 0.5 * (len(labels) - 1)))
-        ps = sample_patches(arr, labels, rng, want)
-        got = {c: sum(1 for _, l in ps if l == c) for c in labels}
-        per_image.append({"file": f"{f.parent.name}/{f.name}", "labels": labels, "patches": got})
-        for p, l in ps:
+        cells, stats = grid_stats(arr)
+        guides = guide_cells(stats, labels)
+        ps = sample_patches(arr, labels, rng, want, cells, guides)
+        got = {c: sum(1 for _, w in ps if max(w, key=w.get) == c) for c in labels}
+        neg: list[np.ndarray] = []
+        if labels != ["none"] and PER_NEG > 0:
+            neg = edge_negatives(arr, labels, rng, PER_NEG)
+            got["none"] = len(neg)
+        per_image.append({"file": f"{f.parent.name}/{f.name}", "labels": labels, "patches": got, "cells": len(guides)})
+        for p, w in ps:
+            soft = np.zeros(len(CLASSES), np.float32)
+            for c, v in w.items():
+                soft[CLASSES.index(c)] = v
             X.append(p)
-            Y.append(CLASSES.index(l))
+            Y.append(int(soft.argmax()))
+            S.append(soft)
+            IMG.append(idx)
+        for p in neg:
+            soft = np.zeros(len(CLASSES), np.float32)
+            soft[NONE_IDX] = 1.0
+            X.append(p)
+            Y.append(NONE_IDX)
+            S.append(soft)
             IMG.append(idx)
     Xa = np.stack(X).astype(np.uint8)  # N,48,48,3
     primary = np.array([CLASSES.index(ls[0]) for _, ls in files], np.int64)
@@ -208,23 +335,18 @@ def build_cache() -> dict[str, np.ndarray]:
     for i, (_, ls) in enumerate(files):
         for c in ls:
             multi[i, CLASSES.index(c)] = True
-    data = {"x": Xa, "y": np.array(Y, np.int64), "img": np.array(IMG, np.int64), "primary": primary, "multi": multi}
+    data = {
+        "names": np.array([f"{f.parent.name}/{f.name}" for f, _ in files]),
+        "x": Xa,
+        "y": np.array(Y, np.int64),
+        "soft": np.stack(S).astype(np.float32),
+        "img": np.array(IMG, np.int64),
+        "primary": primary,
+        "multi": multi,
+    }
     np.savez_compressed(CACHE, **data)
     (ROOT / "data" / "patches-summary.json").write_text(json.dumps(per_image, indent=1))
     return data
-
-
-def split_by_image(primary: np.ndarray, val_frac: float = 0.18) -> np.ndarray:
-    """Pisahkan per FOTO (bukan per tambalan) agar akurasi uji jujur; kembalikan mask foto uji."""
-    rng = random.Random(SEED)
-    val = np.zeros(len(primary), np.bool_)
-    for c in range(len(CLASSES)):
-        cand = [int(i) for i in np.flatnonzero(primary == c)]
-        rng.shuffle(cand)
-        k = max(1, round(len(cand) * val_frac))
-        for i in cand[:k]:
-            val[i] = True
-    return val
 
 
 # --------------------------------------------------------------- model ----
@@ -326,44 +448,147 @@ def augment(x: torch.Tensor, gen: torch.Generator) -> torch.Tensor:
 
 
 # ------------------------------------------------------------ evaluasi ----
-def evaluate(model: nn.Module, xv: torch.Tensor, yv: torch.Tensor, imgv: np.ndarray, multi: np.ndarray) -> dict[str, object]:
-    """Akurasi per tambalan, seimbang antar kelas, dan per foto (rata-rata peluang tambalan)."""
+def logits_of(model: nn.Module, x: torch.Tensor, bs: int = 1024) -> torch.Tensor:
     model.eval()
     with torch.no_grad():
-        probs = torch.cat([torch.softmax(model(normalize(xv[i : i + 1024])), 1) for i in range(0, len(yv), 1024)])
+        return torch.cat([model(normalize(x[i : i + bs])) for i in range(0, len(x), bs)])
+
+
+def photo_prec(probs: torch.Tensor, imgv: np.ndarray, multi: np.ndarray, tmin: float, cls: int) -> tuple[float, int]:
+    """Presisi prediksi satu kelas pada data uji, diukur terhadap ISI FOTO.
+
+    "Benar" artinya foto tempat tambalan itu memang memuat kelas ini — bukan apakah
+    label lemah tambalan sama. Itulah pula yang ditanyakan pemindai: apakah menu ini ada di piring.
+    """
+    pred = probs.argmax(1)
+    sel = (pred == cls) & (probs.max(1).values >= tmin)
+    n = int(sel.sum())
+    if n == 0:
+        return 0.0, 0
+    idx = torch.from_numpy(imgv)[sel].numpy()
+    return float(multi[idx, cls].mean()), n
+
+
+def evaluate(model: nn.Module, xv: torch.Tensor, yv: torch.Tensor, imgv: np.ndarray, multi: np.ndarray, temperature: float = 1.0) -> dict[str, object]:
+    """Akurasi per tambalan, seimbang antar kelas, per foto, dan presisi berbasis isi foto."""
+    probs = torch.softmax(logits_of(model, xv) / temperature, 1)
     pv = probs.argmax(1)
     acc = float((pv == yv).float().mean())
     per_cls = [float((pv[yv == c] == c).float().mean()) for c in range(len(CLASSES)) if (yv == c).any()]
     bal = float(np.mean(per_cls))
-    # per foto: benar bila kelas rata-rata termasuk label foto
-    ok = 0
-    n_img = 0
+    ok, n_img = 0, 0
     for i in np.unique(imgv):
         sel = torch.from_numpy(imgv == i)
         mean_p = probs[sel].mean(0)
         n_img += 1
         if multi[int(i), int(mean_p.argmax())]:
             ok += 1
-    return {"acc": acc, "bal": bal, "img": ok / max(1, n_img), "pred": pv, "probs": probs}
+    prec = {c: photo_prec(probs, imgv, multi, 0.7, c) for c in range(len(CLASSES))}
+    food_prec = float(np.mean([prec[c][0] for c in range(len(CLASSES) - 1) if prec[c][1] >= 20])) if any(prec[c][1] >= 20 for c in range(len(CLASSES) - 1)) else 0.0
+    return {
+        "acc": acc,
+        "bal": bal,
+        "img": ok / max(1, n_img),
+        "food_prec": food_prec,
+        "prec": prec,
+        "pred": pv,
+        "probs": probs,
+    }
+
+
+def expected_calibration(probs: torch.Tensor, y: torch.Tensor, bins: int = 10) -> float:
+    """ECE: rata-rata |selisih keyakinan − kebenaran| per keranjang peluang (makin kecil makin baik).
+
+    0 = peluang model persis sama dengan tingkat benarnya; 1 = keyakinannya sama sekali tidak berarti.
+    """
+    conf = probs.max(1).values
+    ok = (probs.argmax(1) == y).float()
+    e, n = 0.0, len(y)
+    for b in range(bins):
+        lo, hi = b / bins, (b + 1) / bins
+        sel = (conf >= lo) & (conf < hi) if b < bins - 1 else (conf >= lo) & (conf <= hi)
+        k = int(sel.sum())
+        if not k:
+            continue
+        e += k / n * abs(float(ok[sel].mean()) - float(conf[sel].mean()))
+    return e
+
+
+def fit_temperature(logits: torch.Tensor, soft: torch.Tensor) -> float:
+    """Satu angka suhu softmax yang menekan galat kalibrasi pada data uji (pencarian grid halus)."""
+    best = (float("inf"), 1.0)
+    for t in np.exp(np.linspace(math.log(0.6), math.log(4.0), 60)):
+        nll = float(-(soft * torch.log_softmax(logits / float(t), 1)).sum(1).mean())
+        if nll < best[0]:
+            best = (nll, float(t))
+    return 1.0 if abs(best[1] - 1.0) < 0.05 else round(best[1], 3)
+
+
+def class_thresholds(probs: torch.Tensor, imgv: np.ndarray, multi: np.ndarray) -> dict[str, dict[str, float]]:
+    """Ambang keputusan per kelas, dihitung dari data uji dan ikut disimpan di berkas model.
+
+    * `relabel_min[c]` — peluang terkecil yang masih boleh dipakai untuk MENGGANTI kelas warna,
+      dipilih sebagai ambang tempat presisi (terhadap isi foto) mencapai 0,85; bila tak tercapai,
+      0,95 (praktis kelas itu tidak pernah menggantikan nama hasil segmentasi warna);
+    * `veto_p[c]` — di bawah peluang ini kelas warna dianggap salah baca. Diambil dari
+      persentil ke-2 peluang kelas c pada foto yang benar-benar memuat c (dijepit 0,04–0,15),
+      supaya menu sungguhan hampir tidak pernah ikut terbuang.
+    """
+    relabel: dict[str, float] = {}
+    veto: dict[str, float] = {}
+    grid = [round(0.4 + 0.025 * k, 3) for k in range(23)]
+    for c, name in enumerate(CLASSES):
+        if name == "none":
+            continue
+        chosen = 0.95
+        for t in grid:
+            prec, n = photo_prec(probs, imgv, multi, t, c)
+            if n >= 20 and prec >= 0.85:
+                chosen = t
+                break
+        relabel[name] = chosen
+        # peluang kelas c pada foto yang memuat c
+        idx = np.flatnonzero(multi[:, c])
+        own = torch.from_numpy(np.isin(imgv, idx))
+        p_c = probs[own, c]
+        if len(idx) >= 4 and int(own.sum()) > 0:
+            q = float(torch.quantile(p_c, 0.02))
+            veto[name] = round(min(0.15, max(0.04, q)), 3)
+        else:
+            veto[name] = 0.07
+    return {"relabel_min": relabel, "veto_p": veto}
 
 
 def run() -> None:
     torch.manual_seed(SEED)
     np.random.seed(SEED)
-    data = dict(np.load(CACHE)) if CACHE.exists() else build_cache()
+    if torch.get_num_threads() < 2:
+        try:
+            torch.set_num_threads(max(1, os.cpu_count() or 1))
+        except Exception:
+            pass
+    files_now = [f"{f.parent.name}/{f.name}" for f, _ in list_images()]
+    data = dict(np.load(CACHE)) if CACHE.exists() else {}
+    if data.get("names") is None or list(data["names"].tolist()) != files_now:
+        if data:
+            print(f"cache basi ({len(data['names'])} foto) → tambalan dibangun ulang untuk {len(files_now)} foto")
+        data = build_cache()
     x_all, y_all, img_all = data["x"], data["y"], data["img"]
-    primary, multi = data["primary"], data["multi"]
-    val_img = split_by_image(primary)
+    soft_all, primary, multi = data["soft"], data["primary"], data["multi"]
+    names = data["names"].tolist() if "names" in data else None
+    val_img = split_for(names, primary)
     va = val_img[img_all]
     tr = ~va
-    print(f"tambalan: {len(y_all)} (latih {tr.sum()}, uji {va.sum()}) dari {len(primary)} foto ({int(val_img.sum())} foto uji)")
+    print(f"tambalan: {len(y_all)} (latih {int(tr.sum())}, uji {int(va.sum())}) dari {len(primary)} foto ({int(val_img.sum())} foto uji)")
     counts = np.bincount(y_all[tr], minlength=len(CLASSES))
     print("per kelas (latih):", dict(zip(CLASSES, counts.tolist())))
 
     xt = torch.from_numpy(x_all[tr]).permute(0, 3, 1, 2).contiguous()
     yt = torch.from_numpy(y_all[tr])
+    st = torch.from_numpy(soft_all[tr])
     xv = torch.from_numpy(x_all[va]).permute(0, 3, 1, 2).contiguous()
     yv = torch.from_numpy(y_all[va])
+    sv = torch.from_numpy(soft_all[va])
     imgv = img_all[va]
 
     # sampling seimbang antar kelas
@@ -386,6 +611,7 @@ def run() -> None:
     mean = torch.tensor(MEAN).view(1, 3, 1, 1)
     std = torch.tensor(STD).view(1, 3, 1, 1)
     best: tuple[float, dict[str, torch.Tensor] | None, str] = (0.0, None, "")
+    top: list[tuple[float, dict[str, torch.Tensor], str]] = []  # kandidat rata-rata bobot
     ema_decay = 0.998
     t0 = time.time()
     for ep in range(epochs):
@@ -395,8 +621,17 @@ def run() -> None:
         for s in range(steps):
             b = idx[s * bs : (s + 1) * bs]
             xb = augment(xt[b].float() / 255.0, gen)
+            # target lunak + label smoothing: tambalan yang cocok untuk dua kelas tidak dipaksa satu nama
+            target = 0.95 * st[b] + 0.05 / len(CLASSES)
+            if MIXUP > 0:
+                # campur dua tambalan sekaligus label lunaknya: model dipaksa percaya susunan warna
+                # menyeluruh, bukan satu tepi tajam; lam dijepit ≥ 0,5 supaya yang dominan tetap jelas
+                lam = float(torch.distributions.Beta(MIXUP, MIXUP).sample().clamp(0.5, 1.0))
+                perm = torch.randperm(xb.shape[0], generator=gen)
+                xb = lam * xb + (1 - lam) * xb[perm]
+                target = lam * target + (1 - lam) * target[perm]
             xb = (xb - mean) / std
-            loss = F.cross_entropy(model(xb), yt[b], label_smoothing=0.05)
+            loss = -(target * F.log_softmax(model(xb), 1)).sum(1).mean()
             opt.zero_grad()
             loss.backward()
             opt.step()
@@ -411,32 +646,53 @@ def run() -> None:
         r = evaluate(model, xv, yv, imgv, multi)
         re = evaluate(ema, xv, yv, imgv, multi)
         print(
-            f"epoch {ep + 1:2d}  loss {tot / steps:.3f}  uji: akurasi {r['acc']:.3f} seimbang {r['bal']:.3f} foto {r['img']:.3f}"
-            f"  | ema: {re['acc']:.3f} {re['bal']:.3f} {re['img']:.3f}  {time.time() - t0:5.0f}s"
+            f"epoch {ep + 1:2d}  loss {tot / steps:.3f}  uji: akurasi {r['acc']:.3f} seimbang {r['bal']:.3f} foto {r['img']:.3f} presisi {r['food_prec']:.3f}"
+            f"  | ema: {re['acc']:.3f} {re['bal']:.3f} {re['img']:.3f} {re['food_prec']:.3f}  {time.time() - t0:5.0f}s"
         )
         for tag, mdl, res in (("model", model, r), ("ema", ema, re)):
-            score = float(res["bal"]) + 0.25 * float(res["img"])
+            score = 0.45 * float(res["bal"]) + 0.3 * float(res["img"]) + 0.25 * float(res["food_prec"])
             if score > best[0]:
                 best = (score, {k: v.detach().clone() for k, v in mdl.state_dict().items()}, tag)
+            if TKA > 1:
+                top.append((score, {k: v.detach().clone() for k, v in mdl.state_dict().items()}, f"{tag} ep{ep + 1}"))
+                top.sort(key=lambda t: -t[0])
+                del top[TKA:]
     assert best[1] is not None
-    model.load_state_dict(best[1])
+    chosen = best[1]
+    if TKA > 1 and len(top) > 1:
+        # rata-rata bobot epoch terbaik; kalau tidak lebih baik, satu terbaik yang dipakai — diukur, bukan dipercaya
+        avg = {k: torch.stack([t[1][k].float() for t in top]).mean(0).to(top[0][1][k].dtype) for k in top[0][1]}
+        model.load_state_dict(avg)
+        ra = evaluate(model, xv, yv, imgv, multi)
+        sa = 0.45 * float(ra["bal"]) + 0.3 * float(ra["img"]) + 0.25 * float(ra["food_prec"])
+        print(f"rata-rata {len(top)} epoch terbaik: skor {sa:.3f} vs satu terbaik {best[0]:.3f}")
+        if sa > best[0]:
+            chosen = avg
+            best = (sa, avg, f"rata-rata {len(top)} epoch")
+    model.load_state_dict(chosen)
     r = evaluate(model, xv, yv, imgv, multi)
-    pv = r["pred"]
     probs = r["probs"]
+
+    # kalibrasi: satu suhu softmax + ambang keputusan per kelas, keduanya dihitung pada data uji
+    lg = logits_of(model, xv)
+    temperature = fit_temperature(lg, sv)
+    ece0 = expected_calibration(probs, yv)
+    probs = torch.softmax(lg / temperature, 1)
+    ece1 = expected_calibration(probs, yv)
+    thresholds = class_thresholds(probs, imgv, multi)
+    print(f"kalibrasi: suhu {temperature}  ECE {ece0:.3f} → {ece1:.3f}")
+    print("ambang relabel:", thresholds["relabel_min"])
+    print("ambang veto:", thresholds["veto_p"])
+
     cm = np.zeros((len(CLASSES), len(CLASSES)), np.int64)
-    for a, b in zip(yv.tolist(), pv.tolist()):
+    for a, b in zip(yv.tolist(), probs.argmax(1).tolist()):
         cm[a, b] += 1
     per_class = {c: (float(cm[i, i] / cm[i].sum()) if cm[i].sum() else None) for i, c in enumerate(CLASSES)}
     precision = {c: (float(cm[i, i] / cm[:, i].sum()) if cm[:, i].sum() else None) for i, c in enumerate(CLASSES)}
-    # presisi bila peluang ≥ 0,6 (ambang yang dipakai aplikasi saat menamai ulang kelompok warna)
-    conf_mask = probs.max(1).values >= 0.6
-    prec06 = {}
-    for i, c in enumerate(CLASSES):
-        sel = conf_mask & (pv == i)
-        prec06[c] = float((yv[sel] == i).float().mean()) if sel.any() else None
-    print(f"terbaik ({best[2]}): akurasi {r['acc']:.3f}  seimbang {r['bal']:.3f}  per foto {r['img']:.3f}")
+    prec06 = {c: (r["prec"][i][0] if r["prec"][i][1] >= 20 else None) for i, c in enumerate(CLASSES)}
+    print(f"terbaik ({best[2]}): akurasi {r['acc']:.3f}  seimbang {r['bal']:.3f}  per foto {r['img']:.3f}  presisi@0,7 {r['food_prec']:.3f}")
     print("akurasi per kelas (uji):", {k: (round(v, 3) if v is not None else None) for k, v in per_class.items()})
-    print("presisi per kelas (uji):", {k: (round(v, 3) if v is not None else None) for k, v in precision.items()})
+    print("presisi per kelas terhadap ISI FOTO (p≥0,7):", {k: (round(v, 3) if v is not None else None) for k, v in prec06.items()})
     print("matriks kebingungan (baris = benar):")
     print("         " + " ".join(f"{c[:5]:>5}" for c in CLASSES))
     for i, c in enumerate(CLASSES):
@@ -454,18 +710,30 @@ def run() -> None:
         "images": int(len(primary)),
         "images_multi_label": n_multi,
         "images_val": int(val_img.sum()),
+        # foto uji beku: daftar namanya ikut disimpan supaya angka mana pun bisa ditelusuri
+        "val_photos": sorted(nm for nm, v in zip(names, val_img) if v) if names else None,
+        "split_source": "data/split.json" if (ROOT / "data" / "split.json").exists() else f"deterministik SEED={SEED}",
+        # resep latih disimpan supaya angka mana pun bisa diulang persis
+        "recipe": {"epochs": EPOCHS, "patchesPerImage": PER_IMAGE, "negPerImage": PER_NEG, "mixup": MIXUP, "topKEpochAvg": TKA},
         "patches": int(len(y_all)),
         "val_accuracy": round(float(r["acc"]), 4),
         "val_balanced_accuracy": round(float(r["bal"]), 4),
         "val_image_accuracy": round(float(r["img"]), 4),
+        "val_food_precision": round(float(r["food_prec"]), 4),
         "val_per_class": {k: (round(v, 4) if v is not None else None) for k, v in per_class.items()},
         "val_precision": {k: (round(v, 4) if v is not None else None) for k, v in precision.items()},
         "val_precision_conf06": {k: (round(v, 4) if v is not None else None) for k, v in prec06.items()},
+        "temperature": temperature,
+        "ece_before": round(ece0, 4),
+        "ece_after": round(ece1, 4),
+        "thresholds": thresholds,
         "confusion": cm.tolist(),
         "selected": best[2],
         "trained_at": time.strftime("%Y-%m-%d"),
         "epochs": epochs,
-        "split": "per foto (18 % tiap kelas), bukan per tambalan",
+        "soft_labels": "tambalan yang cocok untuk beberapa kelas foto memakai target lunak (peluang dibagi rata)",
+        "negatives": f"tepi foto makanan yang warnanya bukan makanan apa pun ikut dilatih sebagai `none` ({PER_NEG}/foto)",
+        "split": f"per foto ({int(round(VAL_FRAC * 100))} % tiap kelas), bukan per tambalan",
     }
     torch.save({"state": model.state_dict(), "meta": meta}, MODELS / f"{OUT_NAME}.pt")
     (MODELS / f"{OUT_NAME}.meta.json").write_text(json.dumps(meta, indent=1))

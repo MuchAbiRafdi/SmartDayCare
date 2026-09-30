@@ -6,6 +6,7 @@
 // Keluar dengan kode 1 bila ada pelanggaran WCAG 2.x A/AA atau praktik terbaik axe.
 import { chromium } from "playwright-core";
 import { readFileSync } from "node:fs";
+import { chromeExecutable } from "./browser.mjs";
 
 const BASE = process.argv[2] || process.env.BASE_URL || "http://localhost:3000";
 const axe = readFileSync(new URL("./node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
@@ -13,7 +14,7 @@ const DESKTOP = { width: 1280, height: 900 };
 const MOBILE = { width: 390, height: 844 };
 let total = 0;
 
-const b = await chromium.launch();
+const b = await chromium.launch({ executablePath: chromeExecutable(chromium) });
 
 async function login(ctx, email, password) {
   const r = await ctx.request.post(BASE + "/api/auth/login", {

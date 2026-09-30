@@ -348,6 +348,13 @@ class FeedbackRespondIn(Strict):
     text: str = Field(min_length=2, max_length=800)
 
 
+class RecoFeedbackIn(Strict):
+    """Penilaian admin atas satu saran AI: dipakai untuk mengurutkan saran berikutnya."""
+
+    key: str = Field(min_length=2, max_length=24, pattern=r"^[a-z0-9-]+$")
+    vote: Literal["up", "down"]
+
+
 class DailySummaryIn(Strict):
     enabled: bool
     time: str = Field(default="16:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")

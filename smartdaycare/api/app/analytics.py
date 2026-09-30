@@ -3,14 +3,22 @@
 Semua angka berasal dari catatan yang benar-benar dibuat pengasuh (tabel `log`). Insight dihitung
 dengan aturan statistik yang bisa dijelaskan (lihat stats.py):
 
-* tren      — periode ini vs periode sebelumnya, kemiringan garis tren di dalam periode, dan
-              uji beda (Welch) terhadap kebiasaan anak 8 minggu terakhir;
-* anomali   — hari yang menyimpang ≥ 1,8 simpangan baku dari kebiasaan anak sendiri (skor-z),
-              serta peringatan dini bila 3 hari terakhir berturut-turut di bawah batas;
-* pola      — hari dalam minggu yang konsisten lebih rendah, keterkaitan antar catatan
-              (mis. lama tidur siang ↔ mood sore, korelasi Pearson), dan posisi anak dibanding
-              rata-rata anak lain di daycare pada periode yang sama;
+* tren      — periode ini vs periode sebelumnya, kemiringan garis tren di dalam periode (linear dan
+              Theil–Sen yang tahan satu hari aneh), dan uji beda terhadap kebiasaan anak 8 minggu
+              terakhir (Welch + Mann–Whitney + besaran efek Hedges g);
+* anomali   — hari yang menyimpang ≥ 1,8 sebaran dari kebiasaan anak sendiri, dihitung pada median ±
+              MAD sehingga satu hari buruk tidak menggeser "kebiasaan"; peringatan dini bila 3 hari
+              terakhir berturut-turut di bawah batas;
+* titik ubah — CUSUM mencari hari ketika tingkat catatan benar-benar berpindah ("sejak tanggal ini"),
+              dan mengabaikannya bila sisi baru ternyata berbalik lagi;
+* pola      — hari dalam minggu yang konsisten lebih rendah, keterkaitan antar catatan (Pearson pada
+              angka, Cohen kappa pada keterangan ya/tidak), variasi menu per kelompok gizi, geseran
+              jam datang, dan posisi anak dibanding teman-teman (persentil, bukan hanya rata-rata);
 * positif   — rentetan hari baik dan kehadiran penuh.
+
+Selain itu ada skor pantauan 0–100: jumlah tertimbang dari sinyal yang benar-benar menyala hari
+ini (mood, makan, tidur, suhu, kejadian, kehadiran). Komponennya selalu ditampilkan supaya angkanya
+bisa ditelusuri; bukan diagnosis.
 
 Setiap insight menyimpan bukti angkanya dan tingkat keyakinan (jumlah data & besar efek).
 """
@@ -24,10 +32,34 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .labels import ACTIVITY_LABEL, AREA_LABEL, FOOD_SLOT_LABEL, FOOD_SLOT_ORDER, fmt_duration, mood_from_score
+from .labels import (
+    ACTIVITY_LABEL,
+    AREA_LABEL,
+    FOOD_SLOT_LABEL,
+    FOOD_SLOT_ORDER,
+    fmt_duration,
+    menu_groups,
+    mood_from_score,
+)
 from .logic import TZ
-from .models import Child, LogEntry
-from .stats import baseline, pearson, slope, weekday_effect, welch_t, zscore
+from .models import Child, LogEntry, Setting
+from .stats import (
+    baseline,
+    changepoint,
+    hedges_g,
+    mann_whitney,
+    percentile_rank,
+    pearson,
+    robust_baseline,
+    robust_z,
+    slope,
+    theilsen,
+    weekday_effect,
+    welch_t,
+)
+
+# Nama rekomendasi → bobot pembelajaran dari penilaian admin (lihat cat_reco_feedback).
+RECO_WEIGHTS_KEY = "ai_reco_feedback"
 
 DAY_SHORT = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
 DAY_LONG = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
@@ -62,6 +94,29 @@ def d1(x: float) -> str:
 def sd1(x: float) -> str:
     """Satu desimal bertanda dengan tanda minus tipografis: -0.8 menjadi −0,8."""
     return ("−" if x < 0 else "") + d1(abs(x))
+
+
+def _peer_position(pr: dict[str, float] | None, child_short: str) -> str:
+    """Posisi relatif di antara pembanding anonim — tanpa menyebut 0 % / 100 % yang kedengarannya absolut."""
+    if pr is None:
+        return "."
+    pct = pr["pct"]
+    if pct >= 99.5:
+        return f" — {child_short} lebih tinggi dari semua anak lain di rentang itu."
+    if pct <= 0.5:
+        return f" — {child_short} lebih rendah dari semua anak lain di rentang itu."
+    return f" — {child_short} berada di atas {round(pct)}% anak lain di rentang itu."
+
+
+def d2(x: float) -> str:
+    return f"{x:.2f}".rstrip("0").rstrip(".") if abs(x - round(x, 2)) > 1e-9 else f"{x:.2f}".rstrip("0").rstrip(".")
+
+
+def hg_text(g: float) -> str:
+    """Besaran efek Hedges g dalam kata, memakai ambang Cohen (0,2 / 0,5 / 0,8)."""
+    a = abs(g)
+    which = "kecil" if a < 0.5 else "sedang" if a < 0.8 else "besar"
+    return f"{which} ({'naik' if g > 0 else 'turun'})"
 
 
 def pct_change(cur: float, prev: float) -> float | None:
@@ -113,6 +168,10 @@ def day_rows(entries: list[LogEntry], start: date, end: date) -> list[dict[str, 
             "menu": [],
             "temps": [],
             "incidents": 0,
+            "incidentSev": [],
+            "incidentPm": 0,
+            "checkinMin": None,
+            "meds": [],
             "notes": [],
         }
         d += timedelta(days=1)
@@ -127,7 +186,9 @@ def day_rows(entries: list[LogEntry], start: date, end: date) -> list[dict[str, 
         if e.type in ("activity", "food", "sleep", "mood", "checkin", "meal"):
             row["present"] = True
         if e.type == "checkin":
-            row["checkin"] = f"{hour:02d}:{datetime.strptime(e.at, FMT).replace(tzinfo=UTC).astimezone(TZ).minute:02d}"
+            mm = datetime.strptime(e.at, FMT).replace(tzinfo=UTC).astimezone(TZ).minute
+            row["checkin"] = f"{hour:02d}:{mm:02d}"
+            row["checkinMin"] = hour * 60 + mm
             if p.get("temp") is not None:
                 row["temps"].append(float(p["temp"]))
         elif e.type == "temp" and p.get("temp") is not None:
@@ -156,6 +217,11 @@ def day_rows(entries: list[LogEntry], start: date, end: date) -> list[dict[str, 
                 row["meals"][slot] = int(p["pct"])
         elif e.type == "incident":
             row["incidents"] += 1
+            row["incidentSev"].append(str(e.sev or "low"))
+            if hour >= 12:
+                row["incidentPm"] = row.get("incidentPm", 0) + 1
+        elif e.type == "med":
+            row["meds"].append(str(p.get("med") or e.title or "").strip())
         elif e.type == "note" and e.text:
             row["notes"].append({"at": e.at, "by": e.by_name, "text": e.text})
     out = []
@@ -163,6 +229,8 @@ def day_rows(entries: list[LogEntry], start: date, end: date) -> list[dict[str, 
         m = _avg(row["moods"])
         label, emoji = mood_from_score(m)
         meal_scores = list(row["meals"].values())
+        row["menuGroups"] = sorted(menu_groups(row.get("menu") or []))
+        row["incidentSev"] = [x for x in row.get("incidentSev") or [] if x in ("medium", "high")]
         row.update(
             {
                 "mood": m,
@@ -200,6 +268,18 @@ def summarize(rows: list[dict[str, Any]], upto: date | None = None) -> dict[str,
         for slot, s in r["meals"].items():
             slot_scores.setdefault(slot, []).append(s)
     label, emoji = mood_from_score(mood_avg)
+    # variasi menu per kelompok gizi: berapa HARI yang memuatnya, dan berapa jenis berbeda
+    group_days: dict[str, int] = {}
+    distinct: set[str] = set()
+    for r in rows:
+        distinct.update(str(m).lower() for m in r.get("menu") or [])
+        for g in r.get("menuGroups") or []:
+            group_days[g] = group_days.get(g, 0) + 1
+    # hari sekolah yang SUDAH lewat saja (tanpa menghitung hari ini yang belum selesai)
+    lewat = [r for r in school if upto is None or date.fromisoformat(r["date"]) < upto]
+    arrivals = [float(r["checkinMin"]) for r in school if r.get("checkinMin")]
+    incident_days = [r for r in rows if r["incidents"]]
+    med_days = [r for r in rows if r.get("meds")]
     return {
         "days": len(rows),
         "schoolDays": len(school),
@@ -220,6 +300,15 @@ def summarize(rows: list[dict[str, Any]], upto: date | None = None) -> dict[str,
         "mealCount": len(meal_scores),
         "slotAvg": {k: round(mean(v)) for k, v in slot_scores.items()},
         "incidents": sum(r["incidents"] for r in rows),
+        "incidentDays": len(incident_days),
+        "incidentSevDays": len([r for r in incident_days if r.get("incidentSev")]),
+        "incidentAfternoon": sum(r.get("incidentPm") or 0 for r in rows),
+        "medNotes": sum(len(r.get("meds") or []) for r in med_days),
+        "menuGroups": group_days,
+        "menuDistinct": len(distinct),
+        "absentDays": len([r for r in lewat if not r["present"]]),
+        "arriveAvg": round(mean(arrivals)) if arrivals else None,
+        "arriveLateDays": len([m for m in arrivals if m >= 9 * 60]),
         "feverDays": len([r for r in rows if r["tempMax"] is not None and r["tempMax"] >= 37.5]),
     }
 
@@ -454,7 +543,7 @@ def _basic_insights(child_short: str, cur_rows: list[dict[str, Any]], cur: dict[
             )
 
     # --- Kehadiran & kesehatan ---
-    absent = cur["schoolDays"] - cur["presentDays"]
+    absent = cur.get("absentDays", max(0, cur["schoolDays"] - cur["presentDays"]))
     if absent >= 2:
         out.append(
             _ins(
@@ -492,24 +581,39 @@ def _present_school(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def build_baseline(hist_rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Kebiasaan anak dari hari-hari hadir sebelum periode ini (maks. 8 minggu)."""
+    """Kebiasaan anak dari hari-hari hadir sebelum periode ini (maks. 8 minggu).
+
+    Pusat = median, sebaran = 1,4826 × MAD. Rata-rata dan simpangan baku tetap dihitung (dipakai uji
+    Welch dan kalimat pembanding), tetapi penyimpangan dibandingkan ke median: satu minggu buruk tidak
+    boleh membuat minggu berikutnya terlihat "normal".
+    """
     days = _present_school(hist_rows)
     moods = [float(r["mood"]) for r in days if r["mood"] is not None]
     sleeps = [float(r["sleepMinutes"]) for r in days if r["sleepMinutes"] > 0]
     meals = [float(r["mealAvg"]) for r in days if r["mealAvg"] is not None]
     acts = [float(r["activities"]) for r in days if r["activities"] > 0]
+    arrivals = [float(r["checkinMin"]) for r in days if r.get("checkinMin")]
 
     def pack(b: dict[str, float] | None, digits: int) -> dict[str, float] | None:
-        return None if b is None else {"n": int(b["n"]), "mean": round(b["mean"], digits), "sd": round(b["sd"], digits)}
+        if b is None:
+            return None
+        return {
+            "n": int(b["n"]),
+            "center": round(b["center"], digits),
+            "scale": round(b["scale"], digits),
+            "mean": round(b["mean"], digits),
+            "sd": round(b["sd"], digits),
+        }
 
     return {
         "days": len(days),
         "from": days[0]["date"] if days else None,
         "to": days[-1]["date"] if days else None,
-        "mood": pack(baseline(moods), 2),
-        "sleep": pack(baseline(sleeps), 0),
-        "meal": pack(baseline(meals), 0),
-        "activities": pack(baseline(acts), 1),
+        "mood": pack(robust_baseline(moods), 2),
+        "sleep": pack(robust_baseline(sleeps), 0),
+        "meal": pack(robust_baseline(meals), 0),
+        "activities": pack(robust_baseline(acts), 1),
+        "arrive": pack(robust_baseline(arrivals), 0),
         # simpan deret mentah untuk uji beda (tidak dikirim ke klien)
         "_moods": moods,
         "_sleeps": sleeps,
@@ -555,7 +659,7 @@ def _advanced_insights(
             v = getter(r)
             if v is None:
                 continue
-            z = zscore(float(v), b, floor_sd)
+            z = robust_z(float(v), b, floor_sd)
             if z is None:
                 continue
             if worst is None or abs(z) > abs(worst[0]):
@@ -570,9 +674,9 @@ def _advanced_insights(
                     "anomaly",
                     area,
                     f"{nice} {'jauh di bawah' if below else 'jauh di atas'} kebiasaan pada {DAY_LONG[r['weekday']]}",
-                    f"{fmt_date_id(date.fromisoformat(r['date']))}: {nice.lower()} {child_short} {fmt(v)}, sedangkan kebiasaannya {fmt(b['mean'])} ± {fmt(b['sd']) if key != 'mood' else d1(b['sd'])} ({b['n']} hari sebelumnya).",
-                    f"{fmt(v)} vs kebiasaan {fmt(b['mean'])} · z = {sd1(z)} · {b['n']} hari",
-                    delta=round(v - b["mean"], 2),
+                    f"{fmt_date_id(date.fromisoformat(r['date']))}: {nice.lower()} {child_short} {fmt(v)}, sedangkan kebiasaannya {fmt(b['center'])} ± {fmt(b['scale']) if key != 'mood' else d1(b['scale'])} (median {b['n']} hari sebelumnya).",
+                    f"{fmt(v)} vs kebiasaan {fmt(b['center'])} · z = {sd1(z)} · {b['n']} hari",
+                    delta=round(v - b["center"], 2),
                     sev="high" if (below and abs(z) >= 2.5) else ("medium" if below else "low"),
                     confidence=_conf(b["n"], abs(z), 15, 2.5),
                 )
@@ -611,17 +715,29 @@ def _advanced_insights(
         ("meal", "_meals", "Porsi makan", lambda r: r["mealAvg"], 12.0, lambda v: f"{round(v)}%", "makan"),
     ):
         cur_vals = [float(getter(r)) for r in cur_days if getter(r) is not None]
-        t = welch_t(cur_vals, base.get(raw_key) or [])
+        ref = base.get(raw_key) or []
+        t = welch_t(cur_vals, ref)
         if t is None or abs(t["t"]) < 2.0 or abs(t["diff"]) < min_diff:
             continue
         down = t["diff"] < 0
+        # diperkuat uji peringkat (tidak mengasumsikan bentuk sebaran) + besaran efek
+        mw = mann_whitney(cur_vals, ref)
+        g = hedges_g(cur_vals, ref)
+        bukti = f"{fmt(mean(cur_vals))} vs kebiasaan {fmt(mean(ref))} · t = {d1(abs(t['t']))} · {int(t['na'])}+{int(t['nb'])} hari"
+        kalimat = "Perbedaannya cukup besar untuk tidak dianggap kebetulan."
+        if mw and mw["p"] <= 0.05:
+            bukti += f" · p = {round(mw['p'], 3)}"
+            kalimat = f"Perbedaan ini tetap tampak pada uji peringkat (p = {round(mw['p'], 3)}), jadi bukan gara-gara satu hari ekstrem."
+        if g is not None:
+            bukti += f" · efek {hg_text(g['g'])}"
+            kalimat += f" Besarnya perubahan {hg_text(g['g'])} (g = {d2(g['g'])})."
         out.append(
             _ins(
                 "trend",
                 area,
                 f"{nice} {period_label} {'lebih rendah' if down else 'lebih tinggi'} dari kebiasaan {child_short}",
-                f"Rata-rata {nice.lower()} {fmt(mean(cur_vals))} pada {len(cur_vals)} hari hadir {period_label}, dibanding kebiasaan {fmt(mean(base[raw_key]))} dari {int(t['nb'])} hari sebelumnya. Perbedaannya cukup besar untuk tidak dianggap kebetulan.",
-                f"{fmt(mean(cur_vals))} vs kebiasaan {fmt(mean(base[raw_key]))} · t = {d1(abs(t['t']))} · {int(t['na'])}+{int(t['nb'])} hari",
+                f"Rata-rata {nice.lower()} {fmt(mean(cur_vals))} pada {len(cur_vals)} hari hadir {period_label}, dibanding kebiasaan {fmt(mean(ref))} dari {int(t['nb'])} hari sebelumnya. {kalimat}",
+                bukti,
                 delta=round(t["diff"], 2),
                 sev="medium" if down else "low",
                 confidence=_conf(min(t["na"], t["nb"]), abs(t["t"]), 10, 3.0),
@@ -737,7 +853,9 @@ def _advanced_insights(
                     "pattern",
                     area,
                     f"{nice} {child_short} {'di atas' if diff > 0 else 'di bawah'} rata-rata anak lain",
-                    f"{nice} {child_short} {fmt(float(mine))} {period_label}, sedangkan rata-rata {st['n']} anak lain di daycare {fmt(st['mean'])}. Setiap anak berbeda; angka ini hanya pembanding, bukan penilaian.",
+                    f"{nice} {child_short} {fmt(float(mine))} {period_label}, sedangkan rata-rata {st['n']} anak lain di daycare {fmt(st['mean'])}"
+                    + (_peer_position(pr, child_short) if (pr := percentile_rank(float(mine), (peers.get("values") or {}).get(key) or [])) and len((peers.get("values") or {}).get(key) or []) >= 5 else ".")
+                    + " Setiap anak berbeda; angka ini hanya pembanding, bukan penilaian.",
                     f"{fmt(float(mine))} vs {fmt(st['mean'])} ({st['n']} anak)",
                     delta=round(diff, 2),
                     sev="low" if better else "medium",
@@ -745,6 +863,244 @@ def _advanced_insights(
                 )
             )
     return out
+
+
+# ------------------------------------------------------------------ insight lanjutan ----
+
+
+def _clock(minutes: float) -> str:
+    """Menit sejak tengah malam → jam dinding 24 jam (bukan durasi)."""
+    m = max(0, int(round(minutes))) % 1440
+    return f"{m // 60:02d}.{m % 60:02d}"
+
+
+def _series(days: list[dict[str, Any]], getter) -> list[tuple[str, float]]:
+    out: list[tuple[str, float]] = []
+    for r in days:
+        v = getter(r)
+        if v is not None:
+            out.append((str(r["date"]), float(v)))
+    return out
+
+
+def _changepoint_insights(child_short: str, hist_days: list[dict[str, Any]], cur_days: list[dict[str, Any]], period_label: str) -> list[dict[str, Any]]:
+    """Titik ketika tingkat catatan benar-benar berpindah (CUSUM pada deret harian).
+
+    Deretnya gabungan riwayat + periode ini supaya "sejak tanggal X" punya dasar yang lebih panjang
+    dari satu minggu. Hanya dilaporkan bila perpindahan ≥ 0,8 sebaran kebiasaan dan sisi barunya
+    bertahan (cek ada di stats.changepoint).
+    """
+    out: list[dict[str, Any]] = []
+    series = (
+        ("mood", "Mood", lambda r: r["mood"], lambda v: f"{d1(v)}/5", "mood"),
+        ("sleep", "Tidur siang", lambda r: r["sleepMinutes"] if r["sleepMinutes"] > 0 else None, fmt_duration, "tidur"),
+        ("meal", "Porsi makan", lambda r: r["mealAvg"], lambda v: f"{round(v)}%", "makan"),
+    )
+    all_days = _present_school(hist_days) + cur_days
+    for _key, nice, getter, fmt, area in series:
+        pts = _series(all_days, getter)
+        if len(pts) < 12:
+            continue
+        cp = changepoint([v for _, v in pts])
+        if cp is None:
+            continue
+        at = int(cp["at"])
+        if at <= 0 or at >= len(pts):
+            continue
+        when = date.fromisoformat(pts[at][0])
+        before = [v for _, v in pts[:at]]
+        after = [v for _, v in pts[at:]]
+        if len(after) < 3 or len(before) < 6:
+            continue  # belum cukup hari di salah satu sisi untuk menyebutnya perpindahan
+        # hanya perpindahan yang masih "baru": jangan menampilkan tanggal berbulan-bulan lalu
+        # di dasbor minggu ini (membingungkan dan tidak bisa ditindaklanjuti)
+        if (date.fromisoformat(pts[-1][0]) - when).days > 21:
+            continue
+        gap = cp["gap"]
+        i = _ins(
+            "trend",
+            area,
+            f"{nice} {'lebih rendah' if gap < 0 else 'lebih tinggi'} sejak {fmt_date_id(when)}",
+            f"Sejak {when.day:02d}/{when.month:02d}, rata-rata {nice.lower()} {child_short} {fmt(mean(after))} pada {len(after)} hari, sebelumnya {fmt(mean(before))} pada {len(before)} hari. Pergeserannya lebih besar daripada naik-turun hariannya.",
+            f"{fmt(mean(before))} → {fmt(mean(after))} sejak {pts[at][0][8:10]}/{pts[at][0][5:7]} · {len(pts)} hari",
+            delta=round(gap, 2),
+            sev="medium" if gap < 0 else "low",
+            confidence=_conf(len(after), abs(gap), 6, 1.2),
+        )
+        # dipakai build_insights untuk menempelkan tanggal ubah ke kartu tren yang sudah ada
+        i["_cp"] = {
+            "when": when.isoformat(),
+            "label": fmt_date_id(when),
+            "sebelum": fmt(mean(before)),
+            "sesudah": fmt(mean(after)),
+            "hari": len(after),
+            "area": area,
+            "down": gap < 0,
+        }
+        out.append(i)
+    return out
+
+
+def _variety_insights(child_short: str, cur: dict[str, Any], prev: dict[str, Any], period_label: str) -> list[dict[str, Any]]:
+    """Kelompok gizi yang jarang muncul di menu, dan variasi menu keseluruhan."""
+    out: list[dict[str, Any]] = []
+    school = max(1, cur["schoolDays"])
+    groups = cur["menuGroups"] or {}
+    if cur["schoolDays"] >= 3 and groups:
+        for key, need in (("sayur", 0.8), ("protein", 0.8), ("karbo", 0.6)):
+            have = groups.get(key, 0)
+            share = have / school
+            if share >= need:
+                continue
+            label = {"sayur": "Sayur", "protein": "Lauk protein", "karbo": "Makanan pokok"}[key]
+            was = prev["menuGroups"].get(key, 0)
+            out.append(
+                _ins(
+                    "pattern",
+                    "makan",
+                    f"{label} tercatat pada {have} dari {school} hari",
+                    f"{label} tercatat di menu {child_short} pada {round(share * 100)}% hari sekolah {period_label}, sedangkan yang diharapkan minimal {round(need * 100)}%. Pada {('minggu lalu' if period_label == 'minggu ini' else 'periode sebelumnya')} {was} hari. Kelompok gizi ini bisa datang dari bekal atau menu dapur yang belum tercatat di aplikasi.",
+                    f"{have}/{school} hari ada {label.lower()}",
+                    sev="medium" if share < need / 2 else "low",
+                    confidence="tinggi" if school >= 5 else "sedang",
+                )
+            )
+    if cur["menuDistinct"] and cur["schoolDays"] >= 5:
+        per_day = cur["menuDistinct"] / cur["schoolDays"]
+        if per_day < 0.6:
+            out.append(
+                _ins(
+                    "pattern",
+                    "makan",
+                    "Menu yang dicatat sangat sedikit variasinya",
+                    f"Sepanjang {period_label.lower()} hanya {cur['menuDistinct']} nama menu berbeda yang tercatat untuk {child_short} ({cur['schoolDays']} hari sekolah). Bila menunya sebenarnya bervariasi, nama menunya perlu dilengkapi di catatan makan.",
+                    f"{cur['menuDistinct']} menu berbeda / {cur['schoolDays']} hari",
+                    sev="low",
+                    confidence="sedang",
+                )
+            )
+    return out
+
+
+def _arrival_insights(child_short: str, cur_days: list[dict[str, Any]], base: dict[str, Any] | None, period_label: str) -> list[dict[str, Any]]:
+    """Geseran jam datang — pola yang biasanya berkaitan dengan ritme pagi di rumah."""
+    pts = _series(cur_days, lambda r: r.get("checkinMin"))
+    if len(pts) < 6:  # theilsen butuh 6 titik agar kemiringan median punya arti
+        return []
+    ys = [v for _, v in pts]
+    th = theilsen(ys)
+    if th is None or abs(th["rho"]) < 0.55:
+        return []
+    total = th["slope"] * (len(ys) - 1)
+    if abs(total) < 18:  # kurang dari ~18 menit pergeseran: bukan pola, hanya hari yang berbeda-beda
+        return []
+    later = total > 0
+    kebiasaan = _clock(base["arrive"]["center"]) if base and base.get("arrive") else None
+    return [
+        _ins(
+            "trend",
+            "kehadiran",
+            f"Jam datang {'mulai lebih siang' if later else 'mulai lebih awal'}",
+            f"Dari {_clock(ys[0])} menjadi {_clock(ys[-1])} dalam {len(ys)} hari {period_label} — bergeser {round(abs(total))} menit {'ke arah lebih siang' if later else 'ke arah lebih awal'}. Kebiasaan {child_short} sebelumnya masuk sekitar {kebiasaan}."
+            if kebiasaan
+            else f"Dari {_clock(ys[0])} menjadi {_clock(ys[-1])} dalam {len(ys)} hari {period_label} — bergeser {round(abs(total))} menit {'ke arah lebih siang' if later else 'ke arah lebih awal'}.",
+            f"{_clock(ys[0])} → {_clock(ys[-1])} · {round(abs(total))} menit"
+            + (f" · {late} hari datang setelah 09.00" if (late := len([m for m in ys if m >= 540])) else ""),
+            delta=round(total / 60, 2),
+            sev="low",
+            confidence=_conf(len(ys), abs(th["rho"]), 8, 0.75),
+        )
+    ]
+
+
+def _incident_insights(child_short: str, cur_rows: list[dict[str, Any]], cur: dict[str, Any], prev: dict[str, Any], period_label: str) -> list[dict[str, Any]]:
+    """Kejadian: jumlah, berat ringannya, dan apakah menumpuk pada satu waktu."""
+    out: list[dict[str, Any]] = []
+    if cur["incidents"] == 0:
+        if prev["incidents"] >= 2:
+            out.append(
+                _ins(
+                    "positive",
+                    "kesehatan",
+                    "Tidak ada kejadian tercatat",
+                    f"{child_short} melewati {period_label} tanpa insiden, setelah {prev['incidents']} pada periode sebelumnya.",
+                    f"0 dari {prev['incidents']} kejadian",
+                )
+            )
+        return out
+    days = [r for r in cur_rows if r["incidents"]]
+    if cur["incidentSevDays"]:
+        out.append(
+            _ins(
+                "anomaly",
+                "kesehatan",
+                f"{cur['incidentSevDays']} hari dengan kejadian yang perlu ditindaklanjuti",
+                f"Kejadian pada {child_short} {period_label} ada {cur['incidents']} kali dan {cur['incidentSevDays']} di antaranya ditandai perlu perhatian. Rinciannya ada di catatan kejadian.",
+                f"{cur['incidents']} kejadian, {cur['incidentSevDays']} hari berat",
+                sev="high",
+                confidence="tinggi",
+            )
+        )
+    if cur["incidents"] >= 3 and cur["incidentAfternoon"] / cur["incidents"] >= 0.66:
+        out.append(
+            _ins(
+                "pattern",
+                "kesehatan",
+                "Kejadian lebih sering terjadi setelah makan siang",
+                f"{cur['incidentAfternoon']} dari {cur['incidents']} kejadian {period_label} tercatat setelah tengah hari. Biasanya berkaitan dengan puncak kelelahan; worth menjadwalkan waktu tenang lebih awal.",
+                f"{cur['incidentAfternoon']}/{cur['incidents']} kejadian siang–sore",
+                sev="medium",
+                confidence="sedang",
+            )
+        )
+    if len(days) >= 3 and cur["incidents"] >= prev["incidents"] * 1.5 and cur["incidents"] - prev["incidents"] >= 2:
+        out.append(
+            _ins(
+                "trend",
+                "kesehatan",
+                f"Kejadian meningkat ({prev['incidents']} → {cur['incidents']})",
+                f"Jumlah catatan kejadian {child_short} naik dibanding {('minggu lalu' if period_label == 'minggu ini' else 'periode sebelumnya')}; tercatat pada {len(days)} hari berbeda.",
+                f"{prev['incidents']} → {cur['incidents']} kejadian",
+                delta=cur["incidents"] - prev["incidents"],
+                sev="medium",
+            )
+        )
+    return out
+
+
+def _watch(cur_rows: list[dict[str, Any]], cur: dict[str, Any], base: dict[str, Any] | None) -> dict[str, Any]:
+    """Skor pantauan 0–100 dari sinyal yang benar-benar menyala; komponennya selalu ikut ditampilkan.
+
+    Ini bukan diagnosis dan tidak menampilkan angka tanpa dasar: tiap komponen menyebut aturannya.
+    Hari yang sedang berjalan tidak dihitung sebagai absen (`absentDays` hanya melihat hari sekolah
+    yang sudah lewat) supaya orang tua tidak dihukum karena anaknya belum tercatat datang.
+    """
+    comp: list[dict[str, Any]] = []
+    recent = [r for r in cur_rows if r["present"]][-3:]
+
+    def add(key: str, label: str, points: int, detail: str) -> None:
+        comp.append({"key": key, "label": label, "points": points, "detail": detail})
+
+    if recent and all(r["mood"] is not None and r["mood"] < 3 for r in recent):
+        add("mood", "Mood rendah 3 hari terakhir", 26, " · ".join(f"{DAY_SHORT[r['weekday']]} {d1(r['mood'])}" for r in recent))
+    elif cur["moodAvg"] is not None and cur["moodAvg"] < 3:
+        add("mood", f"Mood rata-rata di bawah netral ({d1(cur['moodAvg'])}/5)", 12, f"rata-rata {d1(cur['moodAvg'])}/5")
+    if recent and all(r["mealAvg"] is not None and r["mealAvg"] < 50 for r in recent):
+        add("makan", "Porsi di bawah setengah 3 hari terakhir", 24, " · ".join(f"{DAY_SHORT[r['weekday']]} {round(r['mealAvg'])}%" for r in recent))
+    if base and base.get("sleep") and cur["sleepAvg"]:
+        z = robust_z(float(cur["sleepAvg"]), base["sleep"], 15.0)
+        if z is not None and z <= -1.2:
+            add("tidur", f"Tidur siang {sd1(z)} sebaran di bawah kebiasaan", 14, f"{fmt_duration(cur['sleepAvg'])} vs {fmt_duration(round(base['sleep']['center']))}")
+    if cur["feverDays"]:
+        add("suhu", f"Suhu ≥ 37,5 °C pada {cur['feverDays']} hari", 22, f"{cur['feverDays']} hari")
+    if cur["incidentSevDays"]:
+        add("kejadian", f"{cur['incidentSevDays']} hari dengan kejadian berat", 18, f"{cur['incidents']} kejadian total")
+    absent = cur.get("absentDays", max(0, cur["schoolDays"] - cur["presentDays"]))
+    if absent >= 2:
+        add("hadir", f"Tidak hadir {absent} hari", 10, f"{cur['presentDays']}/{cur['schoolDays']} hari sekolah")
+    score = min(100, sum(c["points"] for c in comp))
+    level = "perlu dipantau" if score >= 55 else "wajar" if score >= 25 else "tenang"
+    return {"score": score, "level": level, "components": comp, "note": "Bukan diagnosis — hanya rangkuman sinyal dari catatan pengasuh."}
 
 
 def build_insights(
@@ -779,6 +1135,31 @@ def build_insights(
                     continue
             merged.append(i)
         out = out + merged
+        # perubahan tingkat & geseran ritme pagi hanya bila ada kebiasaan untuk dibandingkan
+        # titik ubah menempel ke kartu tren sebidang bila menyatakan arah yang sama (satu kartu, bukan dua)
+        for c in _changepoint_insights(child_short, hist_rows or [], cur_rows, period_label):
+            meta = c.pop("_cp")
+            twin = next(
+                (b for b in out if b["kind"] == "trend" and b["area"] == meta["area"] and b.get("delta") is not None and (b["delta"] < 0) == meta["down"]),
+                None,
+            )
+            if twin is not None:
+                twin["text"] += f" Perubahan mulai tampak sejak {meta['label']}: dari {meta['sebelum']} menjadi {meta['sesudah']} pada {meta['hari']} hari terakhir."
+                twin["evidence"] += f" · titik ubah {meta['when'][8:10]}/{meta['when'][5:7]}"
+                if twin["confidence"] != "tinggi":
+                    twin["confidence"] = "sedang" if meta["hari"] >= 5 else twin["confidence"]
+            else:
+                out.append(c)
+        out += _arrival_insights(child_short, cur_rows, base, period_label)
+    out += _incident_insights(child_short, cur_rows, cur, prev, period_label)
+    out += _variety_insights(child_short, cur, prev, period_label)
+    # judul yang benar-benar sama tidak boleh muncul dua kali; kartu mirip dengan bukti berbeda dibiarkan
+    uniq: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for i in out:
+        key = (i["kind"], i["area"], " ".join(i["title"].lower().split())[:60])
+        if key not in uniq or SEV_ORDER.get(i["sev"], 2) < SEV_ORDER.get(uniq[key]["sev"], 2):
+            uniq[key] = i
+    out = list(uniq.values())
     order = {"anomaly": 0, "trend": 1, "pattern": 2, "positive": 3}
     out.sort(key=lambda i: (order[i["kind"]], SEV_ORDER.get(i["sev"], 2), not i["title"].startswith("Peringatan dini")))
     for n, i in enumerate(out):
@@ -806,21 +1187,108 @@ def peer_summary(db: Session, child_id: str, start: date, end: date, today: date
         b = baseline(xs, min_n=3)
         if b:
             stats[k] = {"n": int(b["n"]), "mean": round(b["mean"], 2), "sd": round(b["sd"], 2)}
-    return {"n": n, "stats": stats}
+    # nilai tiap anak dipakai untuk posisi persentil; yang dikirim ke klien tetap agregat saja
+    return {"n": n, "stats": stats, "values": vals}
 
 
 # ------------------------------------------------------------------ rekomendasi ----
 
 
-def build_recommendations(child_short: str, insights: list[dict[str, Any]], cur: dict[str, Any]) -> list[dict[str, Any]]:
+# Dampak (0–3) dan usaha (1–3) tiap jenis saran — dipakai untuk mengurutkan: yang berdampak besar
+# dengan usaha kecil didahulukan. Angkanya aturan produk, bukan hasil belajar mesin.
+RECO_IMPACT: dict[str, tuple[int, int]] = {
+    "dini": (3, 1),
+    "hari": (2, 2),
+    "tidur-mood": (3, 1),
+    "tidur": (2, 1),
+    "makan": (2, 2),
+    "makan-mood": (2, 1),
+    "mood": (3, 2),
+    "mood-sore": (2, 1),
+    "tidur-lebih": (2, 1),
+    "aktif": (1, 1),
+    "motorik": (1, 2),
+    "kognitif": (1, 1),
+    "sosial-up": (1, 1),
+    "hadir": (2, 2),
+    "datang": (2, 2),
+    "kejadian": (3, 2),
+    "sehat": (3, 1),
+    "stabil": (1, 0),
+}
+IMPACT_LABEL = {3: "dampak besar", 2: "dampak sedang", 1: "dampak kecil"}
+EFFORT_LABEL = {0: "tanpa usaha baru", 1: "usaha kecil", 2: "usaha sedang", 3: "usaha besar"}
+CONF_ORDER = {"rendah": 1, "sedang": 2, "tinggi": 3}
+
+
+def _reco_tally(db: Session) -> dict[str, dict[str, Any]]:
+    row = db.get(Setting, RECO_WEIGHTS_KEY)
+    raw = row.value if row is not None else None
+    return {k: dict(v) for k, v in raw.items() if isinstance(v, dict)} if isinstance(raw, dict) else {}
+
+
+def reco_weights(db: Session) -> dict[str, float]:
+    """Pengali urutan rekomendasi dari tombol 👍/👎 admin (disimpan di Settings, ikut dicadangkan)."""
+    out: dict[str, float] = {}
+    for key, v in _reco_tally(db).items():
+        delta = int(v.get("up", 0)) - int(v.get("down", 0))
+        out[key] = min(1.3, max(0.7, 1 + 0.06 * delta))
+    return out
+
+
+def cat_reco_feedback(db: Session, key: str, vote: str) -> dict[str, Any]:
+    """Catat satu penilaian admin atas satu rekomendasi lalu simpan. Nilai tersimpan = tally mentah."""
+    if key not in RECO_IMPACT:
+        return {"ok": False, "error": f"Jenis saran {key} tidak dikenal."}
+    if vote not in ("up", "down"):
+        return {"ok": False, "error": "Penilaian harus 'up' atau 'down'."}
+    row = db.get(Setting, RECO_WEIGHTS_KEY)
+    tally = _reco_tally(db)
+    cur = tally.get(key) or {"up": 0, "down": 0}
+    cur[vote] = int(cur.get(vote, 0)) + 1
+    cur["last"] = datetime.now(UTC).strftime(FMT)
+    tally[key] = cur
+    value = {k: tally[k] for k in sorted(tally)}
+    if row is None:
+        db.add(Setting(key=RECO_WEIGHTS_KEY, value=value))
+    else:
+        row.value = value
+    db.commit()  # nilai disimpan apa adanya sebagai JSON, bukan string
+    return {"ok": True, "key": key, "tally": cur, "multiplier": round(min(1.3, max(0.7, 1 + 0.06 * (cur["up"] - cur["down"]))), 3)}
+
+
+def build_recommendations(
+    child_short: str, insights: list[dict[str, Any]], cur: dict[str, Any], weights: dict[str, float] | None = None
+) -> list[dict[str, Any]]:
+    """Saran yang diturunkan dari insight; diurutkan dengan dampak × keyakinan × bobot umpan balik."""
+    weights = weights or {}
     recs: list[dict[str, Any]] = []
     seen: set[str] = set()
 
-    def add(key: str, title: str, text: str, why: str) -> None:
-        if key in seen or len(recs) >= 5:
+    def add(key: str, title: str, text: str, why: str, src: dict[str, Any] | None = None) -> None:
+        if key in seen:
             return
         seen.add(key)
-        recs.append({"id": key, "title": title, "text": text, "why": why})
+        impact, effort = RECO_IMPACT.get(key, (1, 1))
+        sev = {"high": 3, "medium": 2, "low": 1}.get(str((src or {}).get("sev", "low")), 1)
+        conf = CONF_ORDER.get(str((src or {}).get("confidence", "sedang")), 2)
+        w = float(weights.get(key, 1.0))
+        score = round(impact * 10 * (sev / 3) * (conf / 3) * w, 1)
+        recs.append(
+            {
+                "id": key,
+                "title": title,
+                "text": text,
+                "why": why,
+                "area": (src or {}).get("area"),
+                "impact": impact,
+                "impactLabel": IMPACT_LABEL.get(impact, "dampak kecil"),
+                "effort": effort,
+                "effortLabel": EFFORT_LABEL.get(effort, "usaha kecil"),
+                "score": score,
+                "weight": round(w, 3),
+            }
+        )
 
     top_kind = max(cur["byKind"].items(), key=lambda kv: kv[1])[0] if cur["byKind"] else None
     top_label = ACTIVITY_LABEL.get(top_kind or "", "kegiatan favoritnya").lower()
@@ -865,13 +1333,26 @@ def build_recommendations(child_short: str, insights: list[dict[str, Any]], cur:
             add("makan-mood", "Tawarkan makan dalam porsi kecil", "Sajikan porsi kecil lebih dulu lalu tambah bila habis; catat menu yang disukai untuk dibagikan ke orang tua.", i["title"])
         elif a == "makan":
             add("makan", "Variasikan menu pada waktu makan yang sulit", "Coba tekstur dan bentuk yang berbeda, ajak anak memilih di antara dua pilihan, dan beri waktu makan yang tenang.", i["title"])
+        elif a == "kehadiran" and "Jam datang" in t:
+            add("datang", "Samakan jam datang dengan orang tua", f"Ritme pagi {child_short} bergeser; sepakati jam datang yang sama selama seminggu dan lihat apakah mood paginya ikut membaik.", i["title"])
         elif a == "kehadiran" and k == "pattern":
             add("hadir", "Hubungi orang tua soal kehadiran", "Tanyakan kabar anak dan bantu jadwal yang lebih rutin; kehadiran teratur memudahkan adaptasi.", i["title"])
+        elif a == "kesehatan" and "ejadian" in t:
+            add("kejadian", "Bahaskan satu pemicu kejadian dengan tim", f"Kejadian pada {child_short} menumpuk pada pola yang sama; pilih satu pemicu (transisi, rebutan mainan, waktu tenang), sepakati cara menanganinya seminggu ini, lalu bandingkan lagi.", i["title"])
         elif a == "kesehatan":
             add("sehat", "Pantau suhu berkala", "Ukur suhu ulang tiap 30 menit saat hangat; sampaikan ke orang tua bila ≥ 37,8 °C.", i["title"])
     if not recs:
-        add("stabil", "Lanjutkan pola yang sudah berjalan", f"Pola {child_short} stabil pada periode ini. Pertahankan jadwal, dan catat hal baru yang disukainya.", "Tidak ada penyimpangan berarti dari periode sebelumnya")
-    return recs
+        add(
+            "stabil",
+            "Lanjutkan pola yang sudah berjalan",
+            f"Pola {child_short} stabil pada periode ini. Pertahankan jadwal, dan catat hal baru yang disukainya.",
+            "Tidak ada penyimpangan berarti dari periode sebelumnya",
+        )
+    # urutkan: skor tertinggi dulu; seri tetap mempertahankan urutan kemunculan insight
+    recs.sort(key=lambda r: -r["score"])
+    for n, r in enumerate(recs[:5]):
+        r["rank"] = n + 1
+    return recs[:5]
 
 
 # ------------------------------------------------------------------ profil perkembangan ----
@@ -953,8 +1434,9 @@ def analyze(db: Session, child: dict[str, Any], days: int = 7, end: date | None 
     base = build_baseline(hist_rows)
     peers = peer_summary(db, child["id"], start, end, today)
     insights = build_insights(child["short"], cur_rows, cur, prev, period_label, hist_rows=hist_rows, base=base, peers=peers)
-    recs = build_recommendations(child["short"], insights, cur)
+    recs = build_recommendations(child["short"], insights, cur, weights=reco_weights(db))
     profile = build_profile(cur, prev)
+    watch = _watch(cur_rows, cur, base)
     notes = [n for r in cur_rows for n in r["notes"]][-3:]
     kinds = [{"kind": k, "label": ACTIVITY_LABEL.get(k, k), "count": v} for k, v in sorted(cur["byKind"].items(), key=lambda kv: -kv[1])]
     return {
@@ -968,15 +1450,18 @@ def analyze(db: Session, child: dict[str, Any], days: int = 7, end: date | None 
         "kinds": kinds,
         "insights": insights,
         "recommendations": recs,
+        "watch": watch,
         "profile": profile,
         "teacherNotes": notes,
         "baseline": {k: v for k, v in base.items() if not k.startswith("_")},
         "peers": {"n": peers["n"]},
         "method": (
             "Dihitung dari catatan pengasuh (aktivitas, makan, tidur, mood, kehadiran). Periode ini dibandingkan dengan periode "
-            "sebelumnya yang sama panjang dan dengan kebiasaan anak sendiri hingga 8 minggu ke belakang (rata-rata ± simpangan). "
+            "sebelumnya yang sama panjang dan dengan kebiasaan anak sendiri hingga 8 minggu ke belakang (median ± sebaran tahanencil, "
+            "dipakai juga uji t Welch, Mann–Whitney, dan besaran efek Hedges g). "
             "Anomali = hari yang menyimpang ≥ 1,8 simpangan dari kebiasaan; tren = perubahan ≥ 20 % (aktivitas), ≥ 0,4 poin (mood), "
             "≥ 15 % (tidur/makan), garis tren yang konsisten (r ≥ 0,6), atau beda bermakna terhadap kebiasaan (uji t ≥ 2); "
+            "titik ubah = hari ketika tingkat catatan berpindah ≥ 0,8 sebaran dan sisi barunya bertahan ≥ 3 hari; "
             "pola = hari dalam minggu yang konsisten lebih rendah (≥ 3 minggu), keterkaitan antar catatan (korelasi ≥ 0,45 pada ≥ 10 hari), "
             f"dan pembanding anonim dengan {peers['n']} anak lain pada periode yang sama. Tingkat keyakinan mengikuti jumlah data dan besar efek. Bukan asesmen klinis."
         ),

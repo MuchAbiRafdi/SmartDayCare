@@ -1,5 +1,6 @@
 // E2E smoke: setiap halaman & alur utama di semua peran, plus tangkapan layar 1280 dan 390 px.
 import { chromium } from "playwright-core";
+import { chromeExecutable } from "./browser.mjs";
 import { startStripProxy } from "./strip-proxy.mjs";
 import fs from "node:fs";
 
@@ -39,7 +40,7 @@ async function logout(page) {
   }
 }
 
-const browser = await chromium.launch({ args: ["--no-sandbox", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
+const browser = await chromium.launch({ executablePath: chromeExecutable(chromium), args: ["--no-sandbox", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 
 async function newPage(width = 1280, height = 900) {
   const ctx = await browser.newContext({ viewport: { width, height }, locale: "id-ID", permissions: ["camera"] });

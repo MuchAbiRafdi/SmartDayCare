@@ -1,8 +1,9 @@
 """Ekspor model terlatih ke (1) ONNX dan (2) berkas biner ringkas untuk peramban.
 
-Jalankan:  python3 export.py [nama-model]      (bawaan: food-patch-v2)
+Jalankan:  python3 export.py [nama-model]      (bawaan: food-patch-v3)
 Keluaran:  models/<nama>.onnx
-           ../web/public/models/<nama>.bin   (dipakai web/src/lib/foodnet.ts)
+           ../web/public/models/<nama>.bin        (dipakai web/src/lib/foodnet.ts)
+           ../web/public/models/<nama>.model.json (ringkasan kualitas untuk layar admin)
 
 Format .bin (little-endian):
   4 byte  "SDFN"        penanda
@@ -11,7 +12,9 @@ Format .bin (little-endian):
   JSON    {classes, mean, std, patch, layers:[{name,type,cin,cout,k,pool}], meta}
   float16 bobot tiap lapisan berurutan: W[cout][cin][k][k] lalu b[cout]
 BatchNorm dilipat ke bobot konvolusi supaya runtime peramban hanya perlu
-konvolusi + ReLU + max-pool + rata-rata.
+konvolusi + ReLU + max-pool + rata-rata. Suhu kalibrasi dari hasil latih ikut
+dikelipkan ke lapisan keluaran (logit dibagi suhu), sehingga peluang yang dilihat
+peramban sudah terkoreksi dan ambang keputusannya bisa dibaca apa adanya.
 """
 from __future__ import annotations
 
@@ -37,7 +40,7 @@ def fold(conv: torch.nn.Conv2d, bn: torch.nn.BatchNorm2d) -> tuple[np.ndarray, n
 
 
 def main() -> None:
-    name = sys.argv[1] if len(sys.argv) > 1 else "food-patch-v2"
+    name = sys.argv[1] if len(sys.argv) > 1 else "food-patch-v3"
     ck = torch.load(ROOT / "models" / f"{name}.pt", map_location="cpu")
     meta = ck["meta"]
     # v1 tidak menyimpan arsitektur di meta (12,24,40,48); v2+ menyimpannya
@@ -53,6 +56,16 @@ def main() -> None:
 
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             return self.m.dense(x)
+
+    # Suhu kalibrasi dikelipkan SEKALI di sini (logit/T == (W/T)·x + b/T) supaya ONNX, berkas .bin,
+    # dan contoh verifikasi memakai bobot yang sama persis — kalau pembagianya dilakukan nanti,
+    # jalur peramban dan jalur luar menghasilkan peluang yang berbeda dan verifikasi jadi bohong.
+    temp = float(meta.get("temperature") or 1.0)
+    if abs(temp - 1.0) > 1e-9:
+        with torch.no_grad():
+            model.fc.weight.div_(temp)
+            model.fc.bias.div_(temp)
+        print(f"kalibrasi: logit dibagi suhu {temp} (dikelipkan ke bobot fc)")
 
     onnx_path = ROOT / "models" / f"{name}.onnx"
     torch.onnx.export(
@@ -75,7 +88,7 @@ def main() -> None:
         layers.append({"name": f"conv{i + 1}", "type": "conv", "cin": w.shape[1], "cout": w.shape[0], "k": 3, "pool": pool})
         blobs.append(w.ravel())
         blobs.append(b.ravel())
-    fw = model.fc.weight.detach().numpy().astype(np.float32)
+    fw = model.fc.weight.detach().numpy().astype(np.float32)  # sudah termasuk pembagian suhu
     fb = model.fc.bias.detach().numpy().astype(np.float32)
     layers.append({"name": "fc", "type": "fc", "cin": fw.shape[1], "cout": fw.shape[0], "k": 1, "pool": False})
     blobs.append(fw.ravel())
@@ -88,11 +101,28 @@ def main() -> None:
         "window": 6,
         "stride": 8,
         "layers": layers,
+        "temperature": temp,
         "meta": {
             "name": name,
             **{
                 k: meta[k]
-                for k in ("version", "arch", "images", "patches", "val_accuracy", "val_balanced_accuracy", "val_image_accuracy", "val_per_class", "val_precision_conf06", "trained_at", "params")
+                for k in (
+                    "version",
+                    "arch",
+                    "images",
+                    "patches",
+                    "val_accuracy",
+                    "val_balanced_accuracy",
+                    "val_image_accuracy",
+                    "val_food_precision",
+                    "val_per_class",
+                    "val_precision_conf06",
+                    "temperature",
+                    "ece_after",
+                    "thresholds",
+                    "trained_at",
+                    "params",
+                )
                 if k in meta
             },
         },
@@ -107,6 +137,43 @@ def main() -> None:
         f.write(hj)
         f.write(payload)
     print("BIN:", out, out.stat().st_size, "byte")
+
+    # 2b) sisi-rawan untuk layar admin: ringkasan kualitas dalam bahasa manusia.
+    # Hanya angka hasil uji pada foto yang tidak dilihat model saat latih — tidak ada klaim lain.
+    per = meta.get("val_per_class") or {}
+    # v2 menyimpan {kelas: {recall:…, precision:…}}, v3 menyimpan angka recall langsung
+    recall = {k: (v.get("recall") if isinstance(v, dict) else v) for k, v in per.items()}
+    recall = {k: v for k, v in recall.items() if isinstance(v, (int, float))}
+    # "lemah" untuk pengguna = kelas yang walau model sudah yakin (p ≥ 0,6) masih sering meleset.
+    # recall per tambalan tidak dipakai di sini: satu tambalan nasi boleh kalah oleh sup di piring
+    # yang sama sementara nama menunya tetap benar dibaca pada tingkat foto.
+    p06 = meta.get("val_precision_conf06") or {}
+    weak = sorted([k for k, v in p06.items() if isinstance(v, (int, float)) and k != "none" and v < 0.70])
+    n_all, n_val = meta.get("images"), meta.get("images_val")
+    # "images" menghitung SEMUA foto (latih + uji); panel harus menyebut yang benar-benar dilatih
+    n_train = meta.get("images_train") or (n_all - n_val if isinstance(n_all, int) and isinstance(n_val, int) else n_all)
+    sidecar = {
+        "version": meta.get("version") or name,
+        "trainedAt": meta.get("trained_at"),
+        "photosTrain": n_train,
+        "photosVal": meta.get("images_val"),
+        "patches": meta.get("patches"),
+        "params": meta.get("params"),
+        "photoAccuracy": meta.get("val_image_accuracy"),
+        "photoPrecision": meta.get("val_food_precision"),
+        "patchAccuracy": meta.get("val_accuracy"),
+        "balancedAccuracy": meta.get("val_balanced_accuracy"),
+        "temperature": meta.get("temperature"),
+        "eceAfter": meta.get("ece_after"),
+        "recall": recall,
+        "confidentPrecision": meta.get("val_precision_conf06") or {},
+        "thresholds": meta.get("thresholds") or {},
+        "weakClasses": weak,
+        "weakRule": "presisi saat yakin (p ≥ 0,6) di bawah 0,70 pada foto uji",
+    }
+    side = WEB_MODELS / f"{name}.model.json"
+    side.write_text(json.dumps(sidecar, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    print("SIDECAR:", side, "| kelas yang masih lemah:", ", ".join(weak) or "tidak ada")
 
     # 3) contoh keluaran untuk verifikasi runtime peramban (ai/verify.mjs)
     # Catatan: torch.onnx.export memulihkan mode pembungkus Dense (bawaan: training) setelah ekspor,

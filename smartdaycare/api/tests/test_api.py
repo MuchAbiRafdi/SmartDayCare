@@ -208,6 +208,38 @@ def test_plate_then_meal(client: TestClient) -> None:
     assert client.get(meal["photoPostUrl"]).status_code == 403
 
 
+def test_analytics_watch_and_reco_feedback(client: TestClient) -> None:
+    """Skor pantauan ikut terkirim, dan penilaian admin atas saran mengubah urutan — bukan isinya."""
+    login(client, "hendra@ceriaananda.id", "Hendra2026")
+    h = hdr(client)
+    cid = client.get("/api/state").json()["children"][0]["id"]
+    r = client.get(f"/api/analytics/{cid}?days=7", headers=h)
+    assert r.status_code == 200, r.text
+    a = r.json()
+    w = a["watch"]
+    assert 0 <= w["score"] <= 100 and w["level"] in ("tenang", "wajar", "perlu dipantau")
+    assert all({"label", "points", "detail"} <= set(c) for c in w["components"])
+    assert sum(c["points"] for c in w["components"]) >= w["score"]  # skor = jumlah komponen, tidak ada bonus gaib
+    for rec in a["recommendations"]:
+        assert rec["impact"] in (1, 2, 3) and "effortLabel" in rec
+    assert [x["score"] for x in a["recommendations"]] == sorted((x["score"] for x in a["recommendations"]), reverse=True)
+
+    key = a["recommendations"][0]["id"]
+    before = client.get("/api/analytics/reco-feedback", headers=h).json()["weights"]
+    r = client.post("/api/analytics/reco-feedback", json={"key": key, "vote": "up"}, headers=h)
+    assert r.status_code == 200 and r.json()["multiplier"] > 1
+    after = client.get("/api/analytics/reco-feedback", headers=h).json()["weights"]
+    assert after[key] > before.get(key, 1.0)
+    # dua 👍 lagi masih menghasilkan pengali di bawah batas 1,3
+    client.post("/api/analytics/reco-feedback", json={"key": key, "vote": "up"}, headers=h)
+    assert client.get("/api/analytics/reco-feedback", headers=h).json()["weights"][key] <= 1.3
+    assert client.post("/api/analytics/reco-feedback", json={"key": "tidak-ada", "vote": "up"}, headers=h).status_code == 422
+    assert client.post("/api/analytics/reco-feedback", json={"key": key, "vote": "mungkin"}, headers=h).status_code == 422
+    # orang tua tidak boleh menilai saran internal daycare
+    login(client, "andi.lestari@gmail.com", "Kirana2026")
+    assert client.post("/api/analytics/reco-feedback", json={"key": key, "vote": "up"}, headers=hdr(client)).status_code == 403
+
+
 def test_admin_operations(client: TestClient) -> None:
     login(client, "hendra@ceriaananda.id", "Hendra2026")
     h = hdr(client)

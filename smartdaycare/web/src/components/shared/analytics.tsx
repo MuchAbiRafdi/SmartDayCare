@@ -10,14 +10,18 @@ import {
   ArrowRight,
   ArrowUpRight,
   Brain,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Download,
   Hand,
   Heart,
+  HelpCircle,
   Lightbulb,
   Moon,
   Sparkles,
+  ThumbsDown,
+  ThumbsUp,
   TrendingDown,
   TrendingUp,
   UserCheck,
@@ -25,6 +29,9 @@ import {
   Utensils,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { MODEL_URLS } from "@/lib/foodnet";
+import { CATS } from "@/lib/vision";
+import type { ScannerQuality as ScannerQualityData } from "@/lib/types";
 import { cn, fmtDate, fmtNum, isoDate } from "@/lib/format";
 import { useLive } from "@/lib/live";
 import { ACTIVITY, ACTIVITY_COLOR, FOOD_SLOTS, SLOT_COLOR, fmtHours, fmtMinutes, moodEmojiFor } from "@/lib/records";
@@ -642,12 +649,52 @@ function baselineText(a: Analytics): string | null {
   const b = a.baseline;
   if (!b || b.days < 6) return null;
   const parts: string[] = [];
-  if (b.mood) parts.push(`mood ${fmtNum(b.mood.mean, 1)} ± ${fmtNum(b.mood.sd, 1)}`);
-  if (b.sleep) parts.push(`tidur siang ${fmtMinutes(b.sleep.mean)}`);
-  if (b.meal) parts.push(`porsi makan ${Math.round(b.meal.mean)}%`);
-  if (b.activities) parts.push(`${fmtNum(b.activities.mean, 1)} kegiatan/hari`);
+  // pusat perbandingan = median (bukan rata-rata) supaya satu hari ekstrem tidak menggeser "kebiasaan"
+  if (b.mood) parts.push(`mood ${fmtNum(b.mood.center ?? b.mood.mean, 1)}`);
+  if (b.sleep) parts.push(`tidur siang ${fmtMinutes(b.sleep.center ?? b.sleep.mean)}`);
+  if (b.meal) parts.push(`porsi makan ${Math.round(b.meal.center ?? b.meal.mean)}%`);
+  if (b.activities) parts.push(`${fmtNum(b.activities.center ?? b.activities.mean, 1)} kegiatan/hari`);
+  if (b.arrive?.center != null) parts.push(`masuk ${String(Math.floor(b.arrive.center / 60)).padStart(2, "0")}.${String(Math.round(b.arrive.center % 60)).padStart(2, "0")}`);
   if (parts.length === 0) return null;
-  return `Kebiasaan ${a.child.split(" ")[0]} dari ${b.days} hari hadir sebelumnya: ${parts.join(" · ")}.`;
+  return `Kebiasaan ${a.child.split(" ")[0]} dari ${b.days} hari hadir sebelumnya (nilai tengah, bukan rata-rata): ${parts.join(" · ")}.`;
+}
+
+/* ---------------------------------------------------------------- skor pantauan ---- */
+
+const WATCH_TONE: Record<NonNullable<Analytics["watch"]>["level"], string> = {
+  tenang: "bg-emerald-50 text-emerald-700 border-emerald-100",
+  wajar: "bg-amber-50 text-amber-700 border-amber-100",
+  "perlu dipantau": "bg-rose-50 text-rose-700 border-rose-100",
+};
+
+/** Rangkuman sinyal hari ini. Tiap baris menyebut aturannya, jadi angkanya bisa ditelusuri. */
+export function WatchStrip({ a }: { a: Analytics }) {
+  const w = a.watch;
+  if (!w) return null;
+  return (
+    <div className={cn("border rounded-[12px] px-4 py-3", WATCH_TONE[w.level])}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <strong className="text-[14px]">Skor pantauan {w.score}</strong>
+        <Badge className="bg-white/70 text-current border-0">{w.level}</Badge>
+        <span className="text-[12.5px] opacity-80">{w.note}</span>
+      </div>
+      {w.components.length > 0 ? (
+        <ul className="mt-2 grid gap-1 text-[12.5px] sm:grid-cols-2">
+          {w.components.map((c) => (
+            <li key={c.key} className="flex items-start gap-2">
+              <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden />
+              <span className="min-w-0">
+                {c.label} <span className="opacity-70">— {c.detail}</span>
+              </span>
+              <span className="ml-auto shrink-0 font-semibold">+{c.points}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1 text-[12.5px] opacity-80">Tidak ada sinyal yang menyala pada periode ini.</p>
+      )}
+    </div>
+  );
 }
 
 export function InsightsPanel({
@@ -655,12 +702,19 @@ export function InsightsPanel({
   detailHref,
   compact = false,
   audience = "staff",
+  withWatch,
+  canRate = false,
 }: {
   a: Analytics;
   detailHref?: string;
   compact?: boolean;
   audience?: "staff" | "parent";
+  /** strip skor pantauan — untuk staf saja; orang tua melihat uraian catatan, bukan skor internal */
+  withWatch?: boolean;
+  /** admin boleh menilai saran (👍/👎) untuk mengurutkan saran berikutnya */
+  canRate?: boolean;
 }) {
+  const showWatch = withWatch ?? audience !== "parent";
   const insights = compact ? a.insights.slice(0, 4) : a.insights;
   const recs = compact ? a.recommendations.slice(0, 3) : a.recommendations;
   return (
@@ -676,6 +730,11 @@ export function InsightsPanel({
         }${a.peers && a.peers.n >= 3 ? ` dan ${a.peers.n} anak lain` : ""}.`}
       />
       <PanelBody className="grid gap-4 lg:grid-cols-2">
+        {showWatch ? (
+          <div className="lg:col-span-2">
+            <WatchStrip a={a} />
+          </div>
+        ) : null}
         <div className="border-line bg-surface rounded-[12px] border p-4">
           <h4 className="mb-2 inline-flex items-center gap-2 text-[14px] font-semibold">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-50 text-blue-600">
@@ -727,10 +786,23 @@ export function InsightsPanel({
             {recs.map((r) => (
               <li key={r.id} className="flex gap-2.5 text-[13.5px] leading-snug">
                 <span className="mt-[7px] h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-                <span>
+                <span className="min-w-0 flex-1">
                   <span className="font-semibold">{r.title}.</span> {r.text}
-                  <span className="text-faint mt-0.5 block text-[12px]">Alasan: {r.why}</span>
+                  <span className="text-faint mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]">
+                    <span>Alasan: {r.why}</span>
+                    {r.impactLabel ? (
+                      <span className="border-line rounded-full border px-1.5 py-px" title="Dampak perkiraan bila saran dijalankan">
+                        {r.impactLabel}
+                      </span>
+                    ) : null}
+                    {r.effortLabel ? (
+                      <span className="border-line rounded-full border px-1.5 py-px" title="Seberapa berat menjalankannya di keseharian">
+                        {r.effortLabel}
+                      </span>
+                    ) : null}
+                  </span>
                 </span>
+                {canRate ? <RecoRating id={r.id} /> : null}
               </li>
             ))}
           </ul>
@@ -882,4 +954,137 @@ export function MethodNote() {
 export function moodSummary(a: Analytics | null): { emoji: string; label: string } {
   if (!a || a.current.moodAvg == null) return { emoji: "🙂", label: "Belum ada catatan" };
   return { emoji: moodEmojiFor(a.current.moodAvg), label: a.current.moodLabel };
+}
+
+/* ---------------------------------------------------------------- penilaian saran & kualitas pemindai ---- */
+
+/** 👍/👎 admin. Hanya mengubah urutan saran berikutnya, tidak menambah klaim apa pun. */
+function RecoRating({ id }: { id: string }) {
+  const [done, setDone] = React.useState<"up" | "down" | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState<string | null>(null);
+  const vote = (v: "up" | "down") => {
+    setBusy(true);
+    setErr(null);
+    api
+      .post<{ ok: boolean }>("/api/analytics/reco-feedback", { key: id, vote: v })
+      .then(() => setDone(v))
+      .catch((e: unknown) => setErr(e instanceof Error ? e.message : "Gagal mencatat penilaian."))
+      .finally(() => setBusy(false));
+  };
+  return (
+    <span className="ml-auto flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        onClick={() => vote("up")}
+        disabled={busy}
+        title="Saran ini berguna"
+        aria-label="Saran ini berguna"
+        className={cn("rounded-md border px-1.5 py-1 transition", done === "up" ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-line text-slate-500 hover:bg-slate-50")}
+      >
+        <ThumbsUp size={13} aria-hidden />
+      </button>
+      <button
+        type="button"
+        onClick={() => vote("down")}
+        disabled={busy}
+        title="Saran ini kurang berguna"
+        aria-label="Saran ini kurang berguna"
+        className={cn("rounded-md border px-1.5 py-1 transition", done === "down" ? "border-rose-300 bg-rose-50 text-rose-700" : "border-line text-slate-500 hover:bg-slate-50")}
+      >
+        <ThumbsDown size={13} aria-hidden />
+      </button>
+      {done ? (
+        <span className="text-faint text-[11.5px]">tersimpan</span>
+      ) : err ? (
+        <span className="text-[11.5px] text-rose-600">{err}</span>
+      ) : null}
+    </span>
+  );
+}
+
+/** Nama kelas model → istilah yang dipakai di aplikasi. "none" = piring/mangkok tanpa makanan. */
+function classNameOf(c: string): string {
+  const def = (CATS as Record<string, { label: string }>)[c];
+  return def ? def.label : c === "none" ? "piring kosong" : c;
+}
+
+function pct(x: number | undefined): string | null {
+  return x == null ? null : `${Math.round(x * 100)}%`;
+}
+
+/** Berkas model yang dimuat peramban menyimpan hasil ujinya; panel ini hanya membacanya. */
+export function ScannerQuality({ className }: { className?: string }) {
+  const [q, setQ] = React.useState<ScannerQualityData | null>(null);
+  const [failed, setFailed] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    let live = true;
+    const urls = MODEL_URLS.map((u) => u.replace(/\.bin$/, ".model.json"));
+    (async () => {
+      for (const u of urls) {
+        try {
+          const r = await fetch(u, { cache: "no-store" });
+          if (!r.ok) continue;
+          const j = (await r.json()) as ScannerQualityData;
+          if (live) {
+            setQ(j);
+            setFailed(false);
+          }
+          return;
+        } catch {
+          /* coba sumber berikutnya */
+        }
+      }
+      if (live) setFailed(true);
+    })().finally(() => {
+      if (live) setLoading(false);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (loading) return <p className={cn("text-muted text-[13px]", className)}>Memeriksa kualitas pemindai…</p>;
+  if (failed || !q)
+    return (
+      <p className={cn("text-muted text-[13px]", className)}>
+        Berkas hasil uji pemindai belum tersedia di perangkat ini. Jalankan ekspor model untuk melampirkannya.
+      </p>
+    );
+  const photoAcc = pct(q.photoAccuracy);
+  const photoPrec = pct(q.photoPrecision);
+  const weak = (q.weakClasses ?? []).map(classNameOf);
+  const rows = [
+    q.photosTrain != null && q.photosVal != null ? { k: "Belajar dari", v: `${q.photosTrain} foto makanan, diuji pada ${q.photosVal} foto yang tidak pernah dilihatnya` } : null,
+    photoAcc ? { k: "Kelas utama benar pada", v: `${photoAcc} foto uji — dihitung dari suara terbanyak potongan gambar per foto, bukan hasil akhir pemindai` } : null,
+    photoPrec ? { k: "Nama menu benar saat model yakin", v: `${photoPrec} terhadap isi foto uji (p ≥ 0,6) — angka per kelas inilah yang dipakai badge keyakinan di pemindai; nama yang tidak terbukti tetap bisa diganti sebelum disimpan` } : null,
+    q.thresholds?.relabelMin != null ? { k: "Ambang koreksi warna", v: `nama menu hanya diganti bila model yakin (≥ ${Math.round(q.thresholds.relabelMin * 100)}%) dan kelas itu memang jarang meleset` } : null,
+    q.temperature != null ? { k: "Peluang sudah dikalibrasi", v: `angka "yakin" model disesuaikan pada ${q.photosVal ?? "banyak"} foto uji, bukan angka mentah jaringan` } : null,
+  ].filter(Boolean) as { k: string; v: string }[];
+  return (
+    <div className={cn("grid gap-2", className)}>
+      <ul className="grid gap-1.5 text-[13px]">
+        {rows.map((r) => (
+          <li key={r.k} className="flex flex-wrap items-baseline gap-x-2">
+            <span className="text-muted min-w-[168px] font-medium">{r.k}</span>
+            <span>{r.v}</span>
+          </li>
+        ))}
+      </ul>
+      {weak.length > 0 ? (
+        <p className="text-muted flex items-start gap-1.5 text-[12.5px]">
+          <HelpCircle size={14} className="mt-0.5 shrink-0" aria-hidden />
+          Paling sering perlu dikoreksi: {weak.join(", ")}. Untuk makanan itu, hasil pindai selalu bisa diedit sebelum disimpan.
+        </p>
+      ) : (
+        <p className="text-emerald-700 flex items-start gap-1.5 text-[12.5px]">
+          <CheckCircle2 size={14} className="mt-0.5 shrink-0" aria-hidden /> Tidak ada golongan makanan yang tercatat lemah pada foto uji.
+        </p>
+      )}
+      <p className="text-faint text-[11.5px]">
+        Diuji {q.trainedAt ?? "baru-baru ini"}
+        {q.patches != null ? ` · ${q.patches.toLocaleString("id-ID")} potongan gambar` : ""}
+      </p>
+    </div>
+  );
 }

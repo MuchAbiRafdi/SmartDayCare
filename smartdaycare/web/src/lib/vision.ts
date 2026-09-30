@@ -93,10 +93,47 @@ export interface AnalyzeOpts {
 
 export const STAGE_NAMES = ["Membaca warna dan tekstur", "Mencari piring", "Mengenali makanan", "Memeriksa dengan model", "Menghitung porsi"] as const;
 const NONE_DROP = 0.6; // kelompok dibuang bila model menilai bukan makanan di atas ambang ini
-const RELABEL_MIN = 0.6; // kelas diganti hanya bila model yakin
+const RELABEL_MIN = 0.6; // bawaan lama: kelas diganti hanya bila model yakin
 const RELABEL_PRECISION_MIN = 0.75; // …dan hanya ke kelas yang presisinya (pada p > 0,6, data uji) cukup tinggi
 const RELABEL_SURE = 0.8; // …kecuali model sangat yakin: kelas berpresisi rendah pun boleh menjadi tujuan
-const VETO_P = 0.07; // kelompok warna dibuang bila model hampir pasti bukan kelas itu dan tidak bisa diganti kelasnya
+const VETO_P = 0.07; // bawaan lama: kelompok warna dibuang bila model hampir pasti bukan kelas itu
+
+/** Ambang keputusan per kelas: dipakai apa adanya dari berkas model bila ada, sebab ambangnya
+    dihitung dari data uji saat model dilatih (ai/train.py), bukan ditebak di antarmuka.
+    Model lama tanpa ambang di dalam berkas tetap jalan dengan aturan lama. */
+export function ambangDari(net: FoodNet) {
+  const t = (net.meta.thresholds ?? {}) as { relabel_min?: Record<string, number>; veto_p?: Record<string, number> };
+  const precision = (net.meta.val_precision_conf06 ?? {}) as Record<string, number>;
+  const tuned = !!t.relabel_min || !!t.veto_p;
+  return {
+    tuned,
+    /** bolehkah nama menu hasil segmentasi warna diganti ke kelas `target` pada peluang `p`? */
+    mayRelabel: (target: string, p: number) =>
+      tuned
+        ? p >= (t.relabel_min?.[target] ?? RELABEL_SURE)
+        : p > RELABEL_MIN && (typeof precision[target] === "number" ? precision[target] >= RELABEL_PRECISION_MIN || p > RELABEL_SURE : true),
+    /** di bawah peluang ini kelompok berwarna `cat` dianggap salah baca dan dibuang */
+    vetoP: (cat: string) => (tuned ? (t.veto_p?.[cat] ?? VETO_P) : VETO_P),
+    /** presisi terukur kelas ini pada foto uji (dihitung pada p ≥ 0,6); null bila tak ada angkanya */
+    precOf: (cat: string) => (typeof precision[cat] === "number" ? precision[cat] : null),
+  };
+}
+
+/** Presisi yang dipakai bila berkas model tidak menyimpan angka per kelas. */
+const PREC_BAWAAN = 0.7;
+/** Seberapa sering nama menu hasil warna-bentuk-saja benar. Diukur pada 77 foto uji
+    (ai/eval-plates.mjs): 43/235 butir cocok dengan label foto, dan 37/139 di antaranya bahkan
+    sempat diberi lencana "tinggi" oleh formula lama. Angka ini diambil dari rentang itu. */
+const AKURASI_WARNA_SAJA = 0.22;
+
+/** Versi `ambangDari` untuk keadaan tanpa berkas model: tidak mengoreksi, tidak membuang. */
+const TANPA_MODEL = {
+  tuned: false,
+  mayRelabel: () => false,
+  vetoP: () => VETO_P,
+  precOf: () => null as number | null,
+};
+
 const NET_MIN_SIDE = 300; // skala saat model dilatih (sisi terpendek foto 300 px); bingkai yang lebih kecil diperbesar dulu untuk model
 const NET_MAX_SCALE = 2.2;
 
@@ -125,6 +162,8 @@ interface Group {
   count: number;
   /** rata-rata peluang model untuk kelas kelompok ini (bila model dipakai) */
   p?: number;
+  /** nama kelasnya hasil koreksi model, bukan kesepakatan warna & model */
+  rel?: boolean;
 }
 
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
@@ -442,6 +481,8 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
      bila model yakin. Kelompok yang tersisa tetap diperiksa pengasuh sebelum disimpan. */
   await report(STAGE_NAMES[3], 3);
   const model: VisionResult["model"] = { used: false, name: "", ms: 0, dropped: 0, relabeled: 0 };
+  /** ambang & presisi terukur per kelas; netral selama model belum dipakai */
+  let thr: ReturnType<typeof ambangDari> | typeof TANPA_MODEL = TANPA_MODEL;
   let pFoodAll = -1;
   const net = opts.net === null ? null : (opts.net ?? (await loadFoodNet().catch(() => null)));
   if (net) {
@@ -455,10 +496,9 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
       model.used = true;
       model.name = String(net.meta.name ?? "food-patch");
       model.ms = Math.round(map.ms);
-      // presisi per kelas dari data uji (disimpan saat ekspor): kelas yang sering keliru (mis. sup, pucat, telur)
-      // tidak boleh menjadi tujuan penggantian kelas walau peluangnya tinggi
-      const precision = (net.meta.val_precision_conf06 ?? {}) as Record<string, number>;
-      const mayRelabelTo = (k: string) => (typeof precision[k] === "number" ? precision[k] >= RELABEL_PRECISION_MIN : true);
+      // ambang per kelas dari data uji (disimpan di dalam berkas model saat ekspor): kelas yang sering
+      // keliru (mis. sup, pucat, telur) menuntut peluang lebih tinggi sebelum boleh menamai ulang
+      thr = ambangDari(net);
       const foodCell = (x: number, y: number) => {
         const k = cls[y * W + x];
         return k !== K.BG && k !== K.PLATE;
@@ -490,8 +530,8 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
         const bc = map.classes[best] as Cat;
         const own = map.classes.indexOf(c);
         g.p = own >= 0 ? probs[own] : undefined;
-        const relabel = bc !== c && bc in CATS && food[best] > RELABEL_MIN && (mayRelabelTo(bc) || food[best] > RELABEL_SURE);
-        if (!relabel && typeof g.p === "number" && g.p < VETO_P) {
+        const relabel = bc !== c && bc in CATS && thr.mayRelabel(bc, food[best]);
+        if (!relabel && typeof g.p === "number" && g.p < thr.vetoP(c)) {
           // warna cocok tetapi model hampir pasti bukan kelas itu (mis. serbet merah, piring kuning): buang
           vetoed.push(g);
           delete groups[c];
@@ -499,7 +539,9 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
           continue;
         }
         if (relabel) {
+          g.rel = true;
           const target = groups[bc];
+          if (target?.rel !== undefined) target.rel = true;
           if (target) {
             const tp = target.p ?? food[best];
             target.p = (tp * target.n + food[best] * g.n) / (target.n + g.n);
@@ -547,9 +589,22 @@ export async function analyzeImageData(img: ImageLike, opts: AnalyzeOpts = {}): 
     let grams = Math.round((cm2 * def.density * flat(c) * whiteFix) / 5) * 5;
     if (grams < 5) grams = 5;
     const areaFrac = g.n / N;
-    // keyakinan per bagian: luas, ada/tidaknya piring, kerapian bentuk, dan kesepakatan model dengan kelas warna
-    const agree = typeof g.p === "number" ? 0.25 * (g.p - 0.45) : 0;
-    const conf = Math.min(0.95, Math.max(0.5, 0.52 + 0.28 * Math.min(1, areaFrac / 0.03) + (plate.found ? 0.1 : 0) + (g.count <= 3 ? 0.05 : 0) + agree));
+    /* Keyakinan = perkiraan "nama menu ini akan dibiarkan apa adanya oleh pengasuh", bukan sekadar
+       luas bidang. Dasarnya angka ukur: presisi kelas ini pada foto uji saat model sudah yakin
+       (p ≥ 0,6, tersimpan di berkas model). Peluang di bawah 0,6 diskalakan karena di situlah
+       presisinya tidak pernah diukur; tanpa model dipakai angka ukur lapisan warna saja; nama hasil
+       koreksi model dihukum sedikit karena warna dan model tidak sepakat. Luas dan keutuhan bentuk
+       hanya memecah angka yang setara. */
+    const pModel = g.p;
+    const presisi = thr.precOf(c) ?? PREC_BAWAAN;
+    let dasar: number;
+    if (typeof pModel !== "number") dasar = AKURASI_WARNA_SAJA;
+    else if (pModel >= 0.6) dasar = presisi;
+    else dasar = Math.max(0.08, presisi * (0.4 + 0.6 * (pModel / 0.6)));
+    if (g.rel) dasar *= 0.9;
+    const ukuran = Math.min(1, areaFrac / 0.04);
+    const utuh = g.count <= 3 ? 1 : 0.85;
+    const conf = Math.max(0.12, Math.min(0.93, 0.72 * dasar + 0.1 * ukuran + 0.08 * utuh + (plate.found ? 0.1 : 0)));
     const menu = def.menu.slice();
     if (c === "orange" && plate.found && inPlate(g)) {
       menu.splice(menu.indexOf("Wortel rebus"), 1);

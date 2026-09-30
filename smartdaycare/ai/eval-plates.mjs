@@ -10,6 +10,9 @@ const index = JSON.parse(fs.readFileSync(path.join(setDir, "index.json"), "utf8"
 async function run(net, label) {
   let hit = 0, extras = 0, noFood = 0, items = 0, ms = 0, hitAll = 0;
   const perClass = {};
+  // kejujuran lencana: dari butir yang diberi level X, berapa yang benar-benar ada di foto itu
+  const badge = { tinggi: { n: 0, ok: 0 }, sedang: { n: 0, ok: 0 }, rendah: { n: 0, ok: 0 } };
+  const confs = []; // [conf, benar] — untuk memeriksa kurva kalibrasi dan memilih batas lencana
   for (const e of index) {
     const buf = fs.readFileSync(path.join(setDir, e.raw));
     const img = { data: new Uint8ClampedArray(buf.buffer, buf.byteOffset, buf.byteLength), width: e.w, height: e.h };
@@ -29,6 +32,13 @@ async function run(net, label) {
       extras += [...cats].filter((c) => !truth.includes(c)).length;
     }
     items += r.items.length;
+    for (const it of r.items) {
+      const b = badge[mod.level(it.conf)];
+      b.n++;
+      const benar = primary !== "none" && truth.includes(it.cat);
+      if (benar) b.ok++;
+      confs.push([it.conf, benar ? 1 : 0]);
+    }
     const pc = (perClass[primary] ||= { n: 0, hit: 0 });
     pc.n++;
     if (primary === "none" ? r.items.length === 0 : cats.has(primary)) pc.hit++;
@@ -38,6 +48,15 @@ async function run(net, label) {
     `${label.padEnd(10)} kelas utama terdeteksi ${(hit / n).toFixed(3)} · semua label ${(hitAll / n).toFixed(3)} · kelas asing/foto ${(extras / n).toFixed(2)} · butir/foto ${(items / n).toFixed(2)} · ${Math.round(ms / n)} ms/foto`
   );
   console.log("   per kelas:", Object.entries(perClass).map(([k, v]) => `${k} ${v.hit}/${v.n}`).join("  "));
+  const ringkas = (k) => (badge[k].n ? `${k} ${badge[k].ok}/${badge[k].n}` : `${k} –`);
+  const urut = confs.sort((a, b) => b[0] - a[0]);
+  const band = [];
+  for (let i = 0; i + 9 <= urut.length; i += 10) {
+    const g = urut.slice(i, i + 10);
+    band.push(`${g[0][0].toFixed(2)}–${g[g.length - 1][0].toFixed(2)}:${Math.round((g.reduce((a, x) => a + x[1], 0) / g.length) * 100)}`);
+  }
+  console.log(`   lencana (butir benar / semua butir): ${[ringkas("tinggi"), ringkas("sedang"), ringkas("rendah")].join(" · ")}`);
+  if (band.length) console.log(`   kalibrasi conf→ketepatan % (per 10 butir, tertinggi dulu): ${band.join("  ")}`);
 }
 
 await run(null, "tanpa model");

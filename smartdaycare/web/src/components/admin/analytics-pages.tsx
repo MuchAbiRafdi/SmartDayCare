@@ -13,6 +13,7 @@ import {
   ProfileList,
   RangeControl,
   ReportCard,
+  ScannerQuality,
   TrendCharts,
   useAnalytics,
   useRange,
@@ -213,6 +214,8 @@ export function ReportPage() {
 }
 
 export function RecommendationsPage() {
+  const { state: s } = useLive();
+  const admin = s.me.role === "admin";
   const [child, choose] = useAnalyticsChild();
   const range = useRange(30);
   const { data: a, error } = useAnalytics(child?.id, range.days, range.end);
@@ -224,7 +227,7 @@ export function RecommendationsPage() {
       {a ? (
         <>
           <KpiCards a={a} />
-          <InsightsPanel a={a} />
+          <InsightsPanel a={a} canRate={admin} />
           <div className="grid gap-4 lg:grid-cols-2">
             <Panel>
               <PanelHead title="Profil perkembangan" />
@@ -234,6 +237,17 @@ export function RecommendationsPage() {
             </Panel>
             <MethodNote />
           </div>
+          <Panel>
+            <PanelHead title="Kualitas pemindai piring" desc="Angka hasil uji pada foto yang tidak pernah dilihat model — bukan angka promosi." />
+            <PanelBody>
+              <ScannerQuality />
+              {admin ? (
+                <p className="text-muted mt-3 text-[12.5px] leading-relaxed">
+                  Penilaian 👍/👎 pada saran di atas disimpan sebagai kebiasaan daycare dan hanya mengubah urutan saran; isinya tetap disusun dari catatan anak, bukan dari selera pengguna.
+                </p>
+              ) : null}
+            </PanelBody>
+          </Panel>
         </>
       ) : !error ? (
         <Empty>Menyusun rekomendasi…</Empty>
