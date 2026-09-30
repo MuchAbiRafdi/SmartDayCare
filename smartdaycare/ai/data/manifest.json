@@ -502,6 +502,40 @@
   "query": "chicken-nuggets-on-plate-top-view"
  },
  {
+  "file": "soup/clear-broth-vegetable-soup-in-white-bowl-1.jpg",
+  "labels": [
+   "soup",
+   "orange",
+   "greens",
+   "pale"
+  ],
+  "query": "clear-broth-vegetable-soup-in-white-bowl"
+ },
+ {
+  "file": "soup/clear-broth-vegetable-soup-in-white-bowl-2.jpg",
+  "labels": [
+   "soup"
+  ],
+  "query": "clear-broth-vegetable-soup-in-white-bowl"
+ },
+ {
+  "file": "soup/clear-broth-vegetable-soup-in-white-bowl-3.jpg",
+  "labels": [
+   "soup",
+   "red",
+   "greens"
+  ],
+  "query": "clear-broth-vegetable-soup-in-white-bowl"
+ },
+ {
+  "file": "soup/clear-broth-vegetable-soup-in-white-bowl-4.jpg",
+  "labels": [
+   "soup",
+   "red"
+  ],
+  "query": "clear-broth-vegetable-soup-in-white-bowl"
+ },
+ {
   "file": "soup/clear-chicken-vegetable-soup-in-bowl-top-2.jpg",
   "labels": [
    "soup"
@@ -799,6 +833,28 @@
    "none"
   ],
   "query": "empty-wooden-table-top-view"
+ },
+ {
+  "file": "pale/firm-tofu-cubes-on-white-plate-top-view--2.jpg",
+  "labels": [
+   "pale",
+   "greens"
+  ],
+  "query": "firm-tofu-cubes-on-white-plate-top-view-"
+ },
+ {
+  "file": "fried/firm-tofu-cubes-on-white-plate-top-view--4.jpg",
+  "labels": [
+   "fried"
+  ],
+  "query": "firm-tofu-cubes-on-white-plate-top-view-"
+ },
+ {
+  "file": "pale/firm-tofu-cubes-on-white-plate-top-view--5.jpg",
+  "labels": [
+   "pale"
+  ],
+  "query": "firm-tofu-cubes-on-white-plate-top-view-"
  },
  {
   "file": "none/folded-cloth-napkin-on-table-top-view-1.jpg",
@@ -1423,6 +1479,27 @@
   "query": "nasi-tim-ayam-bayi-mangkuk"
  },
  {
+  "file": "orange/orange-fruit-segments-on-white-plate-ove-1.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-fruit-segments-on-white-plate-ove"
+ },
+ {
+  "file": "orange/orange-fruit-segments-on-white-plate-ove-3.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-fruit-segments-on-white-plate-ove"
+ },
+ {
+  "file": "orange/orange-fruit-segments-on-white-plate-ove-5.jpg",
+  "labels": [
+   "orange"
+  ],
+  "query": "orange-fruit-segments-on-white-plate-ove"
+ },
+ {
   "file": "orange/orange-segments-on-white-plate-top-view-1.jpg",
   "labels": [
    "orange"
@@ -1716,6 +1793,15 @@
    "soup"
   ],
   "query": "sayur-sop-bening-mangkuk-putih-foto-dari"
+ },
+ {
+  "file": "soup/sayur-sop-bening-wortel-kentang-mangkuk--3.webp",
+  "labels": [
+   "soup",
+   "orange",
+   "greens"
+  ],
+  "query": "sayur-sop-bening-wortel-kentang-mangkuk-"
  },
  {
   "file": "egg/scrambled-eggs-on-white-plate-top-view-b-1.jpg",

@@ -30,6 +30,10 @@ MIN_SIDE = 220  # px pada sisi terpendek; di bawah ini foto jadi burem saat dise
 # prefix hasil pencarian -> (label bawaan, nomor yang dikecualikan[, label khusus per nomor])
 Entry = tuple[str, set[int]] | tuple[str, set[int], dict[int, str]]
 MAP: dict[str, Entry] = {
+    "firm-tofu-cubes-on-white-plate-top-view-": ("pale", {1, 3}, {2: "pale+greens", 4: "fried"}),
+    "clear-broth-vegetable-soup-in-white-bowl": ("soup", {5}, {1: "soup+orange+greens+pale", 3: "soup+red+greens", 4: "soup+red"}),
+    "sayur-sop-bening-wortel-kentang-mangkuk-": ("soup", {1, 2, 4, 5}, {3: "soup+orange+greens"}),
+    "orange-fruit-segments-on-white-plate-ove": ("orange", {2, 4}),
     "nasi-putih-di-piring-foto-dari-atas": ("rice", {1, 2, 3, 4}),
     "nasi-tim-ayam-bayi-mangkuk": ("rice", {2, 3}),
     "steamed-white-rice-in-bowl-close-up-top-": ("rice", set()),
@@ -163,6 +167,7 @@ MAP: dict[str, Entry] = {
 # prefix yang sudah ditinjau dan sengaja tidak dipakai seluruhnya (alasan dicatat supaya tidak ditinjau ulang)
 REJECTED: dict[str, str] = {
     "pisang-ambon-potong-bulat-di-piring-anak": "kelima hasilnya kartu tips (tulisan besar di atas piring kurma), bukan pisang di piring",
+    "tahu-kukus-putih-piring-dari-atas-makana": "kolase & tulisan besar di hampir semua hasil; satu-satunya yang bersih 300×220 — terlalu lembut untuk sisi terpendek",
 }
 
 

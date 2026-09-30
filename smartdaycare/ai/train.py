@@ -35,7 +35,9 @@ untuk seluruh bingkai dan menghasilkan peta kelas rapat (langkah 8 px).
 
 Variabel lingkungan: SD_EPOCHS (46), SD_PATCHES (88), SD_NEG (20), SD_OUT (food-patch-v3),
 SD_ARCH ("16,32,48,64,64" = kanal tiap konvolusi; 3 konvolusi pertama diikuti max-pool),
-SD_VAL (fraksi foto uji per kelas, 0.18).
+SD_VAL (fraksi foto uji per kelas, 0.18), SD_MIXUP (0 = mati; 0,2 = campur dua tambalan berikut
+label lunaknya), SD_TKA (0 = ambil satu epoch terbaik; 3 = rata-rata bobot tiga epoch terbaik,
+lalu dibandingkan dengan satu terbaik — yang lebih tinggi yang dipakai).
 """
 from __future__ import annotations
 
@@ -60,7 +62,7 @@ from dataset import (
     SEED,
     VAL_FRAC,
     list_images,
-    split_by_image,
+    split_for,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -75,7 +77,10 @@ PER_IMAGE = int(os.environ.get("SD_PATCHES", "88"))
 PER_NEG = int(os.environ.get("SD_NEG", "20"))
 OUT_NAME = os.environ.get("SD_OUT", "food-patch-v3")
 ARCH = tuple(int(c) for c in os.environ.get("SD_ARCH", "16,32,48,64,64").split(","))
-CACHE = ROOT / "data" / f"patches-v3-{PER_IMAGE}-{PER_NEG}.npz"
+MIXUP = float(os.environ.get("SD_MIXUP", "0"))  # campuran dua tambalan; 0 = mati
+TKA = int(os.environ.get("SD_TKA", "0"))  # rata-rata bobot TKA epoch terbaik; 0/1 = pilih satu
+# nama cache memuat nama model + parameternya; isinya juga diuji terhadap daftar foto sekarang
+CACHE = ROOT / "data" / f"patches-{OUT_NAME}-{PER_IMAGE}-{PER_NEG}.npz"
 
 
 # ---------------------------------------------------------------- data ----
@@ -331,6 +336,7 @@ def build_cache() -> dict[str, np.ndarray]:
         for c in ls:
             multi[i, CLASSES.index(c)] = True
     data = {
+        "names": np.array([f"{f.parent.name}/{f.name}" for f, _ in files]),
         "x": Xa,
         "y": np.array(Y, np.int64),
         "soft": np.stack(S).astype(np.float32),
@@ -561,10 +567,16 @@ def run() -> None:
             torch.set_num_threads(max(1, os.cpu_count() or 1))
         except Exception:
             pass
-    data = dict(np.load(CACHE)) if CACHE.exists() else build_cache()
+    files_now = [f"{f.parent.name}/{f.name}" for f, _ in list_images()]
+    data = dict(np.load(CACHE)) if CACHE.exists() else {}
+    if data.get("names") is None or list(data["names"].tolist()) != files_now:
+        if data:
+            print(f"cache basi ({len(data['names'])} foto) → tambalan dibangun ulang untuk {len(files_now)} foto")
+        data = build_cache()
     x_all, y_all, img_all = data["x"], data["y"], data["img"]
     soft_all, primary, multi = data["soft"], data["primary"], data["multi"]
-    val_img = split_by_image(primary)
+    names = data["names"].tolist() if "names" in data else None
+    val_img = split_for(names, primary)
     va = val_img[img_all]
     tr = ~va
     print(f"tambalan: {len(y_all)} (latih {int(tr.sum())}, uji {int(va.sum())}) dari {len(primary)} foto ({int(val_img.sum())} foto uji)")
@@ -599,6 +611,7 @@ def run() -> None:
     mean = torch.tensor(MEAN).view(1, 3, 1, 1)
     std = torch.tensor(STD).view(1, 3, 1, 1)
     best: tuple[float, dict[str, torch.Tensor] | None, str] = (0.0, None, "")
+    top: list[tuple[float, dict[str, torch.Tensor], str]] = []  # kandidat rata-rata bobot
     ema_decay = 0.998
     t0 = time.time()
     for ep in range(epochs):
@@ -608,9 +621,16 @@ def run() -> None:
         for s in range(steps):
             b = idx[s * bs : (s + 1) * bs]
             xb = augment(xt[b].float() / 255.0, gen)
-            xb = (xb - mean) / std
             # target lunak + label smoothing: tambalan yang cocok untuk dua kelas tidak dipaksa satu nama
             target = 0.95 * st[b] + 0.05 / len(CLASSES)
+            if MIXUP > 0:
+                # campur dua tambalan sekaligus label lunaknya: model dipaksa percaya susunan warna
+                # menyeluruh, bukan satu tepi tajam; lam dijepit ≥ 0,5 supaya yang dominan tetap jelas
+                lam = float(torch.distributions.Beta(MIXUP, MIXUP).sample().clamp(0.5, 1.0))
+                perm = torch.randperm(xb.shape[0], generator=gen)
+                xb = lam * xb + (1 - lam) * xb[perm]
+                target = lam * target + (1 - lam) * target[perm]
+            xb = (xb - mean) / std
             loss = -(target * F.log_softmax(model(xb), 1)).sum(1).mean()
             opt.zero_grad()
             loss.backward()
@@ -633,8 +653,23 @@ def run() -> None:
             score = 0.45 * float(res["bal"]) + 0.3 * float(res["img"]) + 0.25 * float(res["food_prec"])
             if score > best[0]:
                 best = (score, {k: v.detach().clone() for k, v in mdl.state_dict().items()}, tag)
+            if TKA > 1:
+                top.append((score, {k: v.detach().clone() for k, v in mdl.state_dict().items()}, f"{tag} ep{ep + 1}"))
+                top.sort(key=lambda t: -t[0])
+                del top[TKA:]
     assert best[1] is not None
-    model.load_state_dict(best[1])
+    chosen = best[1]
+    if TKA > 1 and len(top) > 1:
+        # rata-rata bobot epoch terbaik; kalau tidak lebih baik, satu terbaik yang dipakai — diukur, bukan dipercaya
+        avg = {k: torch.stack([t[1][k].float() for t in top]).mean(0).to(top[0][1][k].dtype) for k in top[0][1]}
+        model.load_state_dict(avg)
+        ra = evaluate(model, xv, yv, imgv, multi)
+        sa = 0.45 * float(ra["bal"]) + 0.3 * float(ra["img"]) + 0.25 * float(ra["food_prec"])
+        print(f"rata-rata {len(top)} epoch terbaik: skor {sa:.3f} vs satu terbaik {best[0]:.3f}")
+        if sa > best[0]:
+            chosen = avg
+            best = (sa, avg, f"rata-rata {len(top)} epoch")
+    model.load_state_dict(chosen)
     r = evaluate(model, xv, yv, imgv, multi)
     probs = r["probs"]
 
@@ -675,6 +710,11 @@ def run() -> None:
         "images": int(len(primary)),
         "images_multi_label": n_multi,
         "images_val": int(val_img.sum()),
+        # foto uji beku: daftar namanya ikut disimpan supaya angka mana pun bisa ditelusuri
+        "val_photos": sorted(nm for nm, v in zip(names, val_img) if v) if names else None,
+        "split_source": "data/split.json" if (ROOT / "data" / "split.json").exists() else f"deterministik SEED={SEED}",
+        # resep latih disimpan supaya angka mana pun bisa diulang persis
+        "recipe": {"epochs": EPOCHS, "patchesPerImage": PER_IMAGE, "negPerImage": PER_NEG, "mixup": MIXUP, "topKEpochAvg": TKA},
         "patches": int(len(y_all)),
         "val_accuracy": round(float(r["acc"]), 4),
         "val_balanced_accuracy": round(float(r["bal"]), 4),

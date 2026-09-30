@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from dataset import CLASSES, list_images, split_by_image
+from dataset import CLASSES, list_images, split_for
 
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/evalset")
 # --only <berkas>: batasi ke daftar "kelas/nama.jpg" tertentu. Dipakai untuk A/B antar model:
@@ -25,7 +25,7 @@ if "--only" in args:
 OUT.mkdir(parents=True, exist_ok=True)
 files = list_images()
 primary = np.array([CLASSES.index(ls[0]) for _, ls in files], np.int64)
-val = split_by_image(primary)
+val = split_for([f"{f.parent.name}/{f.name}" for f, _ in files], primary)
 index = []
 for i, ((f, labels), is_val) in enumerate(zip(files, val)):
     if not is_val:
